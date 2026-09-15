@@ -1,0 +1,1 @@
+import type{MetadataRoute}from"next";import{projects}from"@/content/projects";export default function sitemap():MetadataRoute.Sitemap{const b="https://www.yorayriniwnl.in";return[{url:b,priority:1},{url:`${b}/resume`,priority:.8},...projects.map(p=>({url:`${b}/work/${p.slug}`,priority:.8}))]}

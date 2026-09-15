@@ -1,0 +1,2 @@
+import Link from"next/link";import styles from"./ActionLink.module.css";
+export function ActionLink({href,children,primary=false,external=false}:{href:string;children:React.ReactNode;primary?:boolean;external?:boolean}){const cls=`${styles.link} ${primary?styles.primary:""}`;if(external)return <a className={cls} href={href} target="_blank" rel="noopener noreferrer">{children}</a>;return <Link className={cls} href={href}>{children}</Link>}

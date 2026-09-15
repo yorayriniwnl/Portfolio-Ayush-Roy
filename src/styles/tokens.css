@@ -1,0 +1,28 @@
+:root {
+  --void: #070708;
+  --ink: #101012;
+  --panel: #111114;
+  --panel-soft: #17171b;
+  --paper: #f4f0ea;
+  --muted: #a6a1a1;
+  --faint: #696568;
+  --crimson: #ff3040;
+  --signal: #ff7780;
+  --deep-crimson: #7d111d;
+  --line: rgba(244, 240, 234, 0.16);
+  --line-hot: rgba(255, 48, 64, 0.62);
+  --display: var(--font-display, "Cormorant Garamond"), Georgia, serif;
+  --technical: var(--font-technical, "DM Mono"), "SFMono-Regular", Consolas, monospace;
+  --body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --r-panel: 14px;
+  --r-frame: 5px;
+  --fast: 160ms;
+  --base: 260ms;
+  --slow: 600ms;
+  --content: min(1380px, calc(100vw - 112px));
+  --reading: 66ch;
+}
+
+@media (max-width: 760px) {
+  :root { --content: calc(100vw - 40px); }
+}

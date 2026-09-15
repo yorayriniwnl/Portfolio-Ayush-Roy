@@ -1,0 +1,91 @@
+.header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 80;
+  border-bottom: 1px solid rgba(244, 240, 234, 0.13);
+  background: rgba(7, 7, 8, 0.74);
+  backdrop-filter: blur(18px) saturate(120%);
+}
+
+.inner {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--technical);
+  font-size: 11px;
+  letter-spacing: 0.17em;
+  color: var(--paper);
+  white-space: nowrap;
+}
+
+.mark::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--crimson);
+  box-shadow: 0 0 18px rgba(255, 48, 64, 0.85);
+}
+
+.mark b { color: var(--crimson); font-weight: 500; }
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  color: var(--muted);
+  font-family: var(--technical);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.links a { transition: color var(--fast), opacity var(--fast); }
+.links a:hover { color: var(--paper); }
+
+.resume {
+  color: var(--paper) !important;
+  border: 1px solid rgba(244, 240, 234, 0.38);
+  padding: 11px 15px;
+  transition: background var(--fast), border-color var(--fast), color var(--fast);
+}
+
+.resume:hover { background: var(--paper); border-color: var(--paper); color: var(--void) !important; }
+
+.menu {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(244, 240, 234, 0.3);
+  background: transparent;
+  color: var(--paper);
+}
+
+.mobile { display: none; }
+
+@media (max-width: 850px) {
+  .inner { height: 68px; }
+  .links { display: none; }
+  .menu { display: grid; place-items: center; }
+  .mobile[data-open="true"] {
+    display: grid;
+    position: fixed;
+    inset: 68px 0 auto;
+    gap: 19px;
+    padding: 25px 20px 29px;
+    border-bottom: 1px solid rgba(244, 240, 234, 0.14);
+    background: rgba(7, 7, 8, 0.96);
+    font-family: var(--technical);
+    font-size: 11px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+}

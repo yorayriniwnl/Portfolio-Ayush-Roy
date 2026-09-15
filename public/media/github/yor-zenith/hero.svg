@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Zenith solar decision console</title>
+  <desc id="desc">A code-authored YOR visual showing a solar yield trace and decision readouts.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#671515"/><stop offset=".52" stop-color="#0b0808"/><stop offset="1" stop-color="#000"/></linearGradient>
+    <radialGradient id="sun"><stop stop-color="#e84b4b" stop-opacity=".7"/><stop offset=".56" stop-color="#671515" stop-opacity=".24"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#f5eaea" stroke-opacity=".08"/></pattern>
+  </defs>
+  <rect width="1200" height="520" rx="30" fill="#000"/>
+  <rect x="18" y="18" width="1164" height="484" rx="22" fill="url(#bg)" stroke="#f5eaea" stroke-opacity=".2"/>
+  <rect x="54" y="86" width="1092" height="370" rx="18" fill="url(#grid)"/>
+  <circle cx="820" cy="205" r="128" fill="url(#sun)"/>
+  <circle cx="820" cy="205" r="92" fill="none" stroke="#ff8a7f" stroke-opacity=".65"/>
+  <circle cx="820" cy="205" r="126" fill="none" stroke="#ff8a7f" stroke-opacity=".28" stroke-dasharray="5 8"/>
+  <path d="M130 374C260 315 324 358 446 292s184-16 276-46 134-102 236-106" fill="none" stroke="#ff8a7f" stroke-width="3"/>
+  <circle cx="958" cy="139" r="8" fill="#f5eaea" stroke="#ff8a7f" stroke-width="6" stroke-opacity=".45"/>
+  <g fill="#f5eaea" font-family="monospace">
+    <text x="58" y="58" font-size="13" letter-spacing="4">ZENITH // SOLAR DECISION INTELLIGENCE</text>
+    <text x="58" y="122" font-size="11" letter-spacing="3" fill="#c4c4c4">FEASIBILITY PASS / HOUSEHOLD 0001</text>
+    <text x="58" y="153" font-size="18">Bill → model → policy → next check</text>
+    <text x="934" y="112" font-size="11" letter-spacing="3" fill="#ff8a7f">DEMO TRACE</text>
+    <text x="934" y="132" font-size="13">7.8 MWh / YEAR</text>
+  </g>
+  <g font-family="monospace" font-size="11" fill="#c4c4c4">
+    <rect x="72" y="408" width="240" height="62" rx="12" fill="#000" fill-opacity=".68" stroke="#f5eaea" stroke-opacity=".16"/>
+    <rect x="330" y="408" width="240" height="62" rx="12" fill="#000" fill-opacity=".68" stroke="#f5eaea" stroke-opacity=".16"/>
+    <rect x="588" y="408" width="240" height="62" rx="12" fill="#000" fill-opacity=".68" stroke="#f5eaea" stroke-opacity=".16"/>
+    <text x="92" y="431">SYSTEM SIZE</text><text x="92" y="455" font-size="21" fill="#f5eaea">5.4 kW</text>
+    <text x="350" y="431">PAYBACK ESTIMATE</text><text x="350" y="455" font-size="21" fill="#f5eaea">3.2 yr</text>
+    <text x="608" y="431">NET COST</text><text x="608" y="455" font-size="21" fill="#f5eaea">₹1.92L</text>
+  </g>
+</svg>
