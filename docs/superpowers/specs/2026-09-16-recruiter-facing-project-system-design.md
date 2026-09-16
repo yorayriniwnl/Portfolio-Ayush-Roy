@@ -176,7 +176,7 @@ The initial audited mapping is:
 
 | Project | Live state | Source state |
 | --- | --- | --- |
-| Portfolio | Unavailable; `yorayriniwnl.in` is a separate website, not this portfolio repository's deployment | `https://github.com/yorayriniwnl/Portfolio-Ayush-Roy` |
+| Portfolio | `https://yorayriniwnl.in` is the verified custom-domain deployment for this repository | `https://github.com/yorayriniwnl/Portfolio-Ayush-Roy` |
 | Helios | Unavailable; no hosted deployment found | `https://github.com/yorayriniwnl/Yor-Helios` |
 | Zenith | `https://zenith-xi-snowy.vercel.app` reachable during audit; production readiness remains unclaimed | `https://github.com/yorayriniwnl/Yor-Zenith` |
 | AI vs. Real | Unavailable; local/demo inference only | `https://github.com/yorayriniwnl/Yor-Ai-vs-real-image` |
@@ -186,8 +186,8 @@ The Zenith URL will be rechecked during final verification. If it is not reachab
 
 ## SEO and discoverability
 
-- Define the canonical site origin through `NEXT_PUBLIC_SITE_URL`, which must identify the host serving this repository. Local development may use `http://localhost:3000`; a production build must fail clearly when the variable is absent.
-- Do not use `https://yorayriniwnl.in` as this repository's live or canonical origin: that domain serves a separate website unless its routing is explicitly configured to serve this application.
+- Define the canonical site origin through `NEXT_PUBLIC_SITE_URL`, set to `https://yorayriniwnl.in` for the linked deployment. Local development may use `http://localhost:3000`; a non-Vercel production build must fail clearly when the variable is absent.
+- Keep the existing homepage on `https://yorayriniwnl.in` and add the recruiter-facing project system beneath `/projects`; the project case studies and their canonical metadata use that same custom domain.
 - Generate absolute canonical URLs at `/projects/[slug]` from the configured deployment origin.
 - Generate unique title, description, Open Graph, and Twitter metadata from each project record.
 - Use an existing project visual as `ogImage` only when it is suitable; do not create a social-card subsystem.

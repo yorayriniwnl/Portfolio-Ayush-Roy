@@ -2,7 +2,7 @@
 
 The personal universe of Ayush Roy: a polished portfolio and playground for products, experiments, games, and recorded moments.
 
-The portfolio deployment origin is configured with `NEXT_PUBLIC_SITE_URL`. The `yorayriniwnl.in` domain is a separate website and is not used as this repository's live or canonical URL.
+The portfolio deployment is served from `https://yorayriniwnl.in`. The five recruiter-facing project routes live inside that existing site under `/projects`; `NEXT_PUBLIC_SITE_URL` keeps generated metadata and sitemap URLs aligned with the custom domain.
 
 ## Stack
 
@@ -22,7 +22,7 @@ npm run validate:content
 npm run dev
 ```
 
-For canonical metadata and sitemap generation, set `NEXT_PUBLIC_SITE_URL` to the host serving this repository. Development falls back to `http://localhost:3000`; production requires the variable.
+For canonical metadata and sitemap generation, set `NEXT_PUBLIC_SITE_URL=https://yorayriniwnl.in` in deployment. Development falls back to `http://localhost:3000`; a non-Vercel production build requires an explicit origin.
 
 Useful checks:
 
@@ -33,7 +33,7 @@ npm run validate
 npm run build
 ```
 
-GitHub Actions runs tests, lint, content, asset, typecheck, and production-build checks on pushes and pull requests (`.github/workflows/ci.yml`) with a non-production placeholder origin. Set the real portfolio origin in the deployment environment.
+GitHub Actions runs tests, lint, content, asset, typecheck, and production-build checks on pushes and pull requests (`.github/workflows/ci.yml`) with a non-production placeholder origin. Set `NEXT_PUBLIC_SITE_URL=https://yorayriniwnl.in` in the deployment environment.
 
 Routes:
 
@@ -57,7 +57,7 @@ The portfolio, the bounded Helios frontend demo, Zenith, and the bounded AI dete
 
 Current public surfaces:
 
-- Portfolio: `https://ayush-roy-portfolio.vercel.app` — this repository's Next.js deployment.
+- Portfolio: `https://yorayriniwnl.in` — this repository's Next.js deployment and permanent public origin.
 - Helios: `https://yor-helios-demo.vercel.app` — the repository's frontend demo only; the FastAPI/WebSocket backend is not hosted here.
 - Zenith: `https://zenith-xi-snowy.vercel.app` — the existing reachable project deployment.
 - AI vs. Real: `https://yor-ai-vs-real-detector.vercel.app` — the repository's Flask inference demo with checked-in model artifacts.

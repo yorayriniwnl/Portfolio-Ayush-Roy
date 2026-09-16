@@ -13,8 +13,8 @@
 ## Global Constraints
 
 - Public CV project slugs are exactly `portfolio`, `helios`, `zenith`, `ai-vs-real`, and `talks`.
-- `yorayriniwnl.in` is a separate website and must not be used as this repository's live or canonical origin.
-- `NEXT_PUBLIC_SITE_URL` identifies the host serving this repository; local fallback is `http://localhost:3000`, and production builds fail clearly when the variable is absent.
+- `yorayriniwnl.in` is the intended custom-domain host for this repository; the existing homepage remains intact while the five project routes live beneath `/projects`.
+- `NEXT_PUBLIC_SITE_URL` identifies `https://yorayriniwnl.in` in deployment; local fallback is `http://localhost:3000`, and non-Vercel production builds fail clearly when no origin is available.
 - `/live` redirects only to an explicitly verified HTTP(S) deployment; unavailable projects render an honest state.
 - `/source` redirects to the repository through the stable portfolio namespace; the public route is never named `/github`.
 - External applications are never embedded, proxied, or served through the portfolio deployment.
@@ -366,7 +366,7 @@ export function absoluteSiteUrl(path: string): string {
 }
 ~~~
 
-Do not set this variable to `yorayriniwnl.in` in repository data or example configuration.
+Set this variable to `https://yorayriniwnl.in` in the linked Vercel project's deployment environment.
 
 - [ ] **Step 4: Implement project metadata and canonical sitemap data**
 
@@ -711,7 +711,7 @@ Point the not-found recovery action to `/projects` while preserving the rest of 
 
 - [ ] **Step 4: Strengthen content validation and README route documentation**
 
-Document the canonical routes, the `NEXT_PUBLIC_SITE_URL` requirement, the separate `yorayriniwnl.in` website boundary, and the unavailable live states. Keep legacy token data documented only as compatibility data. Add checks for canonical titles, Talks stack wording, Zenith attribution, AI holdout wording, and required repository media.
+Document the canonical routes, the `NEXT_PUBLIC_SITE_URL` requirement, the custom-domain routing boundary, and the unavailable live states. Keep legacy token data documented only as compatibility data. Add checks for canonical titles, Talks stack wording, Zenith attribution, AI holdout wording, and required repository media.
 
 - [ ] **Step 5: Search for stale user-facing URLs and claims**
 
@@ -784,7 +784,7 @@ Confirm with headers/body checks:
 
 ~~~text
 /projects/zenith/live          -> redirect to https://zenith-xi-snowy.vercel.app
-/projects/portfolio/live       -> redirect to https://ayush-roy-portfolio.vercel.app
+/projects/portfolio/live       -> redirect to https://yorayriniwnl.in
 /projects/helios/live          -> redirect to https://yor-helios-demo.vercel.app (frontend demo only)
 /projects/ai-vs-real/live      -> redirect to https://yor-ai-vs-real-detector.vercel.app
 /projects/talks/live           -> honest unavailable state

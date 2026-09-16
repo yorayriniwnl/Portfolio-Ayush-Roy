@@ -92,7 +92,7 @@ const portfolio: Project = {
   art: "/media/hero-studio.svg",
   period: "2026",
   links: {
-    live: "https://ayush-roy-portfolio.vercel.app",
+    live: "https://yorayriniwnl.in",
     source: "https://github.com/yorayriniwnl/Portfolio-Ayush-Roy",
   },
   availability: { live: "verified", source: "verified" },
@@ -103,7 +103,7 @@ const portfolio: Project = {
   constraints: [
     "Project content must remain centralized and CV-scoped.",
     "Textual case studies should not pull the interactive 3D bundle into the initial render.",
-    "The portfolio deployment host is configured by the environment, not inferred from a separate website domain.",
+    "The canonical host is configured explicitly so metadata remains on the intended public domain.",
   ],
   workflow: "A server-rendered project index leads to one canonical case study per project, with stable source and verified-live resolvers alongside the document.",
   hardPart: "The important boundary is separating the permanent professional namespace from changing infrastructure. A case study can remain stable even when a deployment or source provider changes.",
@@ -132,7 +132,7 @@ const portfolio: Project = {
     { label: "Rendering boundary", value: "Deferred", context: "R3F scene loads below the textual case-study surface" },
   ],
   limitations: [
-    "The Vercel deployment is verified at audit time; uptime, performance traces, and a custom domain remain deployment concerns.",
+    "The custom-domain deployment is verified at audit time; uptime and performance traces still need ongoing measurement.",
     "The interactive scene remains an explanatory visualization, not an application runtime or telemetry source.",
     "Performance results still need to be measured on the chosen production deployment.",
   ],

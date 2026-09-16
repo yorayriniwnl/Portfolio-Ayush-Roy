@@ -41,7 +41,7 @@ test("resolves the verified Zenith live target", () => {
 test("resolves the deployed portfolio live target", () => {
   const result = resolveProjectLink("portfolio", "live");
   assert.equal(result.kind, "redirect");
-  if (result.kind === "redirect") assert.equal(result.target, "https://ayush-roy-portfolio.vercel.app");
+  if (result.kind === "redirect") assert.equal(result.target, "https://yorayriniwnl.in");
 });
 
 test("resolves the bounded Helios frontend demo", () => {
