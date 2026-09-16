@@ -22,7 +22,10 @@ export function getSiteOrigin(): string {
     : undefined;
   const explicitIsSeparateWebsite = Boolean(explicitOrigin && isSeparateWebsiteOrigin(explicitOrigin));
   const safeVercelOrigin = verifiedVercelOrigin || PORTFOLIO_VERCEL_PROJECT_ORIGIN;
-  const raw = explicitIsSeparateWebsite ? safeVercelOrigin : (explicitOrigin || verifiedVercelOrigin);
+  const vercelBuildOrigin = process.env.VERCEL === "1" ? PORTFOLIO_VERCEL_PROJECT_ORIGIN : undefined;
+  const raw = explicitIsSeparateWebsite
+    ? safeVercelOrigin
+    : (explicitOrigin || verifiedVercelOrigin || vercelBuildOrigin);
   if (!raw) {
     if (process.env.NODE_ENV === "production") {
       throw new Error("NEXT_PUBLIC_SITE_URL or VERCEL_PROJECT_PRODUCTION_URL must be set for production metadata and sitemap generation.");

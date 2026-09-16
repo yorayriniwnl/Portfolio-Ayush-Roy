@@ -82,13 +82,39 @@ test("ignores stale separate website values in both origin variables", () => {
   else environment.NODE_ENV = previousNodeEnv;
 });
 
+test("uses the stable portfolio Vercel origin during a Vercel build without configured origins", () => {
+  const environment = process.env as Record<string, string | undefined>;
+  const previousOrigin = environment.NEXT_PUBLIC_SITE_URL;
+  const previousVercelOrigin = environment.VERCEL_PROJECT_PRODUCTION_URL;
+  const previousVercelMarker = environment.VERCEL;
+  const previousNodeEnv = environment.NODE_ENV;
+
+  delete environment.NEXT_PUBLIC_SITE_URL;
+  delete environment.VERCEL_PROJECT_PRODUCTION_URL;
+  environment.VERCEL = "1";
+  environment.NODE_ENV = "production";
+
+  assert.equal(getSiteOrigin(), "https://ayush-portfolio-10-release-yorayriniwnl-1218s-projects.vercel.app");
+
+  if (previousOrigin === undefined) delete environment.NEXT_PUBLIC_SITE_URL;
+  else environment.NEXT_PUBLIC_SITE_URL = previousOrigin;
+  if (previousVercelOrigin === undefined) delete environment.VERCEL_PROJECT_PRODUCTION_URL;
+  else environment.VERCEL_PROJECT_PRODUCTION_URL = previousVercelOrigin;
+  if (previousVercelMarker === undefined) delete environment.VERCEL;
+  else environment.VERCEL = previousVercelMarker;
+  if (previousNodeEnv === undefined) delete environment.NODE_ENV;
+  else environment.NODE_ENV = previousNodeEnv;
+});
+
 test("requires an origin for production metadata", () => {
   const environment = process.env as Record<string, string | undefined>;
   const previousOrigin = environment.NEXT_PUBLIC_SITE_URL;
   const previousVercelOrigin = environment.VERCEL_PROJECT_PRODUCTION_URL;
+  const previousVercelMarker = environment.VERCEL;
   const previousNodeEnv = environment.NODE_ENV;
   delete environment.NEXT_PUBLIC_SITE_URL;
   delete environment.VERCEL_PROJECT_PRODUCTION_URL;
+  delete environment.VERCEL;
   environment.NODE_ENV = "production";
 
   assert.throws(() => getSiteOrigin(), /must be set for production/);
@@ -97,6 +123,8 @@ test("requires an origin for production metadata", () => {
   else environment.NEXT_PUBLIC_SITE_URL = previousOrigin;
   if (previousVercelOrigin === undefined) delete environment.VERCEL_PROJECT_PRODUCTION_URL;
   else environment.VERCEL_PROJECT_PRODUCTION_URL = previousVercelOrigin;
+  if (previousVercelMarker === undefined) delete environment.VERCEL;
+  else environment.VERCEL = previousVercelMarker;
   if (previousNodeEnv === undefined) delete environment.NODE_ENV;
   else environment.NODE_ENV = previousNodeEnv;
 });
