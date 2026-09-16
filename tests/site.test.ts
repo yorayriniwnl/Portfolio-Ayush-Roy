@@ -3,11 +3,23 @@ import test from "node:test";
 import { getSiteOrigin } from "../src/content/site";
 
 test("rejects the separate yorayriniwnl.in website as the portfolio origin", () => {
-  process.env.NEXT_PUBLIC_SITE_URL = "https://yorayriniwnl.in";
-  assert.throws(() => getSiteOrigin(), /separate website/);
+  const environment = process.env as Record<string, string | undefined>;
+  const previousOrigin = environment.NEXT_PUBLIC_SITE_URL;
+  const previousVercelOrigin = environment.VERCEL_PROJECT_PRODUCTION_URL;
+  delete environment.VERCEL_PROJECT_PRODUCTION_URL;
 
-  process.env.NEXT_PUBLIC_SITE_URL = "https://www.yorayriniwnl.in";
-  assert.throws(() => getSiteOrigin(), /separate website/);
+  try {
+    environment.NEXT_PUBLIC_SITE_URL = "https://yorayriniwnl.in";
+    assert.throws(() => getSiteOrigin(), /separate website/);
+
+    environment.NEXT_PUBLIC_SITE_URL = "https://www.yorayriniwnl.in";
+    assert.throws(() => getSiteOrigin(), /separate website/);
+  } finally {
+    if (previousOrigin === undefined) delete environment.NEXT_PUBLIC_SITE_URL;
+    else environment.NEXT_PUBLIC_SITE_URL = previousOrigin;
+    if (previousVercelOrigin === undefined) delete environment.VERCEL_PROJECT_PRODUCTION_URL;
+    else environment.VERCEL_PROJECT_PRODUCTION_URL = previousVercelOrigin;
+  }
 });
 
 test("uses the Vercel production origin when the explicit origin is absent", () => {
@@ -30,7 +42,27 @@ test("uses the Vercel production origin when the explicit origin is absent", () 
   else environment.NODE_ENV = previousNodeEnv;
 });
 
-test("requires an explicit origin for production metadata", () => {
+test("ignores the separate website value when Vercel provides its production origin", () => {
+  const environment = process.env as Record<string, string | undefined>;
+  const previousOrigin = environment.NEXT_PUBLIC_SITE_URL;
+  const previousVercelOrigin = environment.VERCEL_PROJECT_PRODUCTION_URL;
+  const previousNodeEnv = environment.NODE_ENV;
+
+  environment.NEXT_PUBLIC_SITE_URL = "https://yorayriniwnl.in";
+  environment.VERCEL_PROJECT_PRODUCTION_URL = "ayush-portfolio-10-release.vercel.app";
+  environment.NODE_ENV = "production";
+
+  assert.equal(getSiteOrigin(), "https://ayush-portfolio-10-release.vercel.app");
+
+  if (previousOrigin === undefined) delete environment.NEXT_PUBLIC_SITE_URL;
+  else environment.NEXT_PUBLIC_SITE_URL = previousOrigin;
+  if (previousVercelOrigin === undefined) delete environment.VERCEL_PROJECT_PRODUCTION_URL;
+  else environment.VERCEL_PROJECT_PRODUCTION_URL = previousVercelOrigin;
+  if (previousNodeEnv === undefined) delete environment.NODE_ENV;
+  else environment.NODE_ENV = previousNodeEnv;
+});
+
+test("requires an origin for production metadata", () => {
   const environment = process.env as Record<string, string | undefined>;
   const previousOrigin = environment.NEXT_PUBLIC_SITE_URL;
   const previousVercelOrigin = environment.VERCEL_PROJECT_PRODUCTION_URL;

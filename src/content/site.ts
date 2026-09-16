@@ -1,10 +1,26 @@
 const LOCAL_SITE_ORIGIN = "http://localhost:3000";
 const SEPARATE_WEBSITE_HOST = "yorayriniwnl.in";
 
+function isSeparateWebsiteOrigin(raw: string): boolean {
+  try {
+    const hostname = new URL(raw).hostname.toLowerCase();
+    return hostname === SEPARATE_WEBSITE_HOST || hostname.endsWith(`.${SEPARATE_WEBSITE_HOST}`);
+  } catch {
+    return false;
+  }
+}
+
 export function getSiteOrigin(): string {
   const explicitOrigin = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   const vercelOrigin = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
-  const raw = explicitOrigin || (vercelOrigin ? (/^https?:\/\//i.test(vercelOrigin) ? vercelOrigin : `https://${vercelOrigin}`) : undefined);
+  const normalizedVercelOrigin = vercelOrigin
+    ? (/^https?:\/\//i.test(vercelOrigin) ? vercelOrigin : `https://${vercelOrigin}`)
+    : undefined;
+  const explicitIsSeparateWebsite = Boolean(explicitOrigin && isSeparateWebsiteOrigin(explicitOrigin));
+  if (explicitIsSeparateWebsite && !normalizedVercelOrigin) {
+    throw new Error("NEXT_PUBLIC_SITE_URL cannot use yorayriniwnl.in because it is a separate website.");
+  }
+  const raw = explicitIsSeparateWebsite ? normalizedVercelOrigin : (explicitOrigin || normalizedVercelOrigin);
   if (!raw) {
     if (process.env.NODE_ENV === "production") {
       throw new Error("NEXT_PUBLIC_SITE_URL or VERCEL_PROJECT_PRODUCTION_URL must be set for production metadata and sitemap generation.");
