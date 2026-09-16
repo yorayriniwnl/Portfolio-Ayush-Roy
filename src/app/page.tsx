@@ -1,2 +1,5 @@
-import { Universe } from "@/components/Universe";
-export default function Page() { return <Universe />; }
+import { Home } from "@/components/Home";
+
+export default function Page() {
+  return <Home />;
+}

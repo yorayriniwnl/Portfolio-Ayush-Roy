@@ -1,3 +1,5 @@
+"use client";
+
 import { ActionLink } from "./ActionLink";
 import { ClaimStrip } from "./ClaimStrip";
 import { HeroScene } from "./HeroScene";
