@@ -1,27 +1,50 @@
 import { ActionLink } from "./ActionLink";
 import { ClaimStrip } from "./ClaimStrip";
-import { ProjectDemo } from "./ProjectDemo";
+import { DeferredProjectDemo } from "./DeferredProjectDemo";
 import { ProjectGallery } from "./ProjectGallery";
-import { projects, type Project } from "@/content/projects";
+import { cvProjects, type Project } from "@/content/projects";
+
+function CaseSection({ id, number, title, children }: { id: string; number: string; title: string; children: React.ReactNode }) {
+  return (
+    <section id={id} className="case-section">
+      <h2><span className="technical">{number}</span>{title}.</h2>
+      {children}
+    </section>
+  );
+}
+
+function Copy({ children }: { children: React.ReactNode }) {
+  return <div className="case-copy">{children}</div>;
+}
+
+function EvidenceList({ items }: { items: readonly string[] }) {
+  return <ul className="limit-list">{items.map((item) => <li key={item}>{item}</li>)}</ul>;
+}
 
 export function CaseStudy({ project }: { project: Project }) {
-  const index = projects.findIndex((item) => item.slug === project.slug);
-  const next = projects[(index + 1) % projects.length];
+  const isCvProject = cvProjects.some((candidate) => candidate.slug === project.slug);
+  const index = cvProjects.findIndex((item) => item.slug === project.slug);
+  const next = isCvProject ? cvProjects[(index + 1) % cvProjects.length] : undefined;
 
   return (
     <main id="main">
       <section className="case-hero" aria-labelledby="case-title">
         <div className="container case-grid">
-          <span className="technical" style={{ gridColumn: "1/-1" }}>{project.index} / {project.kicker} / case study</span>
+          <span className="technical case-kicker" style={{ gridColumn: "1/-1" }}>{project.index} / {project.kicker} / case study</span>
           <h1 id="case-title" className="case-title">{project.title}</h1>
           <p className="case-summary">{project.purpose}</p>
           <dl className="case-meta">
-            <div className="meta-row"><dt>Contribution</dt><dd>{project.role}</dd></div>
-            {project.collaborators && <div className="meta-row"><dt>Credit</dt><dd>{project.collaborators}</dd></div>}
-            <div className="meta-row"><dt>Period</dt><dd>{project.period}</dd></div>
+            <div className="meta-row"><dt>My role</dt><dd>{project.role}</dd></div>
             <div className="meta-row"><dt>Status</dt><dd>{project.status}</dd></div>
-            <div className="meta-row"><dt>Evidence</dt><dd>{project.evidenceScope}</dd></div>
+            <div className="meta-row"><dt>Period</dt><dd>{project.period}</dd></div>
+            <div className="meta-row"><dt>Stack</dt><dd>{project.technologies.join(" · ")}</dd></div>
+            {project.collaborators && <div className="meta-row"><dt>Collaborators</dt><dd>{project.collaborators}</dd></div>}
           </dl>
+          <div className="case-hero-actions actions">
+            {isCvProject && project.availability.live === "verified" && project.links.live && <ActionLink href={`/projects/${project.slug}/live`} primary>View live</ActionLink>}
+            {isCvProject && project.availability.source === "verified" && project.links.source && <ActionLink href={`/projects/${project.slug}/source`} primary={!project.links.live}>Source</ActionLink>}
+            {!isCvProject && project.links.source && <ActionLink href={project.links.source} external primary>Inspect source</ActionLink>}
+          </div>
           <div className="case-media" style={{ backgroundImage: `url("${project.art}")` }}>
             <div className="case-media-caption"><span>Visual introduction / artwork</span><span>Not a live product capture</span></div>
           </div>
@@ -29,56 +52,80 @@ export function CaseStudy({ project }: { project: Project }) {
       </section>
 
       <article className="container case-body">
-        <section className="case-section">
-          <h2>Problem.</h2>
-          <div className="case-copy">
+        <CaseSection id="overview" number="01 /" title="Overview">
+          <Copy>
             <p>{project.problem}</p>
             <p><strong>Why it matters.</strong> {project.whyItMatters}</p>
             <p><strong>Workflow.</strong> {project.workflow}</p>
-            <p><strong>Stack.</strong> {project.technologies.join(" · ")}</p>
+            <p><strong>Outcome.</strong> {project.outcome}</p>
+          </Copy>
+        </CaseSection>
+
+        <CaseSection id="contribution" number="02 /" title="My contribution">
+          <Copy>
+            <p>{project.contribution}</p>
+            {project.collaborators && <p><strong>Collaborators and attribution.</strong> {project.collaborators}</p>}
+            <p><strong>Constraints.</strong></p>
+            <EvidenceList items={project.constraints} />
+          </Copy>
+        </CaseSection>
+
+        <CaseSection id="architecture" number="03 /" title="System architecture">
+          <div className="arch" aria-label={`${project.title} system architecture`}>
+            {project.architecture.map((node) => <div className="node" key={node}>{node}</div>)}
           </div>
-        </section>
+        </CaseSection>
 
-        <section className="case-section">
-          <h2>Constraints.</h2>
-          <ul className="limit-list">{project.constraints.map((constraint) => <li key={constraint}>{constraint}</li>)}</ul>
-        </section>
+        <CaseSection id="implementation" number="04 /" title="Technical implementation">
+          <Copy>
+            <p><strong>Primary technologies.</strong> {project.technologies.join(" · ")}</p>
+            <EvidenceList items={project.implementation} />
+            <p className="case-hard-part"><strong>Hardest engineering problem.</strong> {project.hardPart}</p>
+          </Copy>
+          <div className="decisions" aria-label="Engineering decisions">
+            {project.decisions.map((decision, itemIndex) => <div className="decision" key={decision.title}><span className="technical">0{itemIndex + 1}</span><h3>{decision.title}</h3><p>{decision.body}</p></div>)}
+          </div>
+        </CaseSection>
 
-        <section className="case-section">
-          <h2>Decisions.</h2>
-          <div className="decisions">{project.decisions.map((decision, itemIndex) => <div className="decision" key={decision.title}><span className="technical">0{itemIndex + 1}</span><h3>{decision.title}</h3><p>{decision.body}</p></div>)}</div>
-        </section>
+        <CaseSection id="testing" number="05 /" title="Testing and validation">
+          <EvidenceList items={project.testing} />
+        </CaseSection>
 
-        <section className="case-section">
-          <h2>Architecture.</h2>
-          <div className="arch">{project.architecture.map((node) => <div className="node" key={node}>{node}</div>)}</div>
-        </section>
+        <CaseSection id="results" number="06 /" title="Results and evidence">
+          <Copy>
+            <p>{project.evidenceScope}</p>
+            <EvidenceList items={project.results} />
+          </Copy>
+          <div className="case-evidence-metrics">
+            {project.metrics.length > 0 && <dl className="metric-grid" aria-label={`${project.title} verified facts`}>
+              {project.metrics.map((metric) => <div key={metric.label}><dt>{metric.label}</dt><dd>{metric.value}<small>{metric.context}</small></dd></div>)}
+            </dl>}
+            <ClaimStrip claimIds={project.claimIds} />
+          </div>
+        </CaseSection>
 
-        <ProjectGallery media={project.media} />
+        {project.media.length > 0 && <div id="gallery"><ProjectGallery media={project.media} /></div>}
+        {project.demoMode && <DeferredProjectDemo mode={project.demoMode} art={project.art} />}
 
-        <section className="case-section case-evidence">
-          <h2>Evidence.</h2>
-          <div className="case-copy"><p>{project.evidenceScope}</p><ClaimStrip claimIds={project.claimIds} /></div>
-        </section>
+        <CaseSection id="limitations" number="07 /" title="Limitations">
+          <EvidenceList items={project.limitations} />
+        </CaseSection>
 
-        <ProjectDemo mode={project.slug as "yor-talks" | "helios" | "texture-forensics" | "zenith" | "token-usage"} art={project.art} />
+        <CaseSection id="next-iteration" number="08 /" title="What I would build next">
+          <Copy>
+            <p>{project.nextIteration}</p>
+            <ul className="limit-list inline-list">{project.lessons.map((lesson) => <li key={lesson}>{lesson}</li>)}</ul>
+            <div className="case-next-actions actions">
+              {isCvProject && project.availability.source === "verified" && project.links.source && <ActionLink href={`/projects/${project.slug}/source`}>Inspect source</ActionLink>}
+              {!isCvProject && project.links.source && <ActionLink href={project.links.source} external>Inspect source</ActionLink>}
+            </div>
+          </Copy>
+        </CaseSection>
 
-        <section className="case-section">
-          <h2>What changed.</h2>
-          <div className="case-copy"><p>{project.hardPart}</p><p><strong>Outcome.</strong> {project.outcome}</p><ActionLink href={project.repo} external>Inspect source repository</ActionLink></div>
-        </section>
-
-        <section className="case-section">
-          <h2>Limitations.</h2>
-          <ul className="limit-list">{project.limitations.map((limitation) => <li key={limitation}>{limitation}</li>)}</ul>
-        </section>
-
-        <section className="case-section">
-          <h2>Next iteration.</h2>
-          <div className="case-copy"><p>{project.nextIteration}</p><ul className="limit-list inline-list">{project.lessons.map((lesson) => <li key={lesson}>{lesson}</li>)}</ul></div>
-        </section>
-
-        <nav className="case-nav" aria-label="Case study navigation"><ActionLink href="/#products">Back to selected work</ActionLink><ActionLink href={`/work/${next.slug}`} primary>Next · {next.title}</ActionLink></nav>
+        <nav className="case-nav" aria-label="Case study navigation">
+          <ActionLink href="/projects">Back to selected work</ActionLink>
+          {next && <ActionLink href={`/projects/${next.slug}`} primary>Next · {next.title}</ActionLink>}
+        </nav>
       </article>
     </main>
   );

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { projects } from "@/content/projects";
+import { cvProjects } from "@/content/projects";
 import { profile } from "@/content/profile";
 import { Arcade } from "./UniverseArcade";
 import s from "./Universe.module.css";
@@ -26,11 +26,9 @@ const videos = [
   },
   { id: "LPJVv3GrUIM", title: "Sai Anna On Fire.", tag: "WITH THE SQUAD" },
 ];
-const categories = ["Everything", "Products", "Intelligence", "Tools"] as const;
+const categories = ["Everything", "Products", "Intelligence"] as const;
 const categoryFor = (slug: string) =>
-  slug === "token-usage"
-    ? "Tools"
-    : ["helios", "texture-forensics", "zenith"].includes(slug)
+  ["helios", "ai-vs-real", "zenith"].includes(slug)
       ? "Intelligence"
       : "Products";
 const symbols = ["◉", "ϟ", "◈", "☀", "⌘"];
@@ -40,7 +38,7 @@ export function Universe() {
   const [playing, setPlaying] = useState<string | null>(null);
   const [motion, setMotion] = useState(true);
   const [copied, setCopied] = useState(false);
-  const visible = projects.filter(
+  const visible = cvProjects.filter(
     (p) => category === "Everything" || categoryFor(p.slug) === category,
   );
   async function copyEmail() {
@@ -159,19 +157,19 @@ export function Universe() {
               onClick={() => setCategory(c)}
             >
               {c}
-              {c === "Everything" && <sup>{projects.length}</sup>}
+              {c === "Everything" && <sup>{cvProjects.length}</sup>}
             </button>
           ))}
           <span aria-live="polite">{visible.length} PROJECTS</span>
         </div>
         <div className={s.projectGrid}>
           {visible.map((p) => {
-            const i = projects.indexOf(p);
+            const i = cvProjects.indexOf(p);
             return (
               <article key={p.slug} className={s.project} data-tone={i}>
                 <Link
                   className={s.projectVisual}
-                  href={`/work/${p.slug}`}
+                  href={`/projects/${p.slug}`}
                   aria-label={`Explore ${p.title}`}
                 >
                   <span className={s.projectNo}>YOR / {p.index}</span>
@@ -185,7 +183,7 @@ export function Universe() {
                 <div className={s.projectInfo}>
                   <span className={s.eyebrow}>{p.kicker}</span>
                   <h3>
-                    <Link href={`/work/${p.slug}`}>{p.title}</Link>
+                    <Link href={`/projects/${p.slug}`}>{p.title}</Link>
                   </h3>
                   <p>{p.purpose}</p>
                   <div className={s.tags}>
@@ -195,9 +193,7 @@ export function Universe() {
                   </div>
                   <div className={s.projectFoot}>
                     <span>{p.status}</span>
-                    <a href={p.repo} target="_blank" rel="noopener noreferrer">
-                      View code ↗
-                    </a>
+                    <Link href={`/projects/${p.slug}/source`}>View source ↗</Link>
                   </div>
                 </div>
               </article>

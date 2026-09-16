@@ -5,8 +5,9 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three/webgpu";
 import { color } from "three/tsl";
 import { getScenePixelRatio, syncSceneRendererSize } from "./sceneQuality";
+import type { ProjectDemoMode } from "@/content/projects";
 
-type Mode = "yor-talks" | "helios" | "texture-forensics" | "zenith" | "token-usage";
+type Mode = ProjectDemoMode;
 type TalksNode = {
   name: string;
   responsibility: string;
@@ -80,12 +81,12 @@ function DemoScene({ mode, run, choice, selectedNode, reduced }: { mode: Mode; r
     <group ref={root}>
       <ambientLight intensity={0.25} />
       <pointLight position={[2, 2, 4]} intensity={28} color="#ff1f2d" distance={8} />
-      {mode === "yor-talks" && <>
+      {mode === "talks" && <>
         <Box p={[-1.9, 0, 0]} hot={selectedNode === 0} /><Box p={[-0.65, 0.55, -0.15]} hot={selectedNode === 1} /><Box p={[0.65, -0.25, -0.2]} hot={selectedNode === 2} /><Box p={[1.9, 0.3, 0]} hot={selectedNode >= 3} />
         <mesh ref={marker} position={[-1.9, 0.12, 0.6]}><sphereGeometry args={[0.11, 18, 18]} /><Mat hot /></mesh>
       </>}
       {mode === "helios" && <>{[-2, -1.2, -0.4, 0.4, 1.2, 2].map((x, index) => <Box key={x} p={[x, -0.75 + (choice && index === 4 ? 0.85 : (index % 3) * 0.22), 0]} s={[0.22, choice && index === 4 ? 2.7 : 0.7 + (index % 3) * 0.45, 0.22]} hot={choice === 1 && index === 4} />)}</>}
-      {mode === "texture-forensics" && <>
+      {mode === "ai-vs-real" && <>
         <Box p={[-1.35, 0, 0]} s={[1.7, 1.7, 0.08]} hot={choice === 0} /><Box p={[1.35, 0, 0]} s={[1.7, 1.7, 0.08]} hot={choice === 1} />
         {Array.from({ length: 12 }).map((_, index) => <mesh key={index} position={[-1.8 + (index % 6) * 0.18, 0.7 - Math.floor(index / 6) * 0.3, 0.15]}><sphereGeometry args={[0.04 + (index % 3) * 0.01, 8, 8]} /><Mat hot={index % 2 === choice} /></mesh>)}
       </>}
@@ -93,17 +94,15 @@ function DemoScene({ mode, run, choice, selectedNode, reduced }: { mode: Mode; r
         <mesh rotation={[-0.65, 0, 0]} position={[0, -0.4, 0]}><boxGeometry args={[4.4, 2.2, 0.14]} /><Mat /></mesh>
         {Array.from({ length: 12 }).map((_, index) => { const column = index % 4; const row = Math.floor(index / 4); return <mesh key={index} rotation={[-0.55 - choice * 0.08, 0, 0]} position={[-1.45 + column * 0.95, 0.22 + row * 0.5, -0.15 + row * 0.05]}><boxGeometry args={[0.72, 0.36, 0.05]} /><Mat hot={choice === 1 && index % 3 === 0} /></mesh>; })}
       </>}
-      {mode === "token-usage" && <>{[0.8, 1.5, 1.05, 2.15, 1.3].map((height, index) => <Box key={index} p={[-1.8 + index * 0.9, -1 + height / 2, 0]} s={[0.48, height, 0.3]} hot={choice === index} />)}</>}
     </group>
   );
 }
 
 const labels: Record<Mode, string[]> = {
-  "yor-talks": ["Ready", "Sample message traversed client → API → persistence → recipient"],
+  talks: ["Ready", "Sample message traversed client → API → persistence → recipient"],
   helios: ["Nominal deterministic signal", "Illustrative anomaly revealed at operator boundary"],
-  "texture-forensics": ["LBP feature view selected", "GLCM feature view selected"],
+  "ai-vs-real": ["LBP feature view selected", "GLCM feature view selected"],
   zenith: ["Baseline illustrative roof scenario", "Higher illustrative solar scenario"],
-  "token-usage": ["Prompt segment", "System segment", "Tool segment", "Output segment", "Other sample segment"],
 };
 
 export function ProjectDemo({ mode, art }: { mode: Mode; art: string }) {
@@ -145,9 +144,9 @@ export function ProjectDemo({ mode, art }: { mode: Mode; art: string }) {
   }, []);
 
   const forceWebGL = typeof window !== "undefined" && new URLSearchParams(location.search).get("renderer") === "webgl";
-  const options = mode === "token-usage" ? [0, 1, 2, 3, 4] : [0, 1];
+  const options = [0, 1];
   const renderScene = !reduced && !failed && active;
-  const action = mode === "yor-talks" ? () => setRun((value) => value + 1) : () => setChoice((value) => (value + 1) % options.length);
+  const action = mode === "talks" ? () => setRun((value) => value + 1) : () => setChoice((value) => (value + 1) % options.length);
   const status = reduced ? "Static equivalent · reduced motion" : failed ? "Static fallback · renderer unavailable" : !active ? "Artwork first · offscreen" : !pageVisible ? "Scene paused · tab hidden" : ready ? (forceWebGL ? "WebGL 2 test path" : "GPU scene ready") : "Artwork first · initializing";
 
   return (
@@ -157,11 +156,11 @@ export function ProjectDemo({ mode, art }: { mode: Mode; art: string }) {
         <h2 id={`demo-${mode}`}>Interactive system view.</h2>
         <p>{labels[mode][Math.min(choice, labels[mode].length - 1)]}</p>
         <div className="actions">
-          <button className="action primary" onClick={action}>{mode === "yor-talks" ? "Send sample message" : "Change sample state"}</button>
-          {mode === "yor-talks" && <button className="action" onClick={() => setSelectedNode((value) => (value + 1) % talksNodes.length)}>Explain path</button>}
+        <button className="action primary" onClick={action}>{mode === "talks" ? "Send sample message" : "Change sample state"}</button>
+          {mode === "talks" && <button className="action" onClick={() => setSelectedNode((value) => (value + 1) % talksNodes.length)}>Explain path</button>}
         </div>
-        <p className="technical" aria-live="polite">{mode === "yor-talks" ? (run ? labels[mode][1] : labels[mode][0]) : labels[mode][Math.min(choice, labels[mode].length - 1)]}</p>
-        {mode === "yor-talks" && <div className="architecture-explorer" aria-label="Yor Talks architecture explorer">
+        <p className="technical" aria-live="polite">{mode === "talks" ? (run ? labels[mode][1] : labels[mode][0]) : labels[mode][Math.min(choice, labels[mode].length - 1)]}</p>
+        {mode === "talks" && <div className="architecture-explorer" aria-label="Yor Talks architecture explorer">
           <span className="technical">Path explorer / select a boundary</span>
           <div className="architecture-nodes" role="list">
             {talksNodes.map((node, index) => <button type="button" className={`architecture-node-button${selectedNode === index ? " is-selected" : ""}`} aria-pressed={selectedNode === index} onClick={() => setSelectedNode(index)} key={node.name}><span>{String(index + 1).padStart(2, "0")}</span>{node.name}</button>)}
