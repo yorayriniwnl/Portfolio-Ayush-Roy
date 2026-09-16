@@ -62,6 +62,26 @@ test("ignores the separate website value when Vercel provides its production ori
   else environment.NODE_ENV = previousNodeEnv;
 });
 
+test("ignores stale separate website values in both origin variables", () => {
+  const environment = process.env as Record<string, string | undefined>;
+  const previousOrigin = environment.NEXT_PUBLIC_SITE_URL;
+  const previousVercelOrigin = environment.VERCEL_PROJECT_PRODUCTION_URL;
+  const previousNodeEnv = environment.NODE_ENV;
+
+  environment.NEXT_PUBLIC_SITE_URL = "https://yorayriniwnl.in";
+  environment.VERCEL_PROJECT_PRODUCTION_URL = "https://yorayriniwnl.in";
+  environment.NODE_ENV = "production";
+
+  assert.equal(getSiteOrigin(), "https://ayush-portfolio-10-release-yorayriniwnl-1218s-projects.vercel.app");
+
+  if (previousOrigin === undefined) delete environment.NEXT_PUBLIC_SITE_URL;
+  else environment.NEXT_PUBLIC_SITE_URL = previousOrigin;
+  if (previousVercelOrigin === undefined) delete environment.VERCEL_PROJECT_PRODUCTION_URL;
+  else environment.VERCEL_PROJECT_PRODUCTION_URL = previousVercelOrigin;
+  if (previousNodeEnv === undefined) delete environment.NODE_ENV;
+  else environment.NODE_ENV = previousNodeEnv;
+});
+
 test("requires an origin for production metadata", () => {
   const environment = process.env as Record<string, string | undefined>;
   const previousOrigin = environment.NEXT_PUBLIC_SITE_URL;
