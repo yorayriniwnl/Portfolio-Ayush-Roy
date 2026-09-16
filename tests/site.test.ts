@@ -10,10 +10,10 @@ test("never uses the separate yorayriniwnl.in website as the portfolio origin", 
 
   try {
     environment.NEXT_PUBLIC_SITE_URL = "https://yorayriniwnl.in";
-    assert.equal(getSiteOrigin(), "https://ayush-portfolio-10-release-yorayriniwnl-1218s-projects.vercel.app");
+    assert.equal(getSiteOrigin(), "https://ayush-roy-portfolio.vercel.app");
 
     environment.NEXT_PUBLIC_SITE_URL = "https://www.yorayriniwnl.in";
-    assert.equal(getSiteOrigin(), "https://ayush-portfolio-10-release-yorayriniwnl-1218s-projects.vercel.app");
+    assert.equal(getSiteOrigin(), "https://ayush-roy-portfolio.vercel.app");
   } finally {
     if (previousOrigin === undefined) delete environment.NEXT_PUBLIC_SITE_URL;
     else environment.NEXT_PUBLIC_SITE_URL = previousOrigin;
@@ -72,7 +72,7 @@ test("ignores stale separate website values in both origin variables", () => {
   environment.VERCEL_PROJECT_PRODUCTION_URL = "https://yorayriniwnl.in";
   environment.NODE_ENV = "production";
 
-  assert.equal(getSiteOrigin(), "https://ayush-portfolio-10-release-yorayriniwnl-1218s-projects.vercel.app");
+  assert.equal(getSiteOrigin(), "https://ayush-roy-portfolio.vercel.app");
 
   if (previousOrigin === undefined) delete environment.NEXT_PUBLIC_SITE_URL;
   else environment.NEXT_PUBLIC_SITE_URL = previousOrigin;
@@ -94,7 +94,7 @@ test("uses the stable portfolio Vercel origin during a Vercel build without conf
   environment.VERCEL = "1";
   environment.NODE_ENV = "production";
 
-  assert.equal(getSiteOrigin(), "https://ayush-portfolio-10-release-yorayriniwnl-1218s-projects.vercel.app");
+  assert.equal(getSiteOrigin(), "https://ayush-roy-portfolio.vercel.app");
 
   if (previousOrigin === undefined) delete environment.NEXT_PUBLIC_SITE_URL;
   else environment.NEXT_PUBLIC_SITE_URL = previousOrigin;

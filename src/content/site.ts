@@ -1,6 +1,6 @@
 const LOCAL_SITE_ORIGIN = "http://localhost:3000";
 const SEPARATE_WEBSITE_HOST = "yorayriniwnl.in";
-const PORTFOLIO_VERCEL_PROJECT_ORIGIN = "https://ayush-portfolio-10-release-yorayriniwnl-1218s-projects.vercel.app";
+const PORTFOLIO_VERCEL_PROJECT_ORIGIN = "https://ayush-roy-portfolio.vercel.app";
 
 function isSeparateWebsiteOrigin(raw: string): boolean {
   try {
