@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { getSiteOrigin } from "../src/content/site";
 
-test("rejects the separate yorayriniwnl.in website as the portfolio origin", () => {
+test("never uses the separate yorayriniwnl.in website as the portfolio origin", () => {
   const environment = process.env as Record<string, string | undefined>;
   const previousOrigin = environment.NEXT_PUBLIC_SITE_URL;
   const previousVercelOrigin = environment.VERCEL_PROJECT_PRODUCTION_URL;
@@ -10,10 +10,10 @@ test("rejects the separate yorayriniwnl.in website as the portfolio origin", () 
 
   try {
     environment.NEXT_PUBLIC_SITE_URL = "https://yorayriniwnl.in";
-    assert.throws(() => getSiteOrigin(), /separate website/);
+    assert.equal(getSiteOrigin(), "https://ayush-portfolio-10-release-yorayriniwnl-1218s-projects.vercel.app");
 
     environment.NEXT_PUBLIC_SITE_URL = "https://www.yorayriniwnl.in";
-    assert.throws(() => getSiteOrigin(), /separate website/);
+    assert.equal(getSiteOrigin(), "https://ayush-portfolio-10-release-yorayriniwnl-1218s-projects.vercel.app");
   } finally {
     if (previousOrigin === undefined) delete environment.NEXT_PUBLIC_SITE_URL;
     else environment.NEXT_PUBLIC_SITE_URL = previousOrigin;

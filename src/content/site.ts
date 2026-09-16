@@ -1,5 +1,6 @@
 const LOCAL_SITE_ORIGIN = "http://localhost:3000";
 const SEPARATE_WEBSITE_HOST = "yorayriniwnl.in";
+const PORTFOLIO_VERCEL_PROJECT_ORIGIN = "https://ayush-portfolio-10-release-yorayriniwnl-1218s-projects.vercel.app";
 
 function isSeparateWebsiteOrigin(raw: string): boolean {
   try {
@@ -17,10 +18,8 @@ export function getSiteOrigin(): string {
     ? (/^https?:\/\//i.test(vercelOrigin) ? vercelOrigin : `https://${vercelOrigin}`)
     : undefined;
   const explicitIsSeparateWebsite = Boolean(explicitOrigin && isSeparateWebsiteOrigin(explicitOrigin));
-  if (explicitIsSeparateWebsite && !normalizedVercelOrigin) {
-    throw new Error("NEXT_PUBLIC_SITE_URL cannot use yorayriniwnl.in because it is a separate website.");
-  }
-  const raw = explicitIsSeparateWebsite ? normalizedVercelOrigin : (explicitOrigin || normalizedVercelOrigin);
+  const safeVercelOrigin = normalizedVercelOrigin || PORTFOLIO_VERCEL_PROJECT_ORIGIN;
+  const raw = explicitIsSeparateWebsite ? safeVercelOrigin : (explicitOrigin || normalizedVercelOrigin);
   if (!raw) {
     if (process.env.NODE_ENV === "production") {
       throw new Error("NEXT_PUBLIC_SITE_URL or VERCEL_PROJECT_PRODUCTION_URL must be set for production metadata and sitemap generation.");
