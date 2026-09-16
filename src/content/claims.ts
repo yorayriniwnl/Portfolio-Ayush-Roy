@@ -15,8 +15,19 @@ export type Claim = {
 
 export const claims: readonly Claim[] = [
   {
+    id: "portfolio-system",
+    project: "portfolio",
+    claim: "Public project system",
+    value: "Five CV projects",
+    status: "supported",
+    method: "Canonical registry and route contract in this repository",
+    source: "Portfolio repository",
+    lastVerified: "2026-09-16",
+    evidenceUrl: "https://github.com/yorayriniwnl/Portfolio-Ayush-Roy",
+  },
+  {
     id: "talks-realtime-stack",
-    project: "yor-talks",
+    project: "talks",
     claim: "Core realtime stack",
     value: "PostgreSQL · Redis · WebSockets",
     status: "supported",
@@ -27,7 +38,7 @@ export const claims: readonly Claim[] = [
   },
   {
     id: "talks-release-boundary",
-    project: "yor-talks",
+    project: "talks",
     claim: "Release boundary",
     value: "Deployment blocked",
     status: "supported",
@@ -49,7 +60,7 @@ export const claims: readonly Claim[] = [
   },
   {
     id: "texture-holdout-accuracy",
-    project: "texture-forensics",
+    project: "ai-vs-real",
     claim: "Holdout accuracy",
     value: "78.5",
     unit: "% on a 107-image holdout",

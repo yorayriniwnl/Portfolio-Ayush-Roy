@@ -3,10 +3,10 @@ import { ClaimStrip } from "./ClaimStrip";
 import { HeroScene } from "./HeroScene";
 import { gameRooms, videoWall, youtubeChannel } from "@/content/hub";
 import { profile } from "@/content/profile";
-import { projects } from "@/content/projects";
+import { cvProjects } from "@/content/projects";
 
 export function Home() {
-  const sourceLinkedProjects = projects.filter((project) => project.repo);
+  const sourceLinkedProjects = cvProjects.filter((project) => project.links.source);
 
   return (
     <main id="main" className="hub-page">
@@ -24,7 +24,7 @@ export function Home() {
               <div><span className="technical">03 / INTERACTIVE</span><strong>Three.js · WebGPU / WebGL 2</strong></div>
             </div>
             <div className="actions hub-hero-actions">
-              <ActionLink href="/#products" primary>Explore work</ActionLink>
+              <ActionLink href="/projects" primary>Explore work</ActionLink>
               <ActionLink href="/resume">Read resume</ActionLink>
               <ActionLink href={profile.links.github} external>GitHub</ActionLink>
               <ActionLink href={profile.links.linkedin} external>LinkedIn</ActionLink>
@@ -53,7 +53,7 @@ export function Home() {
       <section className="hub-proof-strip" aria-labelledby="proof-title">
         <div className="container">
           <div className="hub-proof-strip-heading"><span className="technical">00 / RECEIPTS FIRST</span><h2 id="proof-title">Evidence stays<br /><em>attached.</em></h2><p>Every claim below opens the repository or evaluation boundary that supports it. A status can be useful without pretending to be a deployment.</p></div>
-          <ClaimStrip projects={["yor-talks", "texture-forensics"]} compact />
+          <ClaimStrip projects={["talks", "ai-vs-real"]} compact />
         </div>
       </section>
 
@@ -64,7 +64,7 @@ export function Home() {
             <p>Every product gets a case study for the thinking and an active public source link for the receipt. Deployment claims stay separate from source availability.</p>
           </div>
           <div className="hub-product-grid">
-            {projects.map((project, index) => (
+            {cvProjects.map((project, index) => (
               <article key={project.slug} className={`hub-product-card ${index === 0 ? "hub-product-card-featured" : ""}`}>
                 <div className="hub-product-art" style={{ backgroundImage: `url("${project.art}")` }}>
                   <span className="technical hub-product-index">{project.index} / {project.period}</span>
@@ -79,7 +79,7 @@ export function Home() {
                     {project.technologies.slice(0, 4).map((technology) => <li key={technology}>{technology}</li>)}
                   </ul>
                   <div className="hub-product-status"><span>{project.status}</span><span>{project.period}</span></div>
-                  <div className="actions hub-card-actions"><ActionLink href={`/work/${project.slug}`} primary>Case study</ActionLink><ActionLink href={project.repo} external>Source link</ActionLink></div>
+                  <div className="actions hub-card-actions"><ActionLink href={`/projects/${project.slug}`} primary>Case study</ActionLink><ActionLink href={`/projects/${project.slug}/source`}>Source link</ActionLink>{project.availability.live === "verified" && project.links.live && <ActionLink href={`/projects/${project.slug}/live`}>View live</ActionLink>}</div>
                 </div>
               </article>
             ))}

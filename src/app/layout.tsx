@@ -3,6 +3,7 @@ import { Cormorant_Garamond, DM_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteNav } from "@/components/SiteNav";
 import { profile } from "@/content/profile";
+import { getSiteOrigin } from "@/content/site";
 
 const display = Cormorant_Garamond({
   subsets: ["latin"],
@@ -16,7 +17,7 @@ const technical = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://yorayriniwnl.in"),
+  metadataBase: new URL(getSiteOrigin()),
   title: {
     default: "YOR — The personal universe of Ayush Roy",
     template: "%s · YOR",
@@ -54,7 +55,7 @@ const personSchema = {
   name: profile.name,
   jobTitle: profile.headline,
   description: profile.positioning,
-  url: "https://yorayriniwnl.in",
+  url: getSiteOrigin(),
   email: `mailto:${profile.email}`,
   address: { "@type": "PostalAddress", addressLocality: profile.location },
   sameAs: [profile.links.github, profile.links.linkedin, profile.links.steam],

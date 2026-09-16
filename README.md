@@ -2,7 +2,7 @@
 
 The personal universe of Ayush Roy: a polished portfolio and playground for products, experiments, games, and recorded moments.
 
-Live site: [yorayriniwnl.in](https://yorayriniwnl.in)
+The portfolio deployment origin is configured with `NEXT_PUBLIC_SITE_URL`. The `yorayriniwnl.in` domain is a separate website and is not used as this repository's live or canonical URL.
 
 ## Stack
 
@@ -22,6 +22,8 @@ npm run validate:content
 npm run dev
 ```
 
+For canonical metadata and sitemap generation, set `NEXT_PUBLIC_SITE_URL` to the host serving this repository. Development falls back to `http://localhost:3000`; production requires the variable.
+
 Useful checks:
 
 ```bash
@@ -31,19 +33,41 @@ npm run validate
 npm run build
 ```
 
-GitHub Actions runs the same lint, content, asset, typecheck, and production-build checks on pushes and pull requests (`.github/workflows/ci.yml`).
+GitHub Actions runs tests, lint, content, asset, typecheck, and production-build checks on pushes and pull requests (`.github/workflows/ci.yml`) with a non-production placeholder origin. Set the real portfolio origin in the deployment environment.
 
 Routes:
 
 - `/` : the YOR homepage with the project collection, arcade, YouTube wall, about section, and contact CTA
 - `/resume` : résumé and professional profile
-- `/work/[slug]` : source-linked case studies for the five featured projects
+- `/projects` : recruiter-facing index containing only the five CV projects
+- `/projects/[slug]` : canonical engineering case study
+- `/projects/[slug]/live` : verified deployment resolver, or an honest unavailable state
+- `/projects/[slug]/source` : stable source-repository resolver
+- `/work/[slug]` : legacy compatibility route; CV project slugs permanently redirect to `/projects/[slug]`
+
+Canonical CV project URLs:
+
+- `/projects/portfolio`
+- `/projects/helios`
+- `/projects/zenith`
+- `/projects/ai-vs-real`
+- `/projects/talks`
+
+The portfolio, the bounded Helios frontend demo, Zenith, and the bounded AI detector inference demo have verified reachable mappings. Yor Talks intentionally remains unavailable because its current full-stack runtime still needs long-lived Socket.IO infrastructure, database/Redis providers, secrets, and hosted acceptance checks.
+
+Current public surfaces:
+
+- Portfolio: `https://ayush-roy-portfolio.vercel.app` — this repository's Next.js deployment.
+- Helios: `https://yor-helios-demo.vercel.app` — the repository's frontend demo only; the FastAPI/WebSocket backend is not hosted here.
+- Zenith: `https://zenith-xi-snowy.vercel.app` — the existing reachable project deployment.
+- AI vs. Real: `https://yor-ai-vs-real-detector.vercel.app` — the repository's Flask inference demo with checked-in model artifacts.
+- Yor Talks: no live URL exposed; the source resolver remains available.
 
 The homepage arcade includes local two-player chess with legal move validation, promotion, undo, board flipping, and checkmate detection; a matching-pairs memory game; and a timed typing challenge. The YouTube wall is a curated set of real videos from [@YorAyriniwnl](https://www.youtube.com/@YorAyriniwnl), with direct links and inline playback.
 
 ## Content and evidence
 
-Project facts live in `src/content/projects.ts`. Quantitative and status claims live in `src/content/claims.ts`, where each item records its method, date, and evidence URL. Case studies render those claims beside the relevant boundary instead of repeating unsupported badges. External repositories remain the source of truth; this site does not claim a public deployment when one has not been verified.
+Project facts, status, visibility, availability, metrics, and section copy live in `src/content/projects.ts`. Quantitative claims that need an evidence record also live in `src/content/claims.ts`, where each item records its method, date, and evidence URL. Case studies render those claims beside the relevant boundary instead of repeating unsupported badges. External repositories remain the source of truth; this site does not claim a public deployment when one has not been verified.
 
 The Yor Talks case study also includes a keyboard-operable path explorer. Each boundary exposes its responsibility, failure mode, design decision, test surface, source location, and repository evidence link.
 

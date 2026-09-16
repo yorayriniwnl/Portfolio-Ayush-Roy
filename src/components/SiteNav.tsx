@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import styles from "./SiteNav.module.css";
 
-const links = [["Discover", "/#products"], ["Arcade", "/#games"], ["Watch", "/#videos"], ["About", "/#about"]] as const;
+const links = [["Work", "/projects"], ["Arcade", "/#games"], ["Watch", "/#videos"], ["About", "/#about"]] as const;
 
 export function SiteNav() {
   const [open, setOpen] = useState(false);
