@@ -108,7 +108,7 @@ const portfolio: Project = {
   workflow: "A server-rendered project index leads to one canonical case study per project, with stable source and verified-live resolvers alongside the document.",
   hardPart: "The important boundary is separating the permanent professional namespace from changing infrastructure. A case study can remain stable even when a deployment or source provider changes.",
   decisions: [
-    { title: "Keep project facts centralized", body: "The five public projects, aliases, links, availability, claims, and SEO copy live in the content model rather than being repeated across route components." },
+    { title: "Keep project facts centralized", body: "The public projects, aliases, links, availability, claims, and SEO copy live in the content model rather than being repeated across route components." },
     { title: "Make external destinations resolvers", body: "Live and source routes are data-driven redirects; the portfolio never embeds or proxies another application." },
     { title: "Defer heavy scenes", body: "The existing Three/R3F explanation loads only when its section approaches the viewport, keeping engineering text cheap to read." },
   ],
@@ -124,11 +124,11 @@ const portfolio: Project = {
     "Typecheck, lint, content validation, asset validation, and production build remain release gates.",
   ],
   results: [
-    "The public project index exposes exactly five CV projects.",
+    "The public project index exposes the CV-scoped engineering projects.",
     "Source and live actions have explicit availability instead of guessed destinations.",
   ],
   metrics: [
-    { label: "Public project scope", value: "5", context: "CV projects in the recruiter-facing index" },
+    { label: "Public project scope", value: "6", context: "CV projects in the recruiter-facing index" },
     { label: "Rendering boundary", value: "Deferred", context: "R3F scene loads below the textual case-study surface" },
   ],
   limitations: [
@@ -450,6 +450,82 @@ const talks: Project = {
   },
 };
 
+const candidateX: Project = {
+  id: "candidatex",
+  slug: "candidatex",
+  aliases: ["candidate-capability-intelligence", "cci"],
+  index: "06",
+  title: "CandidateX",
+  shortTitle: "CandidateX",
+  kicker: "Evidence-grounded candidate intelligence",
+  purpose: "A research prototype for helping technical interviewers inspect candidate-supplied evidence before an interview, rather than reducing a person to a résumé keyword score.",
+  status: "Research prototype · full deployment unverified",
+  role: "Research engineering · full-stack implementation",
+  contribution: "I developed the CandidateX repository around closed-world candidate intake, static artifact analysis, provenance, role-weighted capability estimates, contradiction diagnostics, and interview-probe generation.",
+  outcome: "A full-stack research codebase that turns a candidate manifest and job context into an inspectable evidence graph and interviewer-oriented technical dossier.",
+  evidenceScope: "The source repository is verified. A Vercel check has completed for repository commits, but the repository root currently contains an explicit initial deployment shell while the actual Next.js application lives under `apps/web`; the FastAPI backend and full browser-to-backend path were not independently smoke-verified in this audit, so no live URL is exposed here. The committed N=4,800 ablation study is synthetic Monte Carlo research generated from the project's own simulation assumptions, not validation against real candidates, hiring outcomes, or job performance.",
+  technologies: ["Python", "FastAPI", "Next.js", "TypeScript", "SQLAlchemy", "NumPy", "SciPy"],
+  art: "/media/hero-studio.svg",
+  period: "2026",
+  links: { source: "https://github.com/yorayriniwnl/CandidateX" },
+  availability: { live: "unavailable", source: "verified" },
+  visibility: { featured: true, portfolio: true, resume: true },
+  media: [],
+  problem: "A conventional résumé compresses technical work into claims while an interviewer has limited time to inspect repositories, deployments, contribution history, CI, schemas, and contradictory signals before asking useful questions.",
+  whyItMatters: "Interviewers benefit from knowing what evidence exists, what is missing, where claims conflict, and which questions would reduce uncertainty. That is different from automating a hiring decision.",
+  constraints: [
+    "Analysis is bounded to candidate-supplied or explicitly linked resources rather than identity discovery across the open web.",
+    "Untrusted candidate code must be inspected statically and never executed as part of evidence acquisition.",
+    "Missing evidence remains UNKNOWN and is separated from observed capability.",
+    "Current quantitative evaluation is synthetic; real-world predictive validity has not been established.",
+  ],
+  workflow: "CV and job context become a canonical manifest; static analyzers and safe deployment inspection produce provenance-linked evidence; the system aggregates observed capabilities and coverage, surfaces contradictions, and generates interview probes for a human interviewer.",
+  hardPart: "The difficult boundary is preserving useful signal without turning absence into failure or provenance into decoration. CandidateX therefore separates capability estimates from evidence coverage and keeps the evidence locator beside the score.",
+  decisions: [
+    { title: "Use a closed-world manifest", body: "CandidateX is designed around resources the candidate supplied or explicitly linked, reducing identity-matching and unconstrained-scraping risk." },
+    { title: "Never execute candidate code", body: "Repository inspection is designed around static analyzers and manifests; untrusted projects are evidence inputs, not workloads to run." },
+    { title: "Separate estimate from coverage", body: "Observed capability and evidence coverage are represented separately so missing public evidence is not silently converted into a zero." },
+    { title: "Keep the human decision boundary", body: "The output is evidence, diagnostics, and interview probes for a human interviewer; the system is not presented as an autonomous hiring authority." },
+  ],
+  architecture: ["Candidate/JD intake", "Closed-world manifest", "Static repository + deployment analyzers", "Candidate Evidence Graph", "Capability + coverage model", "Contradiction diagnostics", "Interview probes / dossier"],
+  implementation: [
+    "The Next.js interface contains candidate intake, directory, comparison, dossier, evidence-provenance, audit-trail, and research surfaces.",
+    "The FastAPI backend contains intake, acquisition, static analyzers, scoring, graph, pipeline, dossier, research, and override endpoints.",
+    "The deployment inspector includes SSRF-oriented boundaries while repository analysis is designed not to execute candidate code.",
+    "The browser currently includes mock dossier/graph fallbacks when the backend is unavailable; that fallback is part of the prototype boundary, not live evaluation evidence.",
+  ],
+  testing: [
+    "The repository contains pytest coverage for scoring, static analysis, deployment inspection, SSRF protections, database behavior, API routes, and mathematical invariants.",
+    "A committed research runner generates reproducible synthetic ablation artifacts across 16 seeds and six canonical engineering roles.",
+    "During this audit GitHub Actions jobs terminated before executing job steps, so those red workflow runs are not treated as application-test failures or as fresh passing evidence.",
+  ],
+  results: [
+    "The repository exposes an end-to-end research architecture from declared candidate resources to an interviewer-facing evidence dossier.",
+    "The committed ablation artifact covers 4,800 simulated candidates, but it is explicitly synthetic and is not evidence of real-world hiring accuracy.",
+    "The public live resolver remains withheld until the actual Next.js application and backend path are smoke-verified together.",
+  ],
+  metrics: [
+    { label: "Research cohort", value: "4,800 simulated", context: "Monte Carlo candidates across 16 seeds and six roles; not real applicants" },
+    { label: "Public runtime", value: "Withheld", context: "Repository source verified; full hosted app/backend not smoke-verified" },
+  ],
+  limitations: [
+    "The committed research cohort is synthetic and inherits the assumptions used to generate both latent capability and evidence emissions.",
+    "No real-candidate, interviewer-outcome, hiring-outcome, job-performance, fairness, or external-validity study is established by the repository evidence reviewed here.",
+    "The frontend ships with synthetic mock dossier and graph fallbacks when the backend is unavailable.",
+    "A successful Vercel repository deployment check does not establish that the nested Next.js app, FastAPI backend, database, or full evaluation pipeline are publicly operational.",
+  ],
+  lessons: [
+    "Evidence provenance is more useful when uncertainty and missingness remain visible instead of being collapsed into one authoritative score.",
+    "Synthetic ablations can test internal model behavior, but they cannot substitute for external validation on real interview outcomes.",
+  ],
+  nextIteration: "Deploy the actual Next.js application with a separately hosted FastAPI/Postgres/Redis path, run browser-to-backend acceptance checks, then evaluate the method on a consented real-candidate dataset with blinded human ratings and report calibration, subgroup error, inter-rater agreement, and external validity before making predictive hiring claims.",
+  claimIds: [],
+  seo: {
+    title: "CandidateX · Candidate Capability Intelligence Case Study",
+    description: "An evidence-bounded engineering case study of CandidateX: candidate manifests, static analysis, provenance, capability coverage, contradiction diagnostics, and interview probes with synthetic research clearly separated from real-world validation.",
+  },
+};
+
 const tokenUsage: Project = {
   id: "token-usage",
   slug: "token-usage",
@@ -494,9 +570,9 @@ const tokenUsage: Project = {
   },
 };
 
-export const CANONICAL_PROJECT_SLUGS = ["portfolio", "helios", "zenith", "ai-vs-real", "talks"] as const;
+export const CANONICAL_PROJECT_SLUGS = ["portfolio", "helios", "zenith", "ai-vs-real", "talks", "candidatex"] as const;
 
-export const cvProjects: readonly Project[] = [portfolio, helios, zenith, aiVsReal, talks];
+export const cvProjects: readonly Project[] = [portfolio, helios, zenith, aiVsReal, talks, candidateX];
 export const legacyProjects: readonly Project[] = [tokenUsage];
 export const allProjects: readonly Project[] = [...cvProjects, ...legacyProjects];
 
