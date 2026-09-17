@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ActionLink } from "@/components/ActionLink";
 import { profile } from "@/content/profile";
 import { getResumeMetadata } from "@/content/project-seo";
-import { cvProjects } from "@/content/projects";
+import { cvProjects } from "@/content/project-registry";
 
 export const metadata: Metadata = getResumeMetadata();
 

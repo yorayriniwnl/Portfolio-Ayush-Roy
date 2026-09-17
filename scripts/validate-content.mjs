@@ -1,11 +1,13 @@
 import fs from "node:fs";
-import { allProjects, CANONICAL_PROJECT_SLUGS, cvProjects, legacyProjects } from "../src/content/projects.ts";
+import { allProjects, CANONICAL_PROJECT_SLUGS, cvProjects, legacyProjects } from "../src/content/project-registry.ts";
 import { claims as claimRegistry } from "../src/content/claims.ts";
 
 const read = (file) => fs.readFileSync(file, "utf8");
 const requiredFiles = [
   "src/content/profile.ts",
   "src/content/projects.ts",
+  "src/content/candidatex.ts",
+  "src/content/project-registry.ts",
   "src/content/claims.ts",
   "src/content/project-system.ts",
   "src/content/site.ts",
@@ -24,19 +26,20 @@ for (const file of requiredFiles) {
 }
 
 const content = read("src/content/projects.ts");
+const candidateContent = read("src/content/candidatex.ts");
 const claimsSource = read("src/content/claims.ts");
-const canonicalSlugs = ["portfolio", "helios", "zenith", "ai-vs-real", "talks"];
+const canonicalSlugs = ["portfolio", "helios", "zenith", "ai-vs-real", "talks", "candidatex"];
 
 if (JSON.stringify([...CANONICAL_PROJECT_SLUGS]) !== JSON.stringify(canonicalSlugs)) {
   throw new Error("Canonical project order is missing or incomplete");
 }
 if (cvProjects.length !== canonicalSlugs.length || JSON.stringify(cvProjects.map((project) => project.slug)) !== JSON.stringify(canonicalSlugs)) {
-  throw new Error("CV project registry must contain exactly the five canonical projects");
+  throw new Error("CV project registry must contain exactly the six canonical projects");
 }
 if (cvProjects.some((project) => project.slug === "token-usage")) {
   throw new Error("Legacy token project leaked into public registry");
 }
-if (!content.includes("export const cvProjects") || !content.includes("export const legacyProjects") || legacyProjects.length === 0) {
+if (!read("src/content/project-registry.ts").includes("candidateXProject") || legacyProjects.length === 0) {
   throw new Error("Project registry visibility boundary missing");
 }
 if (new Set(allProjects.map((project) => project.slug)).size !== allProjects.length) {
@@ -84,6 +87,8 @@ if (!content.includes("78.5% accuracy on the repository's specific 107-image hol
 if (!content.includes("deployment blocked")) throw new Error("Talks readiness boundary missing");
 if (!content.includes("Nivedana: architecture and full-stack development")) throw new Error("Zenith collaborator attribution missing");
 if (!content.includes('"React", "Vite", "Express 5", "Socket.IO", "PostgreSQL", "Drizzle", "Redis"')) throw new Error("Current Talks stack missing");
+if (!candidateContent.includes("https://github.com/yorayriniwnl/CandidateX")) throw new Error("CandidateX source mapping missing");
+if (!candidateContent.includes('availability: { live: "unavailable", source: "verified" }')) throw new Error("CandidateX live evidence boundary missing");
 if (!read("src/content/site.ts").includes("NEXT_PUBLIC_SITE_URL")) throw new Error("Deployment origin configuration missing");
 
 if (!read("src/content/profile.ts").includes('headline: "Product / Full-Stack Engineer"')) throw new Error("Primary positioning missing");

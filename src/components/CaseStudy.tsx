@@ -2,7 +2,8 @@ import { ActionLink } from "./ActionLink";
 import { ClaimStrip } from "./ClaimStrip";
 import { DeferredProjectDemo } from "./DeferredProjectDemo";
 import { ProjectGallery } from "./ProjectGallery";
-import { cvProjects, type Project } from "@/content/projects";
+import { cvProjects } from "@/content/project-registry";
+import type { Project } from "@/content/projects";
 
 function CaseSection({ id, number, title, children }: { id: string; number: string; title: string; children: React.ReactNode }) {
   return (

@@ -1,7 +1,11 @@
-import { cvProjects, legacyProjects, type Project } from "./projects";
+import { type Project } from "./projects";
+import {
+  CANONICAL_PROJECT_SLUGS,
+  cvProjects,
+  legacyProjects,
+} from "./project-registry";
 
-export { CANONICAL_PROJECT_SLUGS, cvProjects, legacyProjects } from "./projects";
-import { CANONICAL_PROJECT_SLUGS } from "./projects";
+export { CANONICAL_PROJECT_SLUGS, cvProjects, legacyProjects } from "./project-registry";
 
 export type CanonicalProjectSlug = (typeof CANONICAL_PROJECT_SLUGS)[number];
 export type ProjectLinkKind = "live" | "source";

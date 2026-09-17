@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { cvProjects } from "@/content/projects";
+import { cvProjects } from "@/content/project-registry";
 import { absoluteSiteUrl } from "@/content/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
