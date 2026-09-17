@@ -99,8 +99,16 @@ if (candidateMetric("Supplementary ablation") !== "4,800") throw new Error("Cand
 if (!candidateX.limitations.some((item) => /real-world hiring/i.test(item))) throw new Error("CandidateX real-world validation boundary missing");
 
 const detector = cvProjects.find((project) => project.slug === "ai-vs-real");
-if (!detector?.metrics.some((metric) => metric.value === "78.5" && /107-image holdout/i.test(metric.context))) {
-  throw new Error("AI vs. Real holdout boundary missing");
+const detectorClaim = claimRegistry.find((claim) => claim.id === "texture-holdout-accuracy" && claim.project === "ai-vs-real");
+const detectorMetric = detector?.metrics.find((metric) => metric.label === "Holdout accuracy");
+if (
+  !detectorClaim ||
+  detectorClaim.value !== "78.5" ||
+  !/107-image holdout/i.test(detectorClaim.unit) ||
+  detectorMetric?.value.replace(/%$/, "") !== detectorClaim.value ||
+  !/107-image holdout/i.test(detectorMetric.context)
+) {
+  throw new Error("AI vs. Real holdout evidence boundary missing");
 }
 const talks = cvProjects.find((project) => project.slug === "talks");
 if (talks?.availability.live !== "blocked") throw new Error("Talks readiness boundary missing");
