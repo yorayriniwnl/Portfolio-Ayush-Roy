@@ -24,12 +24,16 @@ test("release scripts and CI gate the test suite with a safe build origin", () =
   assert.match(workflow, /NEXT_PUBLIC_SITE_URL:\s*https:\/\/portfolio\.example\.test/);
 });
 
-test("project registry does not mutate stale project-count prose", () => {
+test("project registry uses a canonical portfolio record without mutating legacy copy", () => {
   const registry = readFileSync("src/content/project-registry.ts", "utf8");
+  const portfolio = readFileSync("src/content/portfolio-project.ts", "utf8");
   const validator = readFileSync("scripts/validate-content.mjs", "utf8");
 
-  assert.doesNotMatch(registry, /\.replace\(/);
-  assert.doesNotMatch(registry, /Public project scope.*value:\s*"6"/s);
+  assert.match(registry, /portfolioProject/);
+  assert.match(registry, /legacyCvProjects\.filter\(\(project\) => project\.slug !== "portfolio"\)/);
+  assert.doesNotMatch(registry, /\.replace\(|normalizedOriginalProjects|canonicalProjectCount/);
+  assert.doesNotMatch(registry, /decisions:\s*project\.decisions|results:\s*project\.results|metrics:\s*project\.metrics/);
+  assert.doesNotMatch(portfolio, /five public projects|exactly five CV projects|value:\s*"5"/i);
   assert.doesNotMatch(validator, /const canonicalSlugs\s*=\s*\[\s*["']/);
   assert.match(validator, /const canonicalSlugs\s*=\s*\[\.\.\.CANONICAL_PROJECT_SLUGS\]/);
 });
