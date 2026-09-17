@@ -15,11 +15,16 @@ test("CandidateX is the sixth recruiter-facing project", () => {
   assert.equal(getCvProject("candidatex")?.index, "06");
 });
 
-test("CandidateX exposes source without inventing a live deployment", () => {
+test("CandidateX exposes verified source and live deployment resolvers", () => {
   const source = resolveProjectLink("candidatex", "source");
   assert.equal(source.kind, "redirect");
   if (source.kind === "redirect") {
     assert.equal(source.target, "https://github.com/yorayriniwnl/CandidateX");
   }
-  assert.equal(resolveProjectLink("candidatex", "live").kind, "unavailable");
+
+  const live = resolveProjectLink("candidatex", "live");
+  assert.equal(live.kind, "redirect");
+  if (live.kind === "redirect") {
+    assert.equal(live.target, "https://candidatex-smoky.vercel.app");
+  }
 });
