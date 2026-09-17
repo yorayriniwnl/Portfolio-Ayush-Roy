@@ -88,7 +88,8 @@ if (!content.includes("deployment blocked")) throw new Error("Talks readiness bo
 if (!content.includes("Nivedana: architecture and full-stack development")) throw new Error("Zenith collaborator attribution missing");
 if (!content.includes('"React", "Vite", "Express 5", "Socket.IO", "PostgreSQL", "Drizzle", "Redis"')) throw new Error("Current Talks stack missing");
 if (!candidateContent.includes("https://github.com/yorayriniwnl/CandidateX")) throw new Error("CandidateX source mapping missing");
-if (!candidateContent.includes('availability: { live: "unavailable", source: "verified" }')) throw new Error("CandidateX live evidence boundary missing");
+if (!candidateContent.includes("https://candidatex-smoky.vercel.app")) throw new Error("CandidateX live mapping missing");
+if (!candidateContent.includes('availability: { live: "verified", source: "verified" }')) throw new Error("CandidateX live evidence boundary missing");
 if (!read("src/content/site.ts").includes("NEXT_PUBLIC_SITE_URL")) throw new Error("Deployment origin configuration missing");
 
 if (!read("src/content/profile.ts").includes('headline: "Product / Full-Stack Engineer"')) throw new Error("Primary positioning missing");
