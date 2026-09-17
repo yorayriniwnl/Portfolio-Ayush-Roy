@@ -60,7 +60,7 @@ test("keeps Yor Talks live unavailable", () => {
   assert.equal(resolveProjectLink("talks", "live").kind, "unavailable");
 });
 
-test("adds CandidateX to the canonical project system with verified source and bounded live state", () => {
+test("adds CandidateX to the canonical project system with verified source and verified demo live state", () => {
   assert.equal(getCvProject("candidatex")?.title, "CandidateX");
   assert.equal(projectPath("candidatex"), "/projects/candidatex");
 
@@ -68,7 +68,9 @@ test("adds CandidateX to the canonical project system with verified source and b
   assert.equal(source.kind, "redirect");
   if (source.kind === "redirect") assert.equal(source.target, "https://github.com/yorayriniwnl/CandidateX");
 
-  assert.equal(resolveProjectLink("candidatex", "live").kind, "unavailable");
+  const live = resolveProjectLink("candidatex", "live");
+  assert.equal(live.kind, "redirect");
+  if (live.kind === "redirect") assert.equal(live.target, "https://candidatex-smoky.vercel.app");
 });
 
 test("resolves source through the stable source namespace", () => {

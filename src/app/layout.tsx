@@ -1,32 +1,22 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Mono } from "next/font/google";
 import "./globals.css";
+import "./rebuild.css";
 import { SiteNav } from "@/components/SiteNav";
 import { profile } from "@/content/profile";
 import { getSiteOrigin } from "@/content/site";
 
-const display = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["600"],
-  variable: "--font-display",
-});
-const technical = DM_Mono({
-  subsets: ["latin"],
-  weight: ["500"],
-  variable: "--font-technical",
-});
-
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteOrigin()),
   title: {
-    default: "YOR — The personal universe of Ayush Roy",
-    template: "%s · YOR",
+    default: "Ayush Roy | Product & Full-Stack Engineer",
+    template: "%s | Ayush Roy",
   },
   description:
-    "Explore Ayush Roy's products and experiments, play chess and arcade games, and watch moments from Yor Ayrin's channel.",
+    "Ayush Roy builds realtime systems, full-stack products, applied ML workflows, and interactive Three.js experiences with evidence-backed engineering case studies.",
+  keywords: ["Ayush Roy", "Product Engineer", "Full-Stack Engineer", "Next.js", "Realtime Systems", "Applied ML", "Three.js"],
   alternates: { canonical: "/" },
   openGraph: {
-    title: "YOR // Ayush Roy field hub",
+    title: "Ayush Roy · Product & Full-Stack Engineer",
     description: profile.positioning,
     type: "website",
     url: "/",
@@ -42,7 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "YOR // Ayush Roy field hub",
+    title: "Ayush Roy · Product & Full-Stack Engineer",
     description: profile.positioning,
     images: ["/media/hero-studio.svg"],
   },
@@ -70,7 +60,6 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${display.variable} ${technical.variable}`}
     >
       <body>
         <a className="skip" href="#main">

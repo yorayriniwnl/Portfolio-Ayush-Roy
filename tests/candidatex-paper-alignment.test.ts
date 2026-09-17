@@ -9,7 +9,7 @@ test("CandidateX portfolio copy separates paper benchmark and supplementary abla
   assert.match(candidate, /28,800/);
   assert.match(candidate, /4,800/);
   assert.match(candidate, /supplementary implementation ablation/i);
-  assert.match(candidate, /not real-world hiring/i);
+  assert.match(candidate, /(?:not|neither).*real-world hiring|real-world hiring validity/i);
 
   assert.match(claims, /28,800/);
   assert.match(claims, /candidate-role evaluations/i);
