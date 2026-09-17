@@ -25,13 +25,13 @@ for (const file of requiredFiles) {
 
 const content = read("src/content/projects.ts");
 const claimsSource = read("src/content/claims.ts");
-const canonicalSlugs = ["portfolio", "helios", "zenith", "ai-vs-real", "talks"];
+const canonicalSlugs = ["portfolio", "helios", "zenith", "ai-vs-real", "talks", "candidatex"];
 
 if (JSON.stringify([...CANONICAL_PROJECT_SLUGS]) !== JSON.stringify(canonicalSlugs)) {
   throw new Error("Canonical project order is missing or incomplete");
 }
 if (cvProjects.length !== canonicalSlugs.length || JSON.stringify(cvProjects.map((project) => project.slug)) !== JSON.stringify(canonicalSlugs)) {
-  throw new Error("CV project registry must contain exactly the five canonical projects");
+  throw new Error("CV project registry must contain exactly the six canonical projects");
 }
 if (cvProjects.some((project) => project.slug === "token-usage")) {
   throw new Error("Legacy token project leaked into public registry");
@@ -84,6 +84,9 @@ if (!content.includes("78.5% accuracy on the repository's specific 107-image hol
 if (!content.includes("deployment blocked")) throw new Error("Talks readiness boundary missing");
 if (!content.includes("Nivedana: architecture and full-stack development")) throw new Error("Zenith collaborator attribution missing");
 if (!content.includes('"React", "Vite", "Express 5", "Socket.IO", "PostgreSQL", "Drizzle", "Redis"')) throw new Error("Current Talks stack missing");
+if (!content.includes('slug: "candidatex"')) throw new Error("CandidateX project 06 missing");
+if (!content.includes('availability: { live: "unavailable", source: "verified" }')) throw new Error("CandidateX live evidence boundary missing");
+if (!content.includes("4,800 simulated")) throw new Error("CandidateX synthetic research boundary missing");
 if (!read("src/content/site.ts").includes("NEXT_PUBLIC_SITE_URL")) throw new Error("Deployment origin configuration missing");
 
 if (!read("src/content/profile.ts").includes('headline: "Product / Full-Stack Engineer"')) throw new Error("Primary positioning missing");
