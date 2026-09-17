@@ -1,0 +1,77 @@
+import type { Project } from "./projects";
+
+export const portfolioProject: Project = {
+  id: "portfolio",
+  slug: "portfolio",
+  aliases: [],
+  index: "01",
+  title: "Personal Developer Portfolio",
+  shortTitle: "Portfolio",
+  kicker: "Next.js product system",
+  purpose: "A server-rendered engineering portfolio that turns project evidence into a fast, navigable case-study system.",
+  status: "Active · deployed on Vercel",
+  role: "Product engineer · architecture and implementation",
+  contribution: "I designed and implemented the project registry, canonical route system, evidence presentation, and the rendering boundary around the existing interactive scenes.",
+  collaborators: "Solo repository project.",
+  outcome: "A maintainable recruiter surface with canonical case studies, stable source/live namespaces, and explicit evidence boundaries.",
+  evidenceScope: "Repository evidence covers the Next.js App Router, TypeScript, the existing R3F/Three experience, and the project-system test contracts added here. The Vercel deployment was reachable during the 16 Sep 2026 deployment check; uptime and field performance are not inferred from that smoke check.",
+  technologies: ["Next.js", "TypeScript", "React", "React Three Fiber", "Three.js", "CSS"],
+  art: "/media/hero-studio.svg",
+  period: "2026",
+  links: {
+    live: "https://yorayriniwnl.in",
+    source: "https://github.com/yorayriniwnl/Portfolio-Ayush-Roy",
+  },
+  availability: { live: "verified", source: "verified" },
+  visibility: { featured: true, portfolio: true, resume: true },
+  media: [],
+  problem: "A visually expressive portfolio still needs the same route ownership, evidence boundaries, and performance discipline as any other product surface.",
+  whyItMatters: "Recruiters need a quick path to signal; engineers need a deeper path to the source, decisions, and limitations. Those paths should share one source of truth.",
+  constraints: [
+    "Project content must remain centralized and CV-scoped.",
+    "Textual case studies should not pull the interactive 3D bundle into the initial render.",
+    "The canonical host is configured explicitly so metadata remains on the intended public domain.",
+  ],
+  workflow: "A server-rendered project index leads to one canonical case study per project, with stable source and verified-live resolvers alongside the document.",
+  hardPart: "The important boundary is separating the permanent professional namespace from changing infrastructure. A case study can remain stable even when a deployment or source provider changes.",
+  decisions: [
+    { title: "Keep project facts centralized", body: "The public project set, aliases, links, availability, claims, and SEO copy live in the content model rather than being repeated across route components." },
+    { title: "Make external destinations resolvers", body: "Live and source routes are data-driven redirects; the portfolio never embeds or proxies another application." },
+    { title: "Defer heavy scenes", body: "The existing Three/R3F explanation loads only when its section approaches the viewport, keeping engineering text cheap to read." },
+  ],
+  architecture: ["Next.js App Router", "Central project registry", "Server-rendered case studies", "Stable live/source resolvers", "Deferred R3F scene boundary"],
+  implementation: [
+    "Canonical `/projects/[slug]` pages use static params and a shared case-study component.",
+    "Alias and link resolution is pure data logic, with loopback and malformed URLs rejected.",
+    "Metadata, sitemap, navigation, resume entries, and homepage cards consume the same CV registry.",
+  ],
+  testing: [
+    "Node test contracts cover canonical lookup, aliases, legacy redirects, availability, and malformed destinations.",
+    "Metadata and sitemap tests cover canonical origin and public-route scope.",
+    "Typecheck, lint, content validation, asset validation, and production build remain release gates.",
+  ],
+  results: [
+    "The public project index is generated from the canonical CV registry.",
+    "Source and live actions have explicit availability instead of guessed destinations.",
+  ],
+  metrics: [
+    { label: "Public project scope", value: "Registry-backed", context: "Canonical CV projects in the recruiter-facing index" },
+    { label: "Rendering boundary", value: "Deferred", context: "R3F scene loads below the textual case-study surface" },
+  ],
+  limitations: [
+    "The custom-domain deployment is verified at audit time; uptime and performance traces still need ongoing measurement.",
+    "The interactive scene remains an explanatory visualization, not an application runtime or telemetry source.",
+    "Performance results still need to be measured on the chosen production deployment.",
+  ],
+  lessons: [
+    "A portfolio architecture should make uncertainty visible instead of hiding it behind visual polish.",
+    "Stable internal paths are more durable than exposing infrastructure names in a CV.",
+  ],
+  nextIteration: "Measure the deployed case-study routes with real mobile performance traces, then add project-specific social-card artwork only if it improves sharing signal without increasing the critical path.",
+  claimIds: ["portfolio-system"],
+  seo: {
+    title: "Personal Developer Portfolio · Engineering Case Study",
+    description: "How Ayush Roy's Next.js and TypeScript portfolio centralizes project evidence, canonical routes, source resolvers, and deferred interactive rendering.",
+    ogImage: "/media/hero-studio.svg",
+  },
+};

@@ -1,6 +1,7 @@
 import { candidateXProject } from "./candidatex";
+import { portfolioProject } from "./portfolio-project";
 import {
-  cvProjects as originalCvProjects,
+  cvProjects as legacyCvProjects,
   legacyProjects,
   type Project,
 } from "./projects";
@@ -14,29 +15,11 @@ export const CANONICAL_PROJECT_SLUGS = [
   "candidatex",
 ] as const;
 
-const canonicalProjectCount = originalCvProjects.length + 1;
-
-const normalizedOriginalProjects: readonly Project[] = originalCvProjects.map((project) => {
-  if (project.slug !== "portfolio") return project;
-
-  return {
-    ...project,
-    decisions: project.decisions.map((decision, index) =>
-      index === 0
-        ? { ...decision, body: `The ${canonicalProjectCount} public projects, aliases, links, availability, claims, and SEO copy live in the content model rather than being repeated across route components.` }
-        : decision,
-    ),
-    results: project.results.map((result, index) =>
-      index === 0 ? `The public project index exposes exactly ${canonicalProjectCount} CV projects.` : result,
-    ),
-    metrics: project.metrics.map((metric) =>
-      metric.label === "Public project scope" ? { ...metric, value: String(canonicalProjectCount) } : metric,
-    ),
-  };
-});
+const nonPortfolioProjects = legacyCvProjects.filter((project) => project.slug !== "portfolio");
 
 export const cvProjects: readonly Project[] = [
-  ...normalizedOriginalProjects,
+  portfolioProject,
+  ...nonPortfolioProjects,
   candidateXProject,
 ];
 
