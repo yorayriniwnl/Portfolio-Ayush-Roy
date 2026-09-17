@@ -5,7 +5,7 @@ import { ClaimStrip } from "./ClaimStrip";
 import { HeroScene } from "./HeroScene";
 import { gameRooms, videoWall, youtubeChannel } from "@/content/hub";
 import { profile } from "@/content/profile";
-import { cvProjects } from "@/content/projects";
+import { cvProjects } from "@/content/project-registry";
 
 export function Home() {
   const sourceLinkedProjects = cvProjects.filter((project) => project.links.source);
