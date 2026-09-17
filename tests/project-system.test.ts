@@ -12,8 +12,8 @@ import {
   projectPath,
 } from "../src/content/project-system";
 
-test("exposes exactly the five CV project slugs", () => {
-  assert.deepEqual([...CANONICAL_PROJECT_SLUGS], ["portfolio", "helios", "zenith", "ai-vs-real", "talks"]);
+test("exposes exactly the six CV project slugs", () => {
+  assert.deepEqual([...CANONICAL_PROJECT_SLUGS], ["portfolio", "helios", "zenith", "ai-vs-real", "talks", "candidatex"]);
   assert.deepEqual(cvProjects.map((project) => project.slug), [...CANONICAL_PROJECT_SLUGS]);
   assert.equal(cvProjects.some((project) => project.slug === "token-usage"), false);
 });
@@ -22,6 +22,8 @@ test("canonicalizes historical project aliases", () => {
   assert.equal(getCanonicalProjectSlug("texture-forensics"), "ai-vs-real");
   assert.equal(getCanonicalProjectSlug("yor-talks"), "talks");
   assert.equal(getCvProject("yor-helios")?.slug, "helios");
+  assert.equal(getCanonicalProjectSlug("candidate-capability-intelligence"), "candidatex");
+  assert.equal(getCanonicalProjectSlug("cci"), "candidatex");
   assert.equal(getCanonicalProjectSlug("token-usage"), undefined);
 });
 
@@ -29,6 +31,7 @@ test("maps legacy work paths to canonical project paths", () => {
   assert.equal(getLegacyRedirect("helios"), "/projects/helios");
   assert.equal(getLegacyRedirect("texture-forensics"), "/projects/ai-vs-real");
   assert.equal(getLegacyRedirect("yor-talks"), "/projects/talks");
+  assert.equal(getLegacyRedirect("candidate-capability-intelligence"), "/projects/candidatex");
   assert.equal(getLegacyRedirect("not-a-project"), undefined);
 });
 
@@ -60,6 +63,16 @@ test("keeps Yor Talks live unavailable", () => {
   assert.equal(resolveProjectLink("talks", "live").kind, "unavailable");
 });
 
+test("keeps CandidateX live unavailable until the full app is smoke-verified", () => {
+  assert.equal(resolveProjectLink("candidatex", "live").kind, "unavailable");
+});
+
+test("resolves CandidateX source through the stable source namespace", () => {
+  const result = resolveProjectLink("candidatex", "source");
+  assert.equal(result.kind, "redirect");
+  if (result.kind === "redirect") assert.equal(result.target, "https://github.com/yorayriniwnl/CandidateX");
+});
+
 test("resolves source through the stable source namespace", () => {
   const result = resolveProjectLink("talks", "source");
   assert.equal(result.kind, "redirect");
@@ -83,7 +96,9 @@ test("returns not-found for an unknown project link", () => {
 
 test("generates stable canonical project paths and keeps demo modes scoped", () => {
   assert.equal(projectPath("ai-vs-real"), "/projects/ai-vs-real");
+  assert.equal(projectPath("candidatex"), "/projects/candidatex");
   assert.equal(projectLinkPath("talks", "source"), "/projects/talks/source");
   assert.equal(cvProjects.some((project) => String(project.demoMode) === "token-usage"), false);
   assert.equal(getCvProject("portfolio")?.demoMode, undefined);
+  assert.equal(getCvProject("candidatex")?.demoMode, undefined);
 });
