@@ -2,7 +2,7 @@
 
 The personal universe of Ayush Roy: a polished portfolio and playground for products, experiments, games, and recorded moments.
 
-The portfolio deployment is served from `https://yorayriniwnl.in`. The five recruiter-facing project routes live inside that existing site under `/projects`; `NEXT_PUBLIC_SITE_URL` keeps generated metadata and sitemap URLs aligned with the custom domain.
+The portfolio deployment is served from `https://yorayriniwnl.in`. The six recruiter-facing project routes live inside that existing site under `/projects`; `NEXT_PUBLIC_SITE_URL` keeps generated metadata and sitemap URLs aligned with the custom domain.
 
 ## Stack
 
@@ -39,7 +39,7 @@ Routes:
 
 - `/` : the YOR homepage with the project collection, arcade, YouTube wall, about section, and contact CTA
 - `/resume` : résumé and professional profile
-- `/projects` : recruiter-facing index containing only the five CV projects
+- `/projects` : recruiter-facing index containing only the six CV projects
 - `/projects/[slug]` : canonical engineering case study
 - `/projects/[slug]/live` : verified deployment resolver, or an honest unavailable state
 - `/projects/[slug]/source` : stable source-repository resolver
@@ -52,8 +52,9 @@ Canonical CV project URLs:
 - `/projects/zenith`
 - `/projects/ai-vs-real`
 - `/projects/talks`
+- `/projects/candidatex`
 
-The portfolio, the bounded Helios frontend demo, Zenith, and the bounded AI detector inference demo have verified reachable mappings. Yor Talks intentionally remains unavailable because its current full-stack runtime still needs long-lived Socket.IO infrastructure, database/Redis providers, secrets, and hosted acceptance checks.
+The portfolio, the bounded Helios frontend demo, Zenith, and the bounded AI detector inference demo have verified reachable mappings. Yor Talks intentionally remains unavailable because its current full-stack runtime still needs long-lived Socket.IO infrastructure, database/Redis providers, secrets, and hosted acceptance checks. CandidateX exposes its verified source repository but intentionally withholds a live resolver until the nested Next.js application, FastAPI backend, persistence path, and browser-to-backend flow are smoke-verified together; a successful repository deployment check or the root deployment shell is not treated as proof of the full product runtime.
 
 Current public surfaces:
 
@@ -62,12 +63,15 @@ Current public surfaces:
 - Zenith: `https://zenith-xi-snowy.vercel.app` — the existing reachable project deployment.
 - AI vs. Real: `https://yor-ai-vs-real-detector.vercel.app` — the repository's Flask inference demo with checked-in model artifacts.
 - Yor Talks: no live URL exposed; the source resolver remains available.
+- CandidateX: no full-product live URL exposed; the source resolver points to `https://github.com/yorayriniwnl/CandidateX`.
 
 The homepage arcade includes local two-player chess with legal move validation, promotion, undo, board flipping, and checkmate detection; a matching-pairs memory game; and a timed typing challenge. The YouTube wall is a curated set of real videos from [@YorAyriniwnl](https://www.youtube.com/@YorAyriniwnl), with direct links and inline playback.
 
 ## Content and evidence
 
 Project facts, status, visibility, availability, metrics, and section copy live in `src/content/projects.ts`. Quantitative claims that need an evidence record also live in `src/content/claims.ts`, where each item records its method, date, and evidence URL. Case studies render those claims beside the relevant boundary instead of repeating unsupported badges. External repositories remain the source of truth; this site does not claim a public deployment when one has not been verified.
+
+CandidateX's committed 4,800-candidate research artifact is labeled as synthetic Monte Carlo evidence. It tests behavior under the simulator's own latent-capability and evidence-emission assumptions; it is not presented as validation on real applicants, hiring outcomes, job performance, fairness, or external predictive validity.
 
 The Yor Talks case study also includes a keyboard-operable path explorer. Each boundary exposes its responsibility, failure mode, design decision, test surface, source location, and repository evidence link.
 
