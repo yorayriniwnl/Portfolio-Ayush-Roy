@@ -5,18 +5,18 @@ import { absoluteSiteUrl } from "@/content/site";
 
 export const metadata: Metadata = {
   title: "Selected Engineering Projects",
-  description: "Five CV projects by Ayush Roy, presented as evidence-backed engineering case studies.",
+  description: "Six CV projects by Ayush Roy, presented as evidence-backed engineering case studies.",
   alternates: { canonical: absoluteSiteUrl("/projects") },
   openGraph: {
     title: "Selected Engineering Projects · Ayush Roy",
-    description: "Five CV projects presented as evidence-backed engineering case studies.",
+    description: "Six CV projects presented as evidence-backed engineering case studies.",
     url: absoluteSiteUrl("/projects"),
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Selected Engineering Projects · Ayush Roy",
-    description: "Five CV projects presented as evidence-backed engineering case studies.",
+    description: "Six CV projects presented as evidence-backed engineering case studies.",
   },
 };
 
