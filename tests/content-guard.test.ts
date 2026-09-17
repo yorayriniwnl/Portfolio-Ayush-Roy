@@ -16,7 +16,8 @@ test("content validator encodes the canonical six-project boundary", () => {
 test("release scripts and CI gate the test suite with a safe build origin", () => {
   const packageJson = readFileSync("package.json", "utf8");
   const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
-  assert.match(packageJson, /validate.*npm run test/s);
+  assert.match(packageJson, /"verify:code".*npm run test/s);
+  assert.match(packageJson, /"build".*verify:code.*next build/s);
   assert.match(workflow, /npm run test/);
   assert.match(workflow, /npm run qa:browser/);
   assert.match(workflow, /NEXT_PUBLIC_SITE_URL:\s*https:\/\/portfolio\.example\.test/);
