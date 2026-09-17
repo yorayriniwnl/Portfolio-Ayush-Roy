@@ -4,7 +4,8 @@ import test from "node:test";
 
 test("content validator encodes the canonical six-project boundary", () => {
   const source = readFileSync("scripts/validate-content.mjs", "utf8");
-  assert.match(source, /portfolio.*helios.*zenith.*ai-vs-real.*talks.*candidatex/s);
+  assert.match(source, /CANONICAL_PROJECT_SLUGS/);
+  assert.match(source, /cvProjects\.length !== 6/);
   assert.match(source, /src\/content\/candidatex\.ts/);
   assert.match(source, /src\/content\/project-registry\.ts/);
   assert.match(source, /src\/app\/projects\/\[slug\]\/live\/page\.tsx/);
