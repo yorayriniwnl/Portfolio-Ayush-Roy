@@ -18,11 +18,11 @@ export const claims: readonly Claim[] = [
     id: "portfolio-system",
     project: "portfolio",
     claim: "Public project system",
-    value: "Five CV projects",
+    value: "Six CV projects",
     status: "supported",
     method: "Canonical registry and route contract in this repository",
     source: "Portfolio repository",
-    lastVerified: "2026-09-16",
+    lastVerified: "2026-09-17",
     evidenceUrl: "https://github.com/yorayriniwnl/Portfolio-Ayush-Roy",
   },
   {
