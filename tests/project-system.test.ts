@@ -12,8 +12,8 @@ import {
   projectPath,
 } from "../src/content/project-system";
 
-test("exposes exactly the five CV project slugs", () => {
-  assert.deepEqual([...CANONICAL_PROJECT_SLUGS], ["portfolio", "helios", "zenith", "ai-vs-real", "talks"]);
+test("exposes exactly the six CV project slugs", () => {
+  assert.deepEqual([...CANONICAL_PROJECT_SLUGS], ["portfolio", "helios", "zenith", "ai-vs-real", "talks", "candidatex"]);
   assert.deepEqual(cvProjects.map((project) => project.slug), [...CANONICAL_PROJECT_SLUGS]);
   assert.equal(cvProjects.some((project) => project.slug === "token-usage"), false);
 });
@@ -58,6 +58,17 @@ test("resolves the AI detector inference demo", () => {
 
 test("keeps Yor Talks live unavailable", () => {
   assert.equal(resolveProjectLink("talks", "live").kind, "unavailable");
+});
+
+test("adds CandidateX to the canonical project system with verified source and bounded live state", () => {
+  assert.equal(getCvProject("candidatex")?.title, "CandidateX");
+  assert.equal(projectPath("candidatex"), "/projects/candidatex");
+
+  const source = resolveProjectLink("candidatex", "source");
+  assert.equal(source.kind, "redirect");
+  if (source.kind === "redirect") assert.equal(source.target, "https://github.com/yorayriniwnl/CandidateX");
+
+  assert.equal(resolveProjectLink("candidatex", "live").kind, "unavailable");
 });
 
 test("resolves source through the stable source namespace", () => {
