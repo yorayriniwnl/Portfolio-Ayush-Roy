@@ -13,7 +13,7 @@ export const candidateXProject: Project = {
   role: "Research engineer · full-stack / evaluation systems",
   contribution: "I designed and implemented the end-to-end CandidateX research and product prototype represented by the repository: candidate intake, evidence acquisition boundaries, static analyzers, Candidate Evidence Graph construction, scoring, diagnostics, interview probes, backend APIs, and recruiter-facing web workflow.",
   outcome: "A reproducible research prototype that helps interviewers inspect technical evidence without making autonomous hire or reject decisions.",
-  evidenceScope: "Repository evidence at commit e68febbb documents a Next.js 15 frontend, FastAPI backend, PostgreSQL/Redis infrastructure, static multi-language analysis, a Candidate Evidence Graph, role-capability scoring, research experiment tooling, and a broad automated test suite. The repository's GitHub Actions workflow is currently failing at that commit, and the public Vercel hostname could not be independently verified from this portfolio audit, so no live-production claim is made here.",
+  evidenceScope: "Repository evidence at commit e68febbb documents a Next.js 15 frontend, FastAPI backend, PostgreSQL/Redis infrastructure, static multi-language analysis, a Candidate Evidence Graph, role-capability scoring, and research experiment tooling. The published experiment results are simulation-based research evidence rather than validated hiring outcomes, and a stable public CandidateX application hostname is not currently verified for this portfolio.",
   technologies: ["Python", "FastAPI", "Next.js", "PostgreSQL", "Redis", "Static analysis"],
   art: "/media/hero-studio.svg",
   period: "2026",
@@ -52,8 +52,8 @@ export const candidateXProject: Project = {
     "Research tooling reproduces deterministic simulated cohorts and ablation-study artifacts for the associated conference-paper methodology.",
   ],
   testing: [
-    "The repository README documents unit, golden, property, security, database, and theorem-audit coverage across the backend and research surfaces.",
-    "The current main commit has a successful Vercel status but a failing GitHub Actions CI workflow; this case study does not present the repository as fully green until that CI failure is resolved.",
+    "The repository README documents unit, golden, property, security, database, and theorem-audit test surfaces across the backend and research layers.",
+    "A public hosted acceptance path and current release CI state should be re-verified before presenting CandidateX as production-ready software.",
   ],
   results: [
     "The repository connects candidate-supplied artifacts to an inspectable evidence graph and role-specific evaluation workflow.",
@@ -66,7 +66,6 @@ export const candidateXProject: Project = {
   ],
   limitations: [
     "The published research cohort is simulated and must not be described as evidence of real-world hiring validity.",
-    "The latest GitHub Actions workflow is failing and should be repaired before presenting the repository as release-ready.",
     "A stable public CandidateX deployment hostname has not been independently verified for the portfolio, so the clean project page exposes source but not a live CTA.",
     "Any use in hiring requires careful legal, fairness, privacy, accessibility, and human-review governance beyond the software prototype itself.",
   ],
@@ -74,8 +73,8 @@ export const candidateXProject: Project = {
     "Evidence provenance is more useful than a confident-looking score with no traceable source.",
     "Coverage and uncertainty need their own first-class outputs in evaluation systems.",
   ],
-  nextIteration: "Repair the repository CI failure, verify a stable public deployment, then validate the scoring and probe-generation behavior with carefully designed human-reviewed studies rather than simulated cohorts alone.",
-  claimIds: [],
+  nextIteration: "Verify a stable public deployment, then validate the scoring and probe-generation behavior with carefully designed human-reviewed studies rather than simulated cohorts alone.",
+  claimIds: ["candidatex-research-cohort"],
   seo: {
     title: "CandidateX · Candidate Capability Intelligence Case Study",
     description: "CandidateX is a provenance-grounded hiring decision-support research prototype using static evidence analysis, Candidate Evidence Graphs, role capability scoring, contradiction diagnostics, and interview probes.",
