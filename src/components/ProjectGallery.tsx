@@ -17,7 +17,7 @@ export function ProjectGallery({ media }: { media: readonly ProjectMedia[] }) {
         {media.map((item) => (
           <figure className={`case-gallery-item case-gallery-item-${item.kind}`} key={item.src}>
             <div className="case-gallery-frame">
-              <Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes="(max-width: 760px) 100vw, 50vw" unoptimized />
+              <Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes="(max-width: 760px) 100vw, 50vw" />
             </div>
             <figcaption>
               <div className="case-gallery-caption">

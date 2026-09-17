@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import { allProjects, CANONICAL_PROJECT_SLUGS, cvProjects, legacyProjects } from "../src/content/project-registry.ts";
 import { claims as claimRegistry } from "../src/content/claims.ts";
+import { profile } from "../src/content/profile.ts";
 
 const read = (file) => fs.readFileSync(file, "utf8");
 const requiredFiles = [
@@ -17,6 +18,7 @@ const requiredFiles = [
   "src/app/projects/[slug]/live/page.tsx",
   "src/app/projects/[slug]/source/page.tsx",
   "src/app/resume/page.tsx",
+  "src/app/lab/page.tsx",
   "src/app/work/[slug]/page.tsx",
   "src/app/not-found.tsx",
 ];
@@ -25,29 +27,34 @@ for (const file of requiredFiles) {
   if (!fs.existsSync(file)) throw new Error(`Missing ${file}`);
 }
 
-const content = read("src/content/projects.ts");
-const candidateContent = read("src/content/candidatex.ts");
-const claimsSource = read("src/content/claims.ts");
-const canonicalSlugs = ["portfolio", "helios", "zenith", "ai-vs-real", "talks", "candidatex"];
-
-if (JSON.stringify([...CANONICAL_PROJECT_SLUGS]) !== JSON.stringify(canonicalSlugs)) {
-  throw new Error("Canonical project order is missing or incomplete");
+const canonicalSlugs = [...CANONICAL_PROJECT_SLUGS];
+const publicSlugs = cvProjects.map((project) => project.slug);
+if (JSON.stringify(publicSlugs) !== JSON.stringify(canonicalSlugs)) {
+  throw new Error(`CV registry drift: expected ${canonicalSlugs.join(", ")}; received ${publicSlugs.join(", ")}`);
 }
-if (cvProjects.length !== canonicalSlugs.length || JSON.stringify(cvProjects.map((project) => project.slug)) !== JSON.stringify(canonicalSlugs)) {
-  throw new Error("CV project registry must contain exactly the six canonical projects");
-}
-if (cvProjects.some((project) => project.slug === "token-usage")) {
-  throw new Error("Legacy token project leaked into public registry");
-}
-if (!read("src/content/project-registry.ts").includes("candidateXProject") || legacyProjects.length === 0) {
-  throw new Error("Project registry visibility boundary missing");
-}
-if (new Set(allProjects.map((project) => project.slug)).size !== allProjects.length) {
-  throw new Error("Project slugs must be unique across public and compatibility registries");
-}
+if (cvProjects.length !== 6) throw new Error("CV project registry must contain exactly six canonical projects");
+if (cvProjects.some((project) => project.slug === "token-usage")) throw new Error("Legacy token project leaked into public registry");
+if (legacyProjects.length === 0) throw new Error("Compatibility project registry unexpectedly empty");
+if (new Set(allProjects.map((project) => project.slug)).size !== allProjects.length) throw new Error("Project slugs must be unique across public and compatibility registries");
+if (new Set(cvProjects.map((project) => project.index)).size !== cvProjects.length) throw new Error("Recruiter-facing project indices must be unique");
 
 const claimIds = new Set(claimRegistry.map((claim) => claim.id));
+const projectSlugs = new Set(allProjects.map((project) => project.slug));
+for (const claim of claimRegistry) {
+  if (!claim.id || !claim.claim || !claim.value || !claim.method || !claim.source || !claim.evidenceUrl) {
+    throw new Error(`Incomplete evidence claim ${claim.id || "<unknown>"}`);
+  }
+  if (!projectSlugs.has(claim.project)) throw new Error(`Claim ${claim.id} references unknown project ${claim.project}`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(claim.lastVerified)) throw new Error(`Claim ${claim.id} has invalid verification date`);
+  const evidenceUrl = new URL(claim.evidenceUrl);
+  if (!["http:", "https:"].includes(evidenceUrl.protocol)) throw new Error(`Claim ${claim.id} uses unsupported evidence protocol`);
+}
+if (claimIds.size !== claimRegistry.length) throw new Error("Evidence claim IDs must be unique");
+
 for (const project of allProjects) {
+  if (!project.title || !project.purpose || !project.role || !project.evidenceScope) throw new Error(`Incomplete project narrative for ${project.slug}`);
+  if (!project.seo.title || !project.seo.description) throw new Error(`Missing SEO copy for ${project.slug}`);
+
   for (const claimId of project.claimIds) {
     if (!claimIds.has(claimId)) throw new Error(`Missing claim reference ${claimId} for ${project.slug}`);
   }
@@ -58,69 +65,65 @@ for (const project of allProjects) {
     if (status === "verified" && !target) throw new Error(`Verified ${kind} link missing for ${project.slug}`);
     if (status !== "verified" && target) throw new Error(`Unverified ${kind} link exposed for ${project.slug}`);
     if (target) {
-      let url;
-      try {
-        url = new URL(target);
-      } catch {
-        throw new Error(`Malformed ${kind} link for ${project.slug}`);
-      }
-      if (!["http:", "https:"].includes(url.protocol) || !url.hostname || url.hostname === "localhost" || url.hostname.endsWith(".local")) {
+      const url = new URL(target);
+      const host = url.hostname.toLowerCase();
+      if (!["http:", "https:"].includes(url.protocol) || !host || host === "localhost" || host.endsWith(".local")) {
         throw new Error(`Unsafe ${kind} link for ${project.slug}`);
       }
     }
   }
-}
 
-for (const id of [
-  "portfolio-system",
-  "talks-realtime-stack",
-  "talks-release-boundary",
-  "helios-deterministic-demo",
-  "texture-holdout-accuracy",
-  "zenith-interface-attribution",
-  "token-usage-estimates",
-]) {
-  if (!claimsSource.includes(`id: "${id}"`)) throw new Error(`Missing claim ${id}`);
-}
+  const localAssets = [project.art, ...(project.media ?? []).map((item) => item.src)];
+  for (const asset of localAssets) {
+    if (!asset.startsWith("/media/")) throw new Error(`Project ${project.slug} exposes non-media local asset ${asset}`);
+    if (!fs.existsSync(`public${asset}`)) throw new Error(`Missing project visual ${asset}`);
+  }
 
-if (!content.includes("78.5% accuracy on the repository's specific 107-image holdout")) throw new Error("AI vs. Real metric boundary missing");
-if (!content.includes("deployment blocked")) throw new Error("Talks readiness boundary missing");
-if (!content.includes("Nivedana: architecture and full-stack development")) throw new Error("Zenith collaborator attribution missing");
-if (!content.includes('"React", "Vite", "Express 5", "Socket.IO", "PostgreSQL", "Drizzle", "Redis"')) throw new Error("Current Talks stack missing");
-if (!candidateContent.includes("https://github.com/yorayriniwnl/CandidateX")) throw new Error("CandidateX source mapping missing");
-if (!candidateContent.includes("https://candidatex-smoky.vercel.app")) throw new Error("CandidateX live mapping missing");
-if (!candidateContent.includes('availability: { live: "verified", source: "verified" }')) throw new Error("CandidateX live evidence boundary missing");
-if (!read("src/content/site.ts").includes("NEXT_PUBLIC_SITE_URL")) throw new Error("Deployment origin configuration missing");
-
-if (!read("src/content/profile.ts").includes('headline: "Product / Full-Stack Engineer"')) throw new Error("Primary positioning missing");
-
-for (const asset of [
-  "/media/github/yor-talks/hero.svg", "/media/github/yor-talks/architecture.svg",
-  "/media/github/yor-helios/hero.svg", "/media/github/yor-helios/architecture.svg", "/media/github/yor-helios/dashboard.svg", "/media/github/yor-helios/alerts.svg", "/media/github/yor-helios/alert-detail.svg", "/media/github/yor-helios/mobile-evidence.svg",
-  "/media/github/texture-forensics/hero.svg", "/media/github/texture-forensics/architecture.svg",
-  "/media/github/yor-zenith/hero.svg", "/media/github/yor-zenith/architecture.svg",
-]) {
-  if (!fs.existsSync(`public${asset}`)) throw new Error(`Missing repository visual ${asset}`);
-}
-
-for (const marker of [
-  "Source visuals / repository assets",
-  "View source asset ↗",
-  "3aad91ce46059bb47749a0d5598140cd8cb91099",
-  "a99e15056eadb5252bf299c62e8af5844d543d4c",
-  "42db86fbc1ddef360fba0366b49f18039b6dc4e9",
-  "58b2a256aa56c1eff202ef39ef5c7fa73bc2dea1",
-]) {
-  if (!read("src/components/ProjectGallery.tsx").includes(marker) && !content.includes(marker)) {
-    throw new Error(`Repository visual marker missing ${marker}`);
+  for (const media of project.media ?? []) {
+    if (!media.alt || !media.caption || !media.label) throw new Error(`Incomplete project media metadata for ${project.slug}: ${media.src}`);
+    if (media.width <= 0 || media.height <= 0) throw new Error(`Invalid project media dimensions for ${project.slug}: ${media.src}`);
+    const source = new URL(media.sourceUrl);
+    if (!["http:", "https:"].includes(source.protocol)) throw new Error(`Invalid media provenance URL for ${project.slug}: ${media.src}`);
   }
 }
+
+const candidateX = cvProjects.find((project) => project.slug === "candidatex");
+if (!candidateX) throw new Error("CandidateX missing from recruiter-facing registry");
+if (candidateX.availability.live !== "verified" || candidateX.links.live !== "https://candidatex-smoky.vercel.app") {
+  throw new Error("CandidateX public frontend demo mapping drifted");
+}
+if (candidateX.media.length < 4 || !candidateX.art.includes("/candidatex/")) throw new Error("CandidateX bespoke visual system missing");
+const candidateMetric = (label) => candidateX.metrics.find((metric) => metric.label === label)?.value;
+if (candidateMetric("Paper benchmark") !== "28,800") throw new Error("CandidateX paper benchmark provenance drifted");
+if (candidateMetric("Supplementary ablation") !== "4,800") throw new Error("CandidateX supplementary ablation provenance drifted");
+if (!candidateX.limitations.some((item) => /real-world hiring/i.test(item))) throw new Error("CandidateX real-world validation boundary missing");
+
+const detector = cvProjects.find((project) => project.slug === "ai-vs-real");
+const detectorClaim = claimRegistry.find((claim) => claim.id === "texture-holdout-accuracy" && claim.project === "ai-vs-real");
+const detectorMetric = detector?.metrics.find((metric) => metric.label === "Holdout accuracy");
+if (
+  !detectorClaim ||
+  detectorClaim.value !== "78.5" ||
+  !/107-image holdout/i.test(detectorClaim.unit) ||
+  detectorMetric?.value.replace(/%$/, "") !== detectorClaim.value ||
+  !/107-image holdout/i.test(detectorMetric.context)
+) {
+  throw new Error("AI vs. Real holdout evidence boundary missing");
+}
+const talks = cvProjects.find((project) => project.slug === "talks");
+if (talks?.availability.live !== "blocked") throw new Error("Talks readiness boundary missing");
+if (!talks?.technologies.includes("Socket.IO") || !talks.technologies.includes("Redis")) throw new Error("Current Talks stack missing");
+const zenith = cvProjects.find((project) => project.slug === "zenith");
+if (!zenith?.collaborators?.includes("Nivedana")) throw new Error("Zenith collaborator attribution missing");
+
+if (profile.headline !== "Product / Full-Stack Engineer") throw new Error("Primary positioning missing");
+if (!read("src/content/site.ts").includes("NEXT_PUBLIC_SITE_URL")) throw new Error("Deployment origin configuration missing");
 
 const publicSurfaceFiles = [
   "src/app/projects/page.tsx",
   "src/components/ProjectIndex.tsx",
-  "src/components/Universe.tsx",
   "src/components/Home.tsx",
+  "src/components/Lab.tsx",
   "src/app/resume/page.tsx",
   "src/components/SiteNav.tsx",
 ];

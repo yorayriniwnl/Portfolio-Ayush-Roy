@@ -4,7 +4,8 @@ import test from "node:test";
 
 test("content validator encodes the canonical six-project boundary", () => {
   const source = readFileSync("scripts/validate-content.mjs", "utf8");
-  assert.match(source, /portfolio.*helios.*zenith.*ai-vs-real.*talks.*candidatex/s);
+  assert.match(source, /CANONICAL_PROJECT_SLUGS/);
+  assert.match(source, /cvProjects\.length !== 6/);
   assert.match(source, /src\/content\/candidatex\.ts/);
   assert.match(source, /src\/content\/project-registry\.ts/);
   assert.match(source, /src\/app\/projects\/\[slug\]\/live\/page\.tsx/);
@@ -16,7 +17,29 @@ test("content validator encodes the canonical six-project boundary", () => {
 test("release scripts and CI gate the test suite with a safe build origin", () => {
   const packageJson = readFileSync("package.json", "utf8");
   const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
-  assert.match(packageJson, /validate.*npm run test/s);
+  assert.match(packageJson, /"verify:code".*npm run test/s);
+  assert.match(packageJson, /"build".*verify:code.*next build/s);
   assert.match(workflow, /npm run test/);
+  assert.match(workflow, /npm run qa:browser/);
   assert.match(workflow, /NEXT_PUBLIC_SITE_URL:\s*https:\/\/portfolio\.example\.test/);
+});
+
+test("project registry does not mutate stale project-count prose", () => {
+  const registry = readFileSync("src/content/project-registry.ts", "utf8");
+  const validator = readFileSync("scripts/validate-content.mjs", "utf8");
+
+  assert.doesNotMatch(registry, /\.replace\(/);
+  assert.doesNotMatch(registry, /Public project scope.*value:\s*"6"/s);
+  assert.doesNotMatch(validator, /const canonicalSlugs\s*=\s*\[\s*["']/);
+  assert.match(validator, /const canonicalSlugs\s*=\s*\[\.\.\.CANONICAL_PROJECT_SLUGS\]/);
+});
+
+test("dead legacy universe code stays out of the production graph", () => {
+  const home = readFileSync("src/components/Home.tsx", "utf8");
+  const nextConfig = readFileSync("next.config.ts", "utf8");
+  const validator = readFileSync("scripts/validate-content.mjs", "utf8");
+
+  assert.doesNotMatch(home, /Universe|UniverseArcade|from ["']motion/);
+  assert.doesNotMatch(nextConfig, /["']motion["']/);
+  assert.doesNotMatch(validator, /Universe\.tsx/);
 });

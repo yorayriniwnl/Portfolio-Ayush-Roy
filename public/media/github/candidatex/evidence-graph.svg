@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="800" viewBox="0 0 1400 800" role="img" aria-labelledby="title desc">
+<title id="title">Candidate Evidence Graph</title><desc id="desc">A stylized evidence graph connecting source artifacts to capabilities while keeping coverage, uncertainty and contradictions visible.</desc>
+<rect width="1400" height="800" fill="#070709"/><text x="68" y="72" fill="#ff5360" font-family="monospace" font-size="18" letter-spacing="4">CANDIDATE EVIDENCE GRAPH / PROVENANCE ATTACHED</text>
+<g stroke="#4e3940" stroke-width="2" fill="none"><path d="M230 220L520 165 760 300 1040 190M230 220L510 430 760 300M510 430L860 585 1040 190M760 300L1110 475M860 585L1110 475"/><path d="M520 165L510 430" stroke="#ff3040" stroke-opacity=".45"/></g>
+<g font-family="monospace">
+<g transform="translate(120 170)"><circle cx="90" cy="55" r="70" fill="#101014" stroke="#6e6266"/><text x="52" y="50" fill="#f4f0ea" font-size="18">SOURCE</text><text x="45" y="77" fill="#9d9497" font-size="14">GitHub</text></g>
+<g transform="translate(430 105)"><circle cx="90" cy="55" r="70" fill="#101014" stroke="#6e6266"/><text x="40" y="50" fill="#f4f0ea" font-size="18">EVIDENCE</text><text x="51" y="77" fill="#9d9497" font-size="14">AST symbol</text></g>
+<g transform="translate(430 370)"><circle cx="90" cy="55" r="70" fill="#101014" stroke="#6e6266"/><text x="40" y="50" fill="#f4f0ea" font-size="18">EVIDENCE</text><text x="52" y="77" fill="#9d9497" font-size="14">CI config</text></g>
+<g transform="translate(660 235)"><circle cx="100" cy="65" r="92" fill="#1d080e" stroke="#ff3040" stroke-width="2"/><text x="45" y="56" fill="#ff6672" font-size="17">CAPABILITY</text><text x="46" y="86" fill="#f4f0ea" font-size="19">Backend</text></g>
+<g transform="translate(765 530)"><circle cx="95" cy="55" r="74" fill="#101014" stroke="#6e6266"/><text x="44" y="50" fill="#f4f0ea" font-size="17">COVERAGE</text><text x="57" y="79" fill="#ff6672" font-size="15">known ≠ zero</text></g>
+<g transform="translate(955 130)"><circle cx="85" cy="55" r="70" fill="#101014" stroke="#6e6266"/><text x="32" y="50" fill="#f4f0ea" font-size="17">UNCERTAINTY</text><text x="44" y="79" fill="#9d9497" font-size="14">interval</text></g>
+<g transform="translate(1025 420)"><circle cx="85" cy="55" r="70" fill="#101014" stroke="#6e6266"/><text x="24" y="50" fill="#f4f0ea" font-size="17">CONTRADICTION</text><text x="43" y="79" fill="#ff6672" font-size="14">probe next</text></g>
+</g>
+<g transform="translate(64 682)" font-family="monospace"><rect width="1272" height="62" rx="12" fill="#0d0d10" stroke="#2f2b2d"/><text x="24" y="38" fill="#a79da1" font-size="16">Every edge answers: what was observed, where did it come from, how much should it count, and what remains unknown?</text></g>
+</svg>

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { CaseStudy } from "@/components/CaseStudy";
 import { getProjectMetadata } from "@/content/project-seo";
-import { cvProjects, legacyProjects } from "@/content/projects";
+import { legacyProjects } from "@/content/projects";
+import { cvProjects } from "@/content/project-registry";
 import { getCvProject, getLegacyProject, getLegacyRedirect } from "@/content/project-system";
 import { absoluteSiteUrl } from "@/content/site";
 

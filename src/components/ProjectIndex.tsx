@@ -3,6 +3,7 @@ import type { Project } from "@/content/projects";
 
 export function ProjectIndex({ projects }: { projects: readonly Project[] }) {
   const publicProjects = projects.filter((project) => project.visibility.portfolio);
+  const projectCount = publicProjects.length;
 
   return (
     <main id="main" className="projects-index">
@@ -10,9 +11,9 @@ export function ProjectIndex({ projects }: { projects: readonly Project[] }) {
         <div className="container">
           <span className="technical">YOR / SELECTED ENGINEERING WORK</span>
           <h1 id="projects-title" className="display">Projects<br /><em>with receipts.</em></h1>
-          <p className="projects-index-deck">Six CV projects, presented as one coherent system: understand the work, experience a verified deployment when one exists, then inspect the source.</p>
+          <p className="projects-index-deck">{projectCount} CV projects, presented as one coherent system: understand the work, experience a verified deployment when one exists, then inspect the source.</p>
           <div className="projects-index-proof" aria-label="Project index rules">
-            <span><b>06</b> canonical case studies</span>
+            <span><b>{String(projectCount).padStart(2, "0")}</b> canonical case studies</span>
             <span><b>01</b> source of truth</span>
             <span><b>0</b> fabricated deployments</span>
           </div>

@@ -2,7 +2,7 @@ import { ActionLink } from "./ActionLink";
 import { ClaimStrip } from "./ClaimStrip";
 import { DeferredProjectDemo } from "./DeferredProjectDemo";
 import { ProjectGallery } from "./ProjectGallery";
-import { cvProjects } from "@/content/project-registry";
+import { cvProjects, recruiterProjects } from "@/content/project-registry";
 import type { Project } from "@/content/projects";
 
 function CaseSection({ id, number, title, children }: { id: string; number: string; title: string; children: React.ReactNode }) {
@@ -24,8 +24,8 @@ function EvidenceList({ items }: { items: readonly string[] }) {
 
 export function CaseStudy({ project }: { project: Project }) {
   const isCvProject = cvProjects.some((candidate) => candidate.slug === project.slug);
-  const index = cvProjects.findIndex((item) => item.slug === project.slug);
-  const next = isCvProject ? cvProjects[(index + 1) % cvProjects.length] : undefined;
+  const index = recruiterProjects.findIndex((item) => item.slug === project.slug);
+  const next = isCvProject && index >= 0 ? recruiterProjects[(index + 1) % recruiterProjects.length] : undefined;
 
   return (
     <main id="main">
@@ -51,6 +51,20 @@ export function CaseStudy({ project }: { project: Project }) {
           </div>
         </div>
       </section>
+
+      <nav className="case-toc" aria-label="Case study sections">
+        <div className="container case-toc-inner">
+          <a href="#overview">Overview</a>
+          <a href="#contribution">Contribution</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#implementation">Implementation</a>
+          <a href="#testing">Validation</a>
+          <a href="#results">Evidence</a>
+          {project.media.length > 0 && <a href="#gallery">Visuals</a>}
+          <a href="#limitations">Limits</a>
+          <a href="#next-iteration">Next</a>
+        </div>
+      </nav>
 
       <article className="container case-body">
         <CaseSection id="overview" number="01 /" title="Overview">

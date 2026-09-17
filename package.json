@@ -7,14 +7,17 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run verify:code && next build",
     "start": "next start",
-    "test": "node --import tsx/esm --test tests/*.test.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "validate:content": "node --import tsx/esm scripts/validate-content.mjs",
+    "validate:content": "node --import tsx scripts/validate-content.mjs",
     "validate:assets": "node scripts/check-asset-budget.mjs",
-    "validate": "npm run test && npm run lint && npm run validate:content && npm run validate:assets && npm run typecheck && npm run build"
+    "verify:code": "npm run test && npm run lint && npm run validate:content && npm run validate:assets && npm run typecheck",
+    "validate": "npm run build",
+    "qa:browser": "node scripts/browser-qa.mjs",
+    "validate:full": "npm run build && npm run qa:browser"
   },
   "dependencies": {
     "@react-three/fiber": "9.7.0",

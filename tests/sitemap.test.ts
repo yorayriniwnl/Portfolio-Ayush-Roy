@@ -7,7 +7,8 @@ test("sitemap contains only the recruiter-facing canonical routes", () => {
   const entries = sitemap();
   const urls = entries.map((entry) => String(entry.url));
   assert.ok(urls.includes("https://portfolio.example.test/projects"));
-  for (const slug of ["portfolio", "helios", "zenith", "ai-vs-real", "talks"]) {
+  assert.ok(urls.includes("https://portfolio.example.test/lab"));
+  for (const slug of ["portfolio", "helios", "zenith", "ai-vs-real", "talks", "candidatex"]) {
     assert.ok(urls.includes(`https://portfolio.example.test/projects/${slug}`));
   }
   assert.equal(urls.some((url) => url.includes("/work/")), false);

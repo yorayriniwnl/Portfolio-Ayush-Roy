@@ -15,7 +15,7 @@ export const candidateXProject: Project = {
   outcome: "A reproducible research prototype that helps interviewers inspect technical evidence without making autonomous hire or reject decisions.",
   evidenceScope: "The CandidateX repository documents a Next.js 15 frontend, FastAPI backend, PostgreSQL/Redis infrastructure, static multi-language analysis, a Candidate Evidence Graph, role-capability scoring, and research experiment tooling. The submitted paper reports a controlled synthetic benchmark of 28,800 candidate-role evaluations. The repository separately contains a 4,800-sample supplementary implementation ablation harness. Neither should be described as validated real-world hiring performance. A public CandidateX deployment is available at candidatex-smoky.vercel.app.",
   technologies: ["Python", "FastAPI", "Next.js", "PostgreSQL", "Redis", "Static analysis"],
-  art: "/media/hero-studio.svg",
+  art: "/media/github/candidatex/hero.svg",
   period: "2026",
   links: {
     live: "https://candidatex-smoky.vercel.app",
@@ -23,7 +23,12 @@ export const candidateXProject: Project = {
   },
   availability: { live: "verified", source: "verified" },
   visibility: { featured: true, portfolio: true, resume: true },
-  media: [],
+  media: [
+    { src: "/media/github/candidatex/architecture.svg", kind: "architecture", width: 1600, height: 760, label: "System architecture", alt: "CandidateX architecture from candidate and role intake through safe evidence acquisition, static analyzers, Candidate Evidence Graph, capability estimation, diagnostics, and a human recruiter dossier", caption: "A closed-world evidence pipeline: candidate-supplied inputs become provenance-backed evidence and interview probes, never an autonomous employment decision.", sourceUrl: "https://github.com/yorayriniwnl/Portfolio-Ayush-Roy/blob/main/public/media/github/candidatex/architecture.svg" },
+    { src: "/media/github/candidatex/evidence-graph.svg", kind: "architecture", width: 1400, height: 800, label: "Candidate Evidence Graph", alt: "Candidate Evidence Graph connecting source artifacts to evidence, capability, coverage, uncertainty, and contradiction nodes", caption: "The graph keeps provenance and uncertainty attached so missing evidence is not silently converted into zero capability.", sourceUrl: "https://github.com/yorayriniwnl/Portfolio-Ayush-Roy/blob/main/public/media/github/candidatex/evidence-graph.svg" },
+    { src: "/media/github/candidatex/recruiter-dossier.svg", kind: "screen", width: 1400, height: 800, label: "Recruiter dossier model", alt: "CandidateX recruiter dossier separating Role Capability Index, Evidence Coverage, contradiction diagnostics, interview probes, and the human decision boundary", caption: "A recruiter-facing explanation surface that separates observed capability from coverage and keeps the final decision human-owned.", sourceUrl: "https://github.com/yorayriniwnl/Portfolio-Ayush-Roy/blob/main/public/media/github/candidatex/recruiter-dossier.svg" },
+    { src: "/media/github/candidatex/research-boundary.svg", kind: "architecture", width: 1400, height: 700, label: "Research provenance boundary", alt: "Research provenance graphic separating the submitted paper's 28,800 synthetic candidate-role evaluations from the repository's separate 4,800-sample supplementary ablation", caption: "The two synthetic experiment scopes stay deliberately separate; neither is evidence of real-world hiring validity.", sourceUrl: "https://github.com/yorayriniwnl/Portfolio-Ayush-Roy/blob/main/public/media/github/candidatex/research-boundary.svg" },
+  ],
   problem: "Hiring evidence is fragmented across resumes, repositories, deployments, schemas, coding profiles, and interviews. Collapsing those signals into an opaque score hides provenance, uncertainty, and contradictions.",
   whyItMatters: "Interviewers need to know what a candidate claims, what the supplied artifacts actually support, where evidence is missing, and which questions would reduce uncertainty before making a human hiring decision.",
   constraints: [

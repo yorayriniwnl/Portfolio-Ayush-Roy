@@ -11,14 +11,19 @@
   --deep-crimson: #7d111d;
   --line: rgba(244, 240, 234, 0.16);
   --line-hot: rgba(255, 48, 64, 0.62);
-  --display: var(--font-display, "Cormorant Garamond"), Georgia, serif;
-  --technical: var(--font-technical, "DM Mono"), "SFMono-Regular", Consolas, monospace;
+  --display: "Iowan Old Style", Baskerville, Georgia, "Times New Roman", serif;
+  --technical: "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", monospace;
   --body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --r-panel: 14px;
   --r-frame: 5px;
   --fast: 160ms;
   --base: 260ms;
   --slow: 600ms;
+  --cinematic: 900ms;
+  --ease-out: cubic-bezier(.2,.72,.18,1);
+  --ease-spring: cubic-bezier(.16,1,.3,1);
+  --depth-soft: 0 24px 70px rgba(0, 0, 0, .28);
+  --depth-hot: 0 30px 100px rgba(125, 17, 29, .18);
   --content: min(1380px, calc(100vw - 112px));
   --reading: 66ch;
 }

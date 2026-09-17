@@ -16,7 +16,7 @@ export default function Resume() {
       <p style={{ fontSize: 20, color: "var(--signal)" }}>{profile.role}</p>
       <p className="reading muted" style={{ lineHeight: 1.75, fontSize: 17 }}>{profile.positioning}</p>
       <div className="actions" style={{ marginBottom: 78 }}>
-        <ActionLink href="/media/Ayush_Roy_Resume.pdf" external primary>Download PDF</ActionLink>
+        <ActionLink href="/media/Ayush_Roy_Resume.pdf" external primary>Open PDF</ActionLink>
         <ActionLink href={`mailto:${profile.email}`} external>Email</ActionLink>
         <ActionLink href={profile.links.github} external>GitHub</ActionLink>
         <ActionLink href={profile.links.linkedin} external>LinkedIn</ActionLink>
