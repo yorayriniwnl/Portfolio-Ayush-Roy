@@ -54,7 +54,7 @@ Canonical CV project URLs:
 - `/projects/talks`
 - `/projects/candidatex`
 
-The portfolio, the bounded Helios frontend demo, Zenith, and the bounded AI detector inference demo have verified reachable mappings. Yor Talks intentionally remains unavailable because its current full-stack runtime still needs long-lived Socket.IO infrastructure, database/Redis providers, secrets, and hosted acceptance checks. CandidateX exposes a verified source mapping and an honest unavailable live state until a stable public application hostname is independently verified.
+The portfolio, the bounded Helios frontend demo, Zenith, the bounded AI detector inference demo, and CandidateX have verified public live mappings. Yor Talks intentionally remains unavailable because its current full-stack runtime still needs long-lived Socket.IO infrastructure, database/Redis providers, secrets, and hosted acceptance checks.
 
 Current public surfaces:
 
@@ -63,7 +63,7 @@ Current public surfaces:
 - Zenith: `https://zenith-xi-snowy.vercel.app` — the existing reachable project deployment.
 - AI vs. Real: `https://yor-ai-vs-real-detector.vercel.app` — the repository's Flask inference demo with checked-in model artifacts.
 - Yor Talks: no live URL exposed; the source resolver remains available.
-- CandidateX: no live URL exposed until a stable public deployment hostname is verified; source resolves to `https://github.com/yorayriniwnl/CandidateX`.
+- CandidateX: `https://candidatex-smoky.vercel.app` — the public CandidateX application entry point; source resolves to `https://github.com/yorayriniwnl/CandidateX`.
 
 The homepage arcade includes local two-player chess with legal move validation, promotion, undo, board flipping, and checkmate detection; a matching-pairs memory game; and a timed typing challenge. The YouTube wall is a curated set of real videos from [@YorAyriniwnl](https://www.youtube.com/@YorAyriniwnl), with direct links and inline playback.
 
