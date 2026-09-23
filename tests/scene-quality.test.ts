@@ -75,13 +75,17 @@ test("scene renderer capability probing selects an available backend and release
 test("machine scene has one catchable renderer root and a separate decorative static composition", () => {
   const layer = readFileSync("src/experience/ExperienceSceneLayer.tsx", "utf8");
   const canvas = readFileSync("src/experience/MachineCanvas.tsx", "utf8");
+  const lifecycle = readFileSync("src/experience/scene-lifecycle.ts", "utf8");
   const staticMachine = readFileSync("src/experience/StaticMachine.tsx", "utf8");
 
   assert.equal((canvas.match(/createRoot\(/g) ?? []).length, 1);
   assert.doesNotMatch(layer, /createRoot\(/);
   assert.match(canvas, /await\s+root\.configure\(/);
   assert.match(canvas, /catch\s*\(/);
-  assert.match(canvas, /root\.unmount\(/);
+  assert.match(lifecycle, /root\.unmount\(/);
+  assert.match(lifecycle, /renderer\?\.dispose\(/);
+  assert.match(canvas, /unmountAndDisposeScene\(/, "Canvas teardown does not dispose the renderer after unmounting the root");
+  assert.doesNotMatch(layer, /key=\{state\.pathname\}/, "eligible route changes remount the shared Canvas");
   assert.match(canvas, /frameloop:\s*state\.pageVisible\s*\?\s*["']always["']\s*:\s*["']never["']/);
   assert.match(layer, /<StaticMachine\s*\/>/);
   assert.match(layer, /surface\s*!==\s*["']inactive["']/);

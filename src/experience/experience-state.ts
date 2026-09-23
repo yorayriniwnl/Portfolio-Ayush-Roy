@@ -89,18 +89,21 @@ export function experienceReducer(
   action: ExperienceAction,
 ): ExperienceState {
   switch (action.type) {
-    case "route":
+    case "route": {
+      const nextRoute = classifyRoute(action.pathname);
+      const keepsScene = state.surface !== "inactive" && nextRoute.surface !== "inactive";
       return {
         ...state,
         pathname: action.pathname,
         projectId: undefined,
-        ...classifyRoute(action.pathname),
+        ...nextRoute,
         section: "intro",
         progress: 0,
         activeProject: undefined,
-        sceneStatus: "static",
+        sceneStatus: keepsScene && state.sceneStatus !== "failed" ? state.sceneStatus : "static",
         demo: initialDemoState(),
       };
+    }
     case "section": {
       const sections: readonly string[] = ["intro", "identity", "projects", "about", "contact"];
       if (!sections.includes(action.section)) return state;

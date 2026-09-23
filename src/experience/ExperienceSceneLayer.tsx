@@ -179,7 +179,6 @@ export function ExperienceSceneLayer() {
       <StaticMachine />
       {showCanvas && (
         <SceneLoadBoundary
-          key={state.pathname}
           onFail={() => setSceneStatus("failed")}
         >
           <DynamicMachineCanvas

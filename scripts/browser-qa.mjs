@@ -415,12 +415,43 @@ try {
   await capture(cdp, outputDir, "desktop-hero");
   report.performance.samples.push({ path: "/", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
 
-  await navigate(cdp, `${baseUrl}/projects`);
-  await waitForCondition(cdp, `document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'ready' || document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'failed'`, { timeoutMs: 25_000, description: "project world scene initialization" });
+  const recordedCanvas = await cdp.evaluate(`(() => {
+    const canvas = document.querySelector('.machine-canvas');
+    if (!canvas) return false;
+    window.__qaPersistentCanvas = canvas;
+    return true;
+  })()`);
+  assert(recordedCanvas, "Ready homepage did not contain a Canvas instance to track across client routes");
+  await clickAtSelector('a[href="/projects"]');
+  await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { timeoutMs: 8000, description: "client navigation to project index with shared scene" });
+  const projectCanvas = await cdp.evaluate(`(() => ({
+    sameCanvas: window.__qaPersistentCanvas === document.querySelector('.machine-canvas'),
+    status: document.querySelector('.machine-scene-layer')?.dataset.sceneStatus || null,
+  }))()`);
+  assert(projectCanvas.sameCanvas && projectCanvas.status === "ready", `Project index replaced or reset the shared Canvas: ${JSON.stringify(projectCanvas)}`);
   await positionProjectWorldForCapture();
   await capture(cdp, outputDir, "desktop-project-world");
 
-  await navigate(cdp, `${baseUrl}/projects/candidatex`);
+  const candidateLink = await cdp.evaluate(`(() => {
+    const link = document.querySelector('a[href="/projects/candidatex"]');
+    if (!link) return false;
+    link.scrollIntoView({ block: 'center', behavior: 'instant' });
+    return true;
+  })()`);
+  assert(candidateLink, "Project index has no CandidateX route link for the client-navigation audit");
+  await delay(120);
+  await clickAtSelector('a[href="/projects/candidatex"]');
+  await waitForCondition(cdp, `location.pathname === '/projects/candidatex' && Boolean(document.querySelector('[data-experience-project="candidatex"]'))`, { timeoutMs: 8000, description: "client navigation to CandidateX with shared scene" });
+  const caseCanvas = await cdp.evaluate(`(() => ({
+    sameCanvas: window.__qaPersistentCanvas === document.querySelector('.machine-canvas'),
+    status: document.querySelector('.machine-scene-layer')?.dataset.sceneStatus || null,
+  }))()`);
+  assert(caseCanvas.sameCanvas && caseCanvas.status === "ready", `Case study replaced or reset the shared Canvas: ${JSON.stringify(caseCanvas)}`);
+  report.interaction.sharedCanvasRoutePersistence = {
+    paths: ["/", "/projects", "/projects/candidatex"],
+    sameCanvasAfterEach: [projectCanvas.sameCanvas, caseCanvas.sameCanvas],
+    statusAfterEach: [projectCanvas.status, caseCanvas.status],
+  };
   await capture(cdp, outputDir, "desktop-case-study");
 
   await setViewport(cdp, 390, 844);

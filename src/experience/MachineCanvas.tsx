@@ -11,6 +11,7 @@ import {
 import { useExperience } from "./ExperienceProvider";
 import type { ExperienceState } from "./experience-state";
 import { MachineWorld } from "./MachineWorld";
+import { unmountAndDisposeScene } from "./scene-lifecycle";
 
 extend(THREE as unknown as Catalogue);
 
@@ -123,6 +124,18 @@ export function MachineCanvas({
     let resizeObserver: ResizeObserver | undefined;
     let resizeHandler: (() => void) | undefined;
     let renderer: THREE.WebGPURenderer | undefined;
+    let teardownStarted = false;
+
+    const teardown = () => {
+      if (teardownStarted) return;
+      teardownStarted = true;
+      cancelled = true;
+      resizeObserver?.disconnect();
+      if (resizeHandler) window.removeEventListener("resize", resizeHandler);
+      if (rootRef.current === root) rootRef.current = null;
+      if (rendererRef.current === renderer) rendererRef.current = null;
+      unmountAndDisposeScene(root, renderer);
+    };
 
     const fail = () => {
       if (!cancelled) setSceneStatus("failed");
@@ -183,25 +196,14 @@ export function MachineCanvas({
           window.addEventListener("resize", resizeHandler, { passive: true });
         }
       } catch {
-        try {
-          if (renderer && rendererRef.current !== renderer) renderer.dispose();
-        } catch {
-          // The static composition remains visible when root setup cannot finish.
-        }
         fail();
+        teardown();
       }
     };
 
     void initialize();
 
-    return () => {
-      cancelled = true;
-      resizeObserver?.disconnect();
-      if (resizeHandler) window.removeEventListener("resize", resizeHandler);
-      if (rootRef.current === root) rootRef.current = null;
-      if (rendererRef.current === renderer) rendererRef.current = null;
-      root.unmount();
-    };
+    return teardown;
   }, [backend, device, setSceneStatus]);
 
   useEffect(() => {

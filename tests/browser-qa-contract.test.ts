@@ -135,6 +135,13 @@ test("production runner starts next start, writes measurements, and uses shared 
   matches(touchAudit, /scrollIntoView/, "touch audit injects a tap before bringing its target into the viewport");
 });
 
+test("production browser audit verifies one renderer instance survives eligible client routes", () => {
+  matches(runner, /__qaPersistentCanvas/, "browser audit does not retain the original Canvas node for identity comparison");
+  matches(runner, /sameCanvas/, "browser audit does not assert Canvas identity after eligible route changes");
+  matches(runner, /sharedCanvasRoutePersistence/, "browser report does not record persistent Canvas route coverage");
+  matches(runner, /location\.pathname === '\/projects\/candidatex' && Boolean\(document\.querySelector\('\[data-experience-project="candidatex"\]'\)\)/, "CandidateX client-route wait returns a DOM node instead of a serializable boolean");
+});
+
 test("essential copy markers cover each retained content surface", () => {
   for (const file of [
     "src/components/experience/MachineHero.tsx",

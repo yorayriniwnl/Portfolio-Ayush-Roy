@@ -118,7 +118,7 @@ test("environment, quality, and renderer updates are represented in state", () =
   assert.equal(failed.sceneStatus, "failed");
 });
 
-test("route changes recompute route identity and discard stale scene/demo state", () => {
+test("eligible route changes preserve the shared scene while discarding stale route/demo state", () => {
   const initial = experienceReducer(createExperienceState("/"), {
     type: "scene-status",
     status: "ready",
@@ -129,7 +129,7 @@ test("route changes recompute route identity and discard stale scene/demo state"
   assert.equal(routed.pathname, "/projects/talks");
   assert.equal(routed.surface, "case-study");
   assert.equal(routed.projectId, "talks");
-  assert.equal(routed.sceneStatus, "static");
+  assert.equal(routed.sceneStatus, "ready");
   assert.deepEqual(routed.demo, { choice: 0, selectedNode: 0, run: 0 });
 
   const index = experienceReducer(createExperienceState("/projects/zenith"), {
@@ -138,4 +138,12 @@ test("route changes recompute route identity and discard stale scene/demo state"
   });
   assert.equal(index.surface, "project-index");
   assert.equal(index.projectId, undefined);
+
+  const inactive = experienceReducer(routed, { type: "route", pathname: "/resume" });
+  assert.equal(inactive.surface, "inactive");
+  assert.equal(inactive.sceneStatus, "static");
+
+  const failed = experienceReducer(routed, { type: "scene-status", status: "failed" });
+  const retried = experienceReducer(failed, { type: "route", pathname: "/projects" });
+  assert.equal(retried.sceneStatus, "static");
 });
