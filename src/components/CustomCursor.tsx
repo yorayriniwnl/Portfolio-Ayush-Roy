@@ -10,40 +10,44 @@ const TEXT_CONTROL_SELECTOR =
 
 export function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
-  const orbitRef = useRef<HTMLSpanElement>(null);
-  const pointRef = useRef<HTMLSpanElement>(null);
+  const arrowRef = useRef<HTMLSpanElement>(null);
+  const gauntletRef = useRef<HTMLSpanElement>(null);
+  const glowRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const cursor = cursorRef.current;
-    const orbit = orbitRef.current;
-    const point = pointRef.current;
-    if (!cursor || !orbit || !point) return;
+    const arrow = arrowRef.current;
+    const gauntlet = gauntletRef.current;
+    const glow = glowRef.current;
+    if (!cursor || !arrow || !gauntlet || !glow) return;
 
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let targetX = 0;
     let targetY = 0;
-    let ringX = 0;
-    let ringY = 0;
+    let glowX = 0;
+    let glowY = 0;
     let animationFrame = 0;
-    let previousX: number | null = null;
-    let previousY = 0;
 
-    const place = (element: HTMLElement, x: number, y: number) => {
-      element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    const place = (element: HTMLElement, x: number, y: number, hotspotX = 0, hotspotY = 0) => {
+      element.style.transform = `translate3d(${x - hotspotX}px, ${y - hotspotY}px, 0)`;
     };
 
-    const animateRing = () => {
-      ringX += (targetX - ringX) * 0.28;
-      ringY += (targetY - ringY) * 0.28;
-      place(orbit, ringX, ringY);
+    const placeGlow = (x: number, y: number) => {
+      glow.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    };
 
-      if (Math.abs(targetX - ringX) > 0.1 || Math.abs(targetY - ringY) > 0.1) {
-        animationFrame = window.requestAnimationFrame(animateRing);
+    const animateGlow = () => {
+      glowX += (targetX - glowX) * 0.22;
+      glowY += (targetY - glowY) * 0.22;
+      placeGlow(glowX, glowY);
+
+      if (Math.abs(targetX - glowX) > 0.1 || Math.abs(targetY - glowY) > 0.1) {
+        animationFrame = window.requestAnimationFrame(animateGlow);
       } else {
-        ringX = targetX;
-        ringY = targetY;
-        place(orbit, ringX, ringY);
+        glowX = targetX;
+        glowY = targetY;
+        placeGlow(glowX, glowY);
         animationFrame = 0;
       }
     };
@@ -52,8 +56,6 @@ export function CustomCursor() {
       cursor.dataset.visible = "false";
       cursor.dataset.hovered = "false";
       cursor.dataset.pressed = "false";
-      previousX = null;
-      previousY = 0;
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
       animationFrame = 0;
       delete document.body.dataset.customCursor;
@@ -72,24 +74,16 @@ export function CustomCursor() {
       }
 
       const wasVisible = cursor.dataset.visible === "true";
-      if (previousX !== null) {
-        const deltaX = event.clientX - previousX;
-        const deltaY = event.clientY - previousY;
-        if (Math.hypot(deltaX, deltaY) > 0.5) {
-          cursor.style.setProperty("--cursor-angle", `${Math.atan2(deltaY, deltaX)}rad`);
-        }
-      }
-      previousX = event.clientX;
-      previousY = event.clientY;
       targetX = event.clientX;
       targetY = event.clientY;
-      place(point, targetX, targetY);
+      place(arrow, targetX, targetY, 6, 1);
+      place(gauntlet, targetX, targetY, 13, 1);
       if (!wasVisible) {
-        ringX = targetX;
-        ringY = targetY;
-        place(orbit, ringX, ringY);
+        glowX = targetX;
+        glowY = targetY;
+        placeGlow(glowX, glowY);
       }
-      if (!animationFrame) animationFrame = window.requestAnimationFrame(animateRing);
+      if (!animationFrame) animationFrame = window.requestAnimationFrame(animateGlow);
       cursor.dataset.visible = "true";
       cursor.dataset.hovered = String(Boolean(target?.closest(INTERACTIVE_SELECTOR)));
       document.body.dataset.customCursor = "active";
@@ -141,10 +135,9 @@ export function CustomCursor() {
 
   return (
     <div ref={cursorRef} className={styles.cursor} aria-hidden="true" data-visible="false" data-hovered="false" data-pressed="false">
-      <span ref={orbitRef} className={styles.orbitAnchor}>
-        <span className={styles.orbit} />
-      </span>
-      <span ref={pointRef} className={styles.point} />
+      <span ref={glowRef} className={styles.glow} />
+      <span ref={arrowRef} className={`${styles.asset} ${styles.arrow}`} />
+      <span ref={gauntletRef} className={`${styles.asset} ${styles.gauntlet}`} />
     </div>
   );
 }
