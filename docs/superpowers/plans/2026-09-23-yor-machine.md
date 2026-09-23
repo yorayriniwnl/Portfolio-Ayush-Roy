@@ -204,12 +204,12 @@
 - New CSS layers own every route, reduced motion, focus, navigation, ten viewport sizes, and overflow-safe case headings. Remove legacy global/rebuild styles after all retained routes migrate.
 - Preserve metadata/security behavior; delete `src/app/rebuild.css` when no production selector depends on it.
 
-- [ ] Test resume facts, Lab separation, and the five navigation items.
-- [ ] Run home architecture and security/SEO tests to expose unfinished migration.
-- [ ] Restyle resume and Lab; keep mobile nav keyboard-operable with Escape/open/close focus behavior.
-- [ ] Search retained pages for legacy selectors, migrate remaining rules, remove old global/rebuild blocks and imports, then delete rebuild.css.
-- [ ] Run typecheck, lint, content validation, asset validation, and build; confirm all pass before visual release checks.
-- [ ] Commit as `style: complete machine route migration`.
+- [x] Test resume facts, Lab separation, and the five navigation items.
+- [x] Run home architecture and security/SEO tests to expose unfinished migration.
+- [x] Restyle resume and Lab; keep mobile nav keyboard-operable with Escape/open/close focus behavior.
+- [x] Search retained pages for legacy selectors, migrate remaining rules, remove old global/rebuild blocks and imports, then delete rebuild.css.
+- [x] Run typecheck, lint, content validation, asset validation, and build; confirm all pass before visual release checks.
+- [x] Commit as `style: complete machine route migration`.
 
 ## Task 9: Make Production Browser QA Portable and Audit the Full Experience
 

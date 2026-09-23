@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./rebuild.css";
 import { SiteNav } from "@/components/SiteNav";
 import { ExperienceRuntime } from "@/experience/ExperienceRuntime";
 import { profile } from "@/content/profile";
@@ -65,7 +64,7 @@ export default function RootLayout({
     >
       <body>
         <ExperienceRuntime>
-          <a className="skip" href="#main">
+          <a className="machine-skip-link" href="#main">
             Skip to content
           </a>
           <SiteNav />
