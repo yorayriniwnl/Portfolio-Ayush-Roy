@@ -19,22 +19,6 @@ function asHomeSection(value: string | undefined): HomeSection | undefined {
   return undefined;
 }
 
-function hasGraphicsSupport(): boolean {
-  const webGpuAvailable = Boolean((navigator as Navigator & { gpu?: unknown }).gpu);
-  let webGlAvailable = false;
-
-  try {
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("webgl2", { failIfMajorPerformanceCaveat: true });
-    webGlAvailable = Boolean(context);
-    context?.getExtension("WEBGL_lose_context")?.loseContext();
-  } catch {
-    webGlAvailable = false;
-  }
-
-  return webGpuAvailable || webGlAvailable;
-}
-
 function reduceTouchQuality(quality: SceneQuality): SceneQuality {
   if (quality === "high") return "medium";
   return "low";
@@ -56,8 +40,6 @@ export function ExperienceDirector() {
   useEffect(() => {
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const coarsePointerQuery = window.matchMedia("(pointer: coarse)");
-    const graphicsAvailable = hasGraphicsSupport();
-
     const updateEnvironment = () => {
       const reducedMotion = reducedMotionQuery.matches;
       const pageVisible = document.visibilityState === "visible";
@@ -75,7 +57,7 @@ export function ExperienceDirector() {
         dpr: window.devicePixelRatio || 1,
       });
       const safeQuality =
-        reducedMotion || !pageVisible || !graphicsAvailable
+        reducedMotion || !pageVisible
           ? "low"
           : touchDevice
             ? reduceTouchQuality(quality)

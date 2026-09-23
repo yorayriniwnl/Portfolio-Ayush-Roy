@@ -1,6 +1,5 @@
 import { ActionLink } from "./ActionLink";
 import { ClaimStrip } from "./ClaimStrip";
-import { HeroSceneIsland } from "./HeroSceneIsland";
 import { profile } from "@/content/profile";
 import { recruiterProjects } from "@/content/project-registry";
 
@@ -34,7 +33,6 @@ export function Home() {
 
           <div className="hub-orbit-stage" role="img" aria-label="A crimson YOR signal core surrounded by an interactive engineering field">
             <div className="hub-orbit-ambient" aria-hidden="true" />
-            <div className="hub-hero-scene" aria-hidden="true"><HeroSceneIsland /></div>
             <div className="hub-orbit" aria-hidden="true">
               <span className="hub-orbit-ring hub-orbit-ring-one" />
               <span className="hub-orbit-ring hub-orbit-ring-two" />

@@ -2,16 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-test("homepage keeps static content on the server and isolates the heavy hero scene", () => {
+test("homepage keeps static content on the server and uses the persistent machine scene", () => {
   const home = readFileSync("src/components/Home.tsx", "utf8");
-  const island = readFileSync("src/components/HeroSceneIsland.tsx", "utf8");
+  const runtime = readFileSync("src/experience/ExperienceRuntime.tsx", "utf8");
 
   assert.doesNotMatch(home, /^\s*["']use client["']/m);
-  assert.doesNotMatch(home, /from ["']\.\/HeroScene["']/);
-  assert.match(home, /HeroSceneIsland/);
-  assert.match(island, /^["']use client["']/m);
-  assert.match(island, /dynamic\(/);
-  assert.match(island, /ssr:\s*false/);
+  assert.doesNotMatch(home, /HeroSceneIsland|HeroScene|<Canvas/);
+  assert.match(runtime, /ExperienceSceneLayer/);
 });
 
 test("unfinished game and video concepts live in the lab, not the recruiter homepage", () => {
