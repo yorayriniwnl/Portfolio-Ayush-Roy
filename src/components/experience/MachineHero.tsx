@@ -13,11 +13,11 @@ export function MachineHero() {
           <p className="machine-hero__wordmark" aria-label="YOR" aria-hidden="true">
             <span>Y</span><span>O</span><span>R</span>
           </p>
-          <h1 id="hero-title" className="machine-hero__statement">
+          <h1 id="hero-title" className="machine-hero__statement" data-essential-copy>
             <span>I BUILD SYSTEMS</span>{" "}
             <span>THAT MOVE.</span>
           </h1>
-          <p className="machine-hero__discipline">
+          <p className="machine-hero__discipline" data-essential-copy>
             <span>FULL STACK</span>{" "}<i aria-hidden="true">•</i>{" "}
             <span>AI SYSTEMS</span>{" "}<i aria-hidden="true">•</i>{" "}
             <span>INTERACTIVE 3D</span>

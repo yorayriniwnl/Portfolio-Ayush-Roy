@@ -175,7 +175,7 @@ export function ExperienceSceneLayer() {
     state.sceneStatus !== "failed";
 
   return (
-    <div className="machine-scene-layer" data-scene-status={state.sceneStatus} aria-hidden="true">
+    <div className="machine-scene-layer" data-scene-status={state.sceneStatus} data-page-visible={String(state.pageVisible)} aria-hidden="true">
       <StaticMachine />
       {showCanvas && (
         <SceneLoadBoundary

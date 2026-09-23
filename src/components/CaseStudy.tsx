@@ -33,7 +33,7 @@ export function CaseStudy({ project }: { project: Project }) {
         <div className="container case-grid">
           <span className="technical case-kicker" style={{ gridColumn: "1/-1" }}>{project.index} / {project.kicker} / case study</span>
           <h1 id="case-title" className="case-title">{project.title}</h1>
-          <p className="case-summary">{project.purpose}</p>
+          <p className="case-summary" data-essential-copy>{project.purpose}</p>
           <dl className="case-meta">
             <div className="meta-row"><dt>My role</dt><dd>{project.role}</dd></div>
             <div className="meta-row"><dt>Status</dt><dd>{project.status}</dd></div>

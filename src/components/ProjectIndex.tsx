@@ -13,7 +13,7 @@ export function ProjectIndex({ projects }: { projects: readonly Project[] }) {
         <div className="container">
           <span className="technical">YOR / SELECTED ENGINEERING WORK</span>
           <h1 id="projects-title" className="display">Projects<br /><em>with receipts.</em></h1>
-          <p className="projects-index-deck">Six canonical project worlds. Each case study keeps the work, evidence, contribution boundary, and limitations in the same frame.</p>
+          <p className="projects-index-deck" data-essential-copy>Six canonical project worlds. Each case study keeps the work, evidence, contribution boundary, and limitations in the same frame.</p>
           <div className="projects-index-proof" aria-label="Project index rules">
             <span><b>{String(projectCount).padStart(2, "0")}</b> canonical case studies</span>
             <span><b>01</b> source of truth</span>

@@ -14,7 +14,7 @@ export default function Resume() {
         <span className="technical">Resume / public reading view</span>
         <h1 className="resume-hero__name">{profile.name}</h1>
         <p className="resume-hero__role">{profile.role}</p>
-        <p className="resume-hero__positioning">{profile.positioning}</p>
+        <p className="resume-hero__positioning" data-essential-copy>{profile.positioning}</p>
         <div className="actions resume-hero__actions" aria-label="Resume and profile links">
           <ActionLink href="/media/Ayush_Roy_Resume.pdf" external primary>Open PDF</ActionLink>
           <ActionLink href={`mailto:${profile.email}`} external>Email</ActionLink>

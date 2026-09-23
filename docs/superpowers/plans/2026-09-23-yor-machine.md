@@ -214,7 +214,7 @@
 ## Task 9: Make Production Browser QA Portable and Audit the Full Experience
 
 **Files:**
-- Modify: `scripts/browser-qa.mjs`, `scripts/cdp-qa-lib.mjs`, `package.json`, `docs/changes/2026-09-23-yor-machine-audit.md`
+- Modify: `scripts/browser-qa.mjs`, `scripts/cdp-qa-lib.mjs`, `package.json`, `.gitignore`, `docs/changes/2026-09-23-yor-machine-audit.md`
 - Create: `tests/browser-qa-contract.test.ts`
 - Create at runtime: `artifacts/browser-qa/report.json` and screenshots
 
@@ -227,17 +227,18 @@
 - Measure JavaScript/Three.js transfer, initial loading, LCP, layout shifts, scene initialization, and shader compilation where available. Report measurements separately from goals; never state 60 FPS without representative hardware measurement.
 - Save six review screenshots: desktop hero, desktop project world, desktop case study, mobile hero, mobile project world, and contact finale.
 
-- [ ] Add runner contract tests for viewport/route completeness, clipping probes, expected 404, Windows discovery, image decode, and screenshot names.
-- [ ] Run `node --import tsx --test tests/browser-qa-contract.test.ts` and confirm the new assertions fail.
-- [ ] Update process startup/shutdown and browser discovery for Windows and Unix; run against `next start` in the production validation path.
-- [ ] Implement route/viewport loops, clipping/accessibility checks, resolver/redirect assertions, preference/history scenarios, renderer fallback, visibility/lazy-image checks, and six screenshots.
-- [ ] Run build then `npm run qa:browser`; inspect report, errors, six screenshots, and the two confirmed production title-clipping regressions.
-- [ ] Pin the production findings in the responsive matrix: CandidateX h1 is 422px wide in a 350px content box at 390×844 (72px clipped), 422px in 335px at 375×812 (87px), and 422px in 390px at 430×932 (32px); Portfolio h1 is 366px in 350px at 390×844 (16px) and 366px in 335px at 375×812 (31px), then fits at 430×932. The automated per-heading checks must fail on these baseline measurements and pass after responsive wrapping is fixed.
-- [ ] Run `npm run validate:full` and update the audit with test, lint, type, content, asset, build, route, viewport, and browser results. Report measurements separately from targets and record remaining limits.
-- [ ] Commit as `test: audit machine experience in production browser`.
+- [x] Add runner contract tests for viewport/route completeness, clipping probes, expected 404, Windows discovery, image decode, and screenshot names.
+- [x] Run `node --import tsx --test tests/browser-qa-contract.test.ts` and confirm the new assertions fail.
+- [x] Update process startup/shutdown and browser discovery for Windows and Unix; run against `next start` in the production validation path.
+- [x] Implement route/viewport loops, clipping/accessibility checks, resolver/redirect assertions, preference/history scenarios, renderer fallback, visibility/lazy-image checks, and six screenshots.
+- [x] Run the production build and browser QA; inspect report, errors, six screenshots, and the confirmed mobile title-clipping regressions.
+- [x] Record the baseline CandidateX and Portfolio mobile clipping values, then confirm their headings and all essential copy fit in the production responsive matrix.
+- [x] Run the full validation set and update the audit with test, lint, type, content, asset, build, route, viewport, and browser results. Report measurements separately from targets and record remaining limits.
+- [x] Commit as `test: audit machine experience in production browser` and push the scoped commit.
 
 ## Completion Handoff
 
 - Record implementation branch/commit, major files, validation results, measured performance versus targets, and remaining limits in the audit.
 - Provide links to the six screenshots and final audit report.
 - Confirm no Canvas on resume/Lab/reduced motion; DOM selection equivalents for all project worlds; intact source/live resolvers and legacy redirects; working favicon at `/favicon.svg`.
+- [ ] Complete the fresh whole-branch review after the Task 9 commit and address any required findings.
