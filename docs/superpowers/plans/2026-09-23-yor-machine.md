@@ -132,7 +132,9 @@
 
 **Files:**
 - Modify: `src/components/Home.tsx`, `src/styles/machine.css`, `tests/home-architecture.test.ts`
+- Modify: `src/app/globals.css`, `src/experience/ExperienceProvider.tsx`, `src/experience/MachineWorld.tsx`, `src/experience/MachineCore.tsx`
 - Create: `src/components/experience/MachineHero.tsx`, `HomeProjectWorlds.tsx`, `HomeAbout.tsx`, `HomeContact.tsx`
+- Create: `src/components/experience/MachineScrollBinding.tsx`
 - Create: `src/components/experience/ProjectPreviewLink.tsx`
 
 **Interfaces:**
@@ -144,12 +146,12 @@
 - Focus, hover, and touch preview call provider `setActiveProject(projectId)`; clicking remains immediate native navigation.
 - ProjectPreviewLink is a small Client Component receiving a canonical ProjectId, href, and server-rendered children; it owns only pointer/focus/touch handlers and active visual state.
 
-- [ ] Add server-rendered assertions for the three hero actions, required narrative sections, identity copy, and absence of the old hero Canvas.
-- [ ] Run `node --import tsx --test tests/home-architecture.test.ts` and confirm assertions fail on the old homepage.
-- [ ] Implement component composition, markers, project selection handlers, and responsive machine typography/layout.
-- [ ] Ensure YOR, hero statement, headings, and essential copy wrap rather than clip at 375×812, 390×844, and 430×932; do not rely on page-level overflow.
-- [ ] Run the home architecture test and typecheck; inspect desktop and mobile screenshots before committing.
-- [ ] Commit as `feat: rebuild machine homepage narrative`.
+- [x] Add server-rendered assertions for the three hero actions, required narrative sections, identity copy, and absence of the old hero Canvas.
+- [x] Run `node --import tsx --test tests/home-architecture.test.ts` and confirm assertions fail on the old homepage.
+- [x] Implement component composition, markers, project selection handlers, and responsive machine typography/layout.
+- [x] Ensure YOR, hero statement, headings, and essential copy wrap rather than clip at 375×812, 390×844, and 430×932; do not rely on page-level overflow.
+- [x] Run the home architecture test and typecheck; inspect desktop and mobile screenshots before committing.
+- [x] Commit as `feat: rebuild machine homepage narrative`.
 
 ## Task 6: Reorder and Rebuild the Project Index
 

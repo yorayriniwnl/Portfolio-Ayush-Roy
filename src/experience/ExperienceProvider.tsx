@@ -26,7 +26,10 @@ type ExperienceActions = {
   setSceneStatus(status: SceneStatus): void;
 };
 
+type ExperienceProjectState = Pick<ExperienceState, "projectId" | "activeProject">;
+
 const ExperienceStateContext = createContext<ExperienceState | null>(null);
+const ExperienceProjectContext = createContext<ExperienceProjectState | null>(null);
 const ExperienceDispatchContext = createContext<Dispatch<ExperienceAction> | null>(null);
 
 function useExperienceState(): ExperienceState {
@@ -49,9 +52,15 @@ export function ExperienceProvider({
     initialPathname,
     createExperienceState,
   );
+  const projectState = useMemo(
+    () => ({ projectId: state.projectId, activeProject: state.activeProject }),
+    [state.activeProject, state.projectId],
+  );
   return (
     <ExperienceDispatchContext.Provider value={dispatch}>
-      <ExperienceStateContext.Provider value={state}>{children}</ExperienceStateContext.Provider>
+      <ExperienceProjectContext.Provider value={projectState}>
+        <ExperienceStateContext.Provider value={state}>{children}</ExperienceStateContext.Provider>
+      </ExperienceProjectContext.Provider>
     </ExperienceDispatchContext.Provider>
   );
 }
@@ -89,4 +98,12 @@ export function useExperienceDispatch(): Dispatch<ExperienceAction> {
     throw new Error("Experience dispatch must be used inside ExperienceProvider");
   }
   return dispatch;
+}
+
+export function useExperienceProject(): ExperienceProjectState {
+  const projectState = useContext(ExperienceProjectContext);
+  if (!projectState) {
+    throw new Error("Experience project selection must be used inside ExperienceProvider");
+  }
+  return projectState;
 }

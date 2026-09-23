@@ -1,5 +1,5 @@
-import { memo, useRef, type ComponentType, type MutableRefObject } from "react";
-import { useFrame } from "@react-three/fiber";
+import { memo, useEffect, useRef, type ComponentType, type MutableRefObject } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three/webgpu";
 import type { SceneQuality } from "../components/sceneQuality";
 import type { ExperienceState, ProjectId } from "./experience-state";
@@ -70,12 +70,27 @@ export const MachineWorld = memo(function MachineWorld({
   quality: SceneQuality;
 }) {
   const root = useRef<THREE.Group>(null);
+  const camera = useThree((state) => state.camera);
+  const cameraRef = useRef<THREE.Camera | null>(null);
+
+  useEffect(() => {
+    cameraRef.current = camera;
+    return () => {
+      cameraRef.current = null;
+    };
+  }, [camera]);
 
   useFrame((_, delta) => {
     if (!root.current) return;
     const state = stateRef.current;
     const targetY = (state.progress - 0.5) * 0.035;
+    const contactPush = state.section === "contact" ? 0.24 : 0;
+    const targetDepth = 5.1 - state.progress * 0.62 - contactPush;
     root.current.rotation.y = THREE.MathUtils.damp(root.current.rotation.y, targetY, 2.4, delta);
+    const activeCamera = cameraRef.current;
+    if (activeCamera) {
+      activeCamera.position.z = THREE.MathUtils.damp(activeCamera.position.z, targetDepth, 1.8, delta);
+    }
   });
 
   return (
