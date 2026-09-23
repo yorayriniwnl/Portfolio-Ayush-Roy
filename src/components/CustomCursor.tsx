@@ -10,14 +10,14 @@ const TEXT_CONTROL_SELECTOR =
 
 export function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLSpanElement>(null);
-  const dotRef = useRef<HTMLSpanElement>(null);
+  const orbitRef = useRef<HTMLSpanElement>(null);
+  const pointRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const cursor = cursorRef.current;
-    const ring = ringRef.current;
-    const dot = dotRef.current;
-    if (!cursor || !ring || !dot) return;
+    const orbit = orbitRef.current;
+    const point = pointRef.current;
+    if (!cursor || !orbit || !point) return;
 
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -26,22 +26,24 @@ export function CustomCursor() {
     let ringX = 0;
     let ringY = 0;
     let animationFrame = 0;
+    let previousX: number | null = null;
+    let previousY = 0;
 
     const place = (element: HTMLElement, x: number, y: number) => {
       element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
     };
 
     const animateRing = () => {
-      ringX += (targetX - ringX) * 0.18;
-      ringY += (targetY - ringY) * 0.18;
-      place(ring, ringX, ringY);
+      ringX += (targetX - ringX) * 0.28;
+      ringY += (targetY - ringY) * 0.28;
+      place(orbit, ringX, ringY);
 
       if (Math.abs(targetX - ringX) > 0.1 || Math.abs(targetY - ringY) > 0.1) {
         animationFrame = window.requestAnimationFrame(animateRing);
       } else {
         ringX = targetX;
         ringY = targetY;
-        place(ring, ringX, ringY);
+        place(orbit, ringX, ringY);
         animationFrame = 0;
       }
     };
@@ -49,6 +51,9 @@ export function CustomCursor() {
     const hideCursor = () => {
       cursor.dataset.visible = "false";
       cursor.dataset.hovered = "false";
+      cursor.dataset.pressed = "false";
+      previousX = null;
+      previousY = 0;
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
       animationFrame = 0;
       delete document.body.dataset.customCursor;
@@ -67,18 +72,35 @@ export function CustomCursor() {
       }
 
       const wasVisible = cursor.dataset.visible === "true";
+      if (previousX !== null) {
+        const deltaX = event.clientX - previousX;
+        const deltaY = event.clientY - previousY;
+        if (Math.hypot(deltaX, deltaY) > 0.5) {
+          cursor.style.setProperty("--cursor-angle", `${Math.atan2(deltaY, deltaX)}rad`);
+        }
+      }
+      previousX = event.clientX;
+      previousY = event.clientY;
       targetX = event.clientX;
       targetY = event.clientY;
-      place(dot, targetX, targetY);
+      place(point, targetX, targetY);
       if (!wasVisible) {
         ringX = targetX;
         ringY = targetY;
-        place(ring, ringX, ringY);
+        place(orbit, ringX, ringY);
       }
       if (!animationFrame) animationFrame = window.requestAnimationFrame(animateRing);
       cursor.dataset.visible = "true";
       cursor.dataset.hovered = String(Boolean(target?.closest(INTERACTIVE_SELECTOR)));
       document.body.dataset.customCursor = "active";
+    };
+
+    const handlePointerDown = () => {
+      if (cursor.dataset.visible === "true") cursor.dataset.pressed = "true";
+    };
+
+    const handlePointerUp = () => {
+      cursor.dataset.pressed = "false";
     };
 
     const handlePointerOut = (event: PointerEvent) => {
@@ -94,6 +116,9 @@ export function CustomCursor() {
     };
 
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerUp);
     window.addEventListener("pointerout", handlePointerOut);
     window.addEventListener("blur", hideCursor);
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -102,6 +127,9 @@ export function CustomCursor() {
 
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
       window.removeEventListener("pointerout", handlePointerOut);
       window.removeEventListener("blur", hideCursor);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -112,9 +140,11 @@ export function CustomCursor() {
   }, []);
 
   return (
-    <div ref={cursorRef} className={styles.cursor} aria-hidden="true" data-visible="false" data-hovered="false">
-      <span ref={ringRef} className={styles.ring} />
-      <span ref={dotRef} className={styles.dot} />
+    <div ref={cursorRef} className={styles.cursor} aria-hidden="true" data-visible="false" data-hovered="false" data-pressed="false">
+      <span ref={orbitRef} className={styles.orbitAnchor}>
+        <span className={styles.orbit} />
+      </span>
+      <span ref={pointRef} className={styles.point} />
     </div>
   );
 }
