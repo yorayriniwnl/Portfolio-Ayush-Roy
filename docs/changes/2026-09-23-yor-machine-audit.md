@@ -29,6 +29,13 @@ This report records the existing production experience and repository before the
 - The browser sweep exposed one actual 404: Chromium requests `/favicon.ico`, which is absent. The repository has `public/favicon.svg` and it returns 200, but the production document emits no `rel="icon"` link; the current QA runner filters favicon errors, masking the missing icon declaration.
 - The production console had no other captured HTTP error during the sampled homepage, projects, CandidateX, resume, and Lab routes. This was a headless smoke/a11y pass, not a Lighthouse, field-performance, or 60 FPS measurement.
 
+### Expanded case-study visual and responsive audit — 2026-09-23
+
+- Reopened all six canonical case studies in production Chrome and visually inspected their hero layouts at 1440×900 and 390×844. Each route rendered one page-level heading and its semantic case-study text. The existing shared template still uses very large serif titles, dense monospace metadata, a dark red visual-intro panel, and a separate horizontal section navigator; the case-study evidence remains in the DOM.
+- The six routes and their project-specific repository visuals were checked in the browser: CandidateX (4 images), Zenith (1), Helios (5), AI vs. Real (1), Yor Talks (1), and Portfolio (no gallery image). Each existing gallery image loaded after its section entered view and lazy loading settled.
+- Two mobile headings are clipped even though the page hides horizontal overflow. At 390×844, CandidateX’s heading has a 422px scroll width inside a 350px box (72px overflow); Portfolio has a 366px scroll width in a 350px box (16px overflow). At 375×812, the overflow grows to 87px and 31px respectively. At 430×932, CandidateX still overflows its 390px box by 32px, while Portfolio fits. Zenith, Helios, AI vs. Real, and Yor Talks fit at all three widths.
+- The CandidateX and Portfolio clipping is visible in the screenshots; the body’s `overflow-x: hidden` masks it from a simple horizontal-scroll check. Extend browser QA to assert that primary headings and essential copy fit their boxes, alongside checking document overflow. The current production runner’s route subset and headings checks do not cover this.
+
 ## Rendering and interaction architecture
 
 - The homepage `Home` component is a Server Component. The hero loads through `HeroSceneIsland`, which dynamically imports one client Canvas after idle time and skips it for reduced motion.
