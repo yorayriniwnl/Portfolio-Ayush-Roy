@@ -60,11 +60,11 @@
 - `createExperienceState(pathname: string)` starts reduced motion as true, page visibility as true, quality as low, progress as zero, and scene status as static.
 - Only `/`, `/projects`, and one-segment canonical `/projects/<slug>` routes are Canvas-eligible. Lab, resume, resolvers, unknown and nested routes are inactive; a case route carries its canonical ProjectId.
 
-- [ ] Test every route class and project ID, reduced-motion-safe initialization, progress clamping, project activation, demo actions, and environment/renderer transitions.
-- [ ] Run `node --import tsx --test tests/experience-state.test.ts` and confirm tests fail before the contract exists.
-- [ ] Implement explicit route mapping and pure reducer; reject noncanonical slugs instead of assigning a project.
-- [ ] Run `node --import tsx --test tests/experience-state.test.ts` and confirm all state tests pass.
-- [ ] Commit as `feat: define machine experience state`.
+- [x] Test every route class and project ID, reduced-motion-safe initialization, progress clamping, project activation, demo actions, and environment/renderer transitions.
+- [x] Run `node --import tsx --test tests/experience-state.test.ts` and confirm tests fail before the contract exists.
+- [x] Implement explicit route mapping and pure reducer; reject noncanonical slugs instead of assigning a project.
+- [x] Run `node --import tsx --test tests/experience-state.test.ts` and confirm all state tests pass.
+- [x] Commit as `feat: define machine experience state`.
 
 ## Task 2: Establish Design Tokens, CSS Layers, and Favicon Metadata
 
@@ -77,12 +77,12 @@
 - Existing global/rebuild rules stay in the legacy layer until Task 8; new machine selectors live in named layers.
 - Metadata explicitly declares checked-in `/favicon.svg` with MIME type `image/svg+xml`.
 
-- [ ] Add a metadata test asserting the root icon resolves to `/favicon.svg` with SVG MIME type.
-- [ ] Run `node --import tsx --test tests/security-seo.test.ts` and confirm the icon assertion fails first.
-- [ ] Add approved palette, font/spacing/motion tokens, layer order, legacy wrappers, and base/reset/focus/reduced-motion rules.
-- [ ] Declare the SVG icon in `src/app/layout.tsx` while preserving canonical, Open Graph, Twitter, Person JSON-LD, robots, and security metadata.
-- [ ] Run `node --import tsx --test tests/security-seo.test.ts` and `npm run typecheck`; confirm both pass.
-- [ ] Commit as `style: establish machine design layers`.
+- [x] Add a metadata test asserting the root icon resolves to `/favicon.svg` with SVG MIME type.
+- [x] Run `node --import tsx --test tests/security-seo.test.ts` and confirm the icon assertion fails first.
+- [x] Add approved palette, font/spacing/motion tokens, layer order, legacy wrappers, and base/reset/focus/reduced-motion rules.
+- [x] Declare the SVG icon in `src/app/layout.tsx` while preserving canonical, Open Graph, Twitter, Person JSON-LD, robots, and security metadata.
+- [x] Run `node --import tsx --test tests/security-seo.test.ts` and `npm run typecheck`; confirm both pass.
+- [x] Commit as `style: establish machine design layers`.
 
 ## Task 3: Add the Persistent Client Runtime and Central Director
 
@@ -97,12 +97,12 @@
 - Quality selection considers viewport, device class/touch, DPR, hardware concurrency, reduced motion, page visibility, and GPU capability where available; cap DPR and reduce geometry/lighting for touch and lower-capability devices.
 - Remove listeners, observers, animation-frame callbacks, and media-query handlers on unmount. Initialize reduced motion true until the client preference is known.
 
-- [ ] Test that resume, Lab, resolver and unknown paths are inactive and case routes retain their project ID.
-- [ ] Run `node --import tsx --test tests/experience-state.test.ts` and confirm lifecycle cases fail before provider integration.
-- [ ] Implement provider actions, route sync, one progress reader, one marker observer, quality updates, and preference/visibility subscriptions.
-- [ ] Wrap persistent content with ExperienceRuntime from the Server Component layout; metadata and Person JSON-LD remain server-owned.
-- [ ] Run the state and home architecture tests plus `npm run typecheck`; confirm all pass.
-- [ ] Commit as `feat: add persistent experience runtime`.
+- [x] Test that resume, Lab, resolver and unknown paths are inactive and case routes retain their project ID.
+- [x] Run `node --import tsx --test tests/experience-state.test.ts` and confirm lifecycle cases fail before provider integration.
+- [x] Implement provider actions, route sync, one progress reader, one marker observer, quality updates, and preference/visibility subscriptions.
+- [x] Wrap persistent content with ExperienceRuntime from the Server Component layout; metadata and Person JSON-LD remain server-owned.
+- [x] Run the state and home architecture tests plus `npm run typecheck`; confirm all pass.
+- [x] Commit as `feat: add persistent experience runtime`.
 
 ## Task 4: Build the Shared Machine Scene and Static Composition
 
@@ -121,12 +121,12 @@
 - useFrame motion uses delta-time damping and state targets; no independent scroll reader, spring spam, or ambient constant rotation.
 - StaticMachine is decorative and accessibility-hidden; names, selection and status stay in DOM controls.
 
-- [ ] Extend quality tests for small screens, DPR caps and low-capability tiers; assert one Canvas owner and separate static composition.
-- [ ] Run `node --import tsx --test tests/scene-quality.test.ts` and confirm new expectations fail.
-- [ ] Build static geometry/fallback, then delayed Canvas, error boundary, WebGL 2 test path, visibility pause, cleanup, and six visual metaphors from the approved spec.
-- [ ] Attach ExperienceSceneLayer to runtime and replace HeroSceneIsland without changing homepage copy yet.
-- [ ] Run scene-quality tests, typecheck and build; confirm reduced-motion markup contains no Canvas and renderer errors leave static layer visible.
-- [ ] Commit as `feat: add shared machine scene`.
+- [x] Extend quality tests for small screens, DPR caps and low-capability tiers; assert one Canvas owner and separate static composition.
+- [x] Run `node --import tsx --test tests/scene-quality.test.ts` and confirm new expectations fail.
+- [x] Build static geometry/fallback, then delayed Canvas, error boundary, WebGL 2 test path, visibility pause, cleanup, and six visual metaphors from the approved spec.
+- [x] Attach ExperienceSceneLayer to runtime and replace HeroSceneIsland without changing homepage copy yet.
+- [x] Run scene-quality tests, typecheck and build; confirm reduced-motion markup contains no Canvas and renderer errors leave static layer visible.
+- [x] Commit as `feat: add shared machine scene`.
 
 ## Task 5: Rebuild the Homepage Arrival and Scroll Narrative
 
