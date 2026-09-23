@@ -14,6 +14,13 @@ This report records the existing production experience and repository before the
 - The visual tokens are `#070708`, bright crimson/red, serif display type, and a system sans body. Technical labels use monospace throughout navigation, metadata, status, and card details. A 48,780-byte `globals.css` is followed by a separate 3,200-byte `rebuild.css` override layer.
 - Project case studies already use semantic headings and readable text, with repository-authored diagrams and artwork. CandidateX’s page, for example, has a large title and introduction, a definition-list summary, a section navigator, technical architecture, evidence, limitations, and a gallery. Preserve that recruiter-readable structure while giving the visuals more room.
 
+### Live production recheck — 2026-09-23
+
+- The homepage, `/projects`, `/projects/candidatex`, `/resume`, and `/lab` returned crawlable page content during the recheck. The homepage still leads with “Ayush Roy” and “Product / Full-Stack Engineer,” followed by focus rows and four hero actions: Explore Work, Resume, GitHub, and LinkedIn.
+- The production project list currently appears in this display order: CandidateX, Yor Helios, Personal Developer Portfolio, Yor Zenith, Yor AI vs. Real Image Detector, Yor Talks V2. The requested rebuild order is CandidateX, Zenith, Helios, AI vs Real, Yor Talks, Portfolio.
+- The CandidateX route still exposes semantic role, contribution, architecture, implementation, validation, results, limitations, and four repository-authored visuals with alt text. This is valuable evidence to preserve and enlarge rather than replace with a scene-only explanation.
+- The public resume still includes education and a BSNL Telecom & Data Network internship entry. Preserve those verified resume facts while keeping the project worlds limited to the six canonical project records.
+
 ## Rendering and interaction architecture
 
 - The homepage `Home` component is a Server Component. The hero loads through `HeroSceneIsland`, which dynamically imports one client Canvas after idle time and skips it for reduced motion.
