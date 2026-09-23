@@ -56,6 +56,7 @@ This report records the existing production experience and repository before the
 ## Live SEO and security recheck — 2026-09-23
 
 - The production root response returned HTTP 200 with canonical `https://yorayriniwnl.in`, an Open Graph title, a `summary_large_image` Twitter card, and a Person JSON-LD script.
+- A per-route production scan verified a page title, description, and expected canonical URL on `/`, `/projects`, all six canonical case studies, `/resume`, and `/lab`; all ten canonical values matched after normalizing the root URL without a trailing slash.
 - `robots.txt` allows crawling and declares `https://yorayriniwnl.in/sitemap.xml`. The sitemap contains the root, resume, Lab, project index, and all six canonical project routes; it excludes `/work` aliases and source/live resolver URLs.
 - The root response currently sends CSP with `default-src 'self'`, `object-src 'none'`, and same-origin resource boundaries; it also sends HSTS, `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, and a restrictive Permissions-Policy. These were observed on the production homepage response; recheck them after release.
 
