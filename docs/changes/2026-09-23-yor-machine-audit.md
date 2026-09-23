@@ -38,6 +38,12 @@ This report records the existing production experience and repository before the
 - The browser runner uses full-page `Page.navigate`, so it does not verify in-app route transitions or back/forward history. It checks the mobile menu, initial skip-link focus, reduced-motion homepage fallback, basic accessible names, one H1, overflow, and CandidateX gallery/live CTA. It currently asserts baseline-specific headings/status selectors that must change with the new design. Its global browser-error collection also includes the intentional 404 visit, so expected not-found diagnostics must be isolated from unexpected runtime errors.
 - The final audit should run against a production build, while the checked-in runner currently starts the development server. The runner also assumes Unix `which` and a `npm` executable on PATH; neither is reliable in the current Windows environment. The final harness needs a configurable cross-platform package-manager/browser path and a production-equivalent server mode.
 
+## Live SEO and security recheck — 2026-09-23
+
+- The production root response returned HTTP 200 with canonical `https://yorayriniwnl.in`, an Open Graph title, a `summary_large_image` Twitter card, and a Person JSON-LD script.
+- `robots.txt` allows crawling and declares `https://yorayriniwnl.in/sitemap.xml`. The sitemap contains the root, resume, Lab, project index, and all six canonical project routes; it excludes `/work` aliases and source/live resolver URLs.
+- The root response currently sends CSP with `default-src 'self'`, `object-src 'none'`, and same-origin resource boundaries; it also sends HSTS, `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, and a restrictive Permissions-Policy. These were observed on the production homepage response; recheck them after release.
+
 ## Content, routes, and SEO
 
 - `src/content/project-registry.ts` owns exactly six canonical CV projects. The current display order differs from the requested order; the rebuild can reorder presentation while keeping the canonical registry, slugs, titles, evidence, and status records intact.
