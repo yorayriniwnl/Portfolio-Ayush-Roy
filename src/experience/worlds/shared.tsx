@@ -2,8 +2,9 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three/webgpu";
 import { color } from "three/tsl";
 import type { SceneQuality } from "../../components/sceneQuality";
+import type { ExperienceState } from "../experience-state";
 
-export type WorldProps = { quality: SceneQuality };
+export type WorldProps = { quality: SceneQuality; demo?: ExperienceState["demo"] };
 export type Point3 = readonly [number, number, number];
 
 export function MachineMaterial({

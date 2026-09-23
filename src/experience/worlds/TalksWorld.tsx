@@ -13,8 +13,9 @@ const messageEdges = [
   [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 3], [2, 5],
 ] as const;
 
-export function TalksWorld({ quality }: WorldProps) {
+export function TalksWorld({ quality, demo }: WorldProps) {
   const nodes = quality === "low" ? messageNodes.slice(0, 5) : messageNodes;
+  const selectedNode = Math.min(demo?.selectedNode ?? 0, nodes.length - 1);
   const edges = messageEdges.filter(
     ([start, end]) => start < nodes.length && end < nodes.length,
   );
@@ -34,11 +35,15 @@ export function TalksWorld({ quality }: WorldProps) {
         <mesh key={`message-node-${index}`} position={position}>
           <sphereGeometry args={[index === 0 ? 0.09 : 0.055, quality === "high" ? 14 : 8, 8]} />
           <MachineMaterial
-            tint={index === 0 ? "#d7d7d2" : index === 4 ? "#ff1728" : "#626a6e"}
+            tint={index === selectedNode ? "#ff1728" : index === 0 ? "#d7d7d2" : "#626a6e"}
             roughness={0.31}
           />
         </mesh>
       ))}
+      <mesh position={nodes[selectedNode]}>
+        <sphereGeometry args={[0.03 + Math.min(demo?.run ?? 0, 8) * 0.003, 10, 8]} />
+        <MachineMaterial tint="#ff1728" opacity={0.7} transparent />
+      </mesh>
       <mesh position={[0, 0, -0.09]}>
         <dodecahedronGeometry args={[0.24, 0]} />
         <MachineMaterial tint="#111417" opacity={0.42} transparent wireframe />

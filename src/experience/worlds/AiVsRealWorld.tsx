@@ -11,18 +11,19 @@ const fragments: readonly Point3[] = [
   [0.76, -0.42, 0.1],
 ];
 
-export function AiVsRealWorld({ quality }: WorldProps) {
+export function AiVsRealWorld({ quality, demo }: WorldProps) {
+  const selectedSide = demo?.choice ?? 0;
   const shownFragments = quality === "low" ? fragments.filter((_, index) => index % 2 === 0) : fragments;
 
   return (
     <group>
       <mesh position={[-0.48, 0.02, -0.1]} rotation={[0, 0, -0.12]}>
         <planeGeometry args={[0.74, 1.16]} />
-        <MachineMaterial tint="#778086" opacity={0.16} transparent wireframe />
+        <MachineMaterial tint={selectedSide === 0 ? "#ff1728" : "#778086"} opacity={selectedSide === 0 ? 0.42 : 0.16} transparent wireframe />
       </mesh>
       <mesh position={[0.48, 0.02, -0.1]} rotation={[0, 0, 0.12]}>
         <planeGeometry args={[0.74, 1.16]} />
-        <MachineMaterial tint="#d7d7d2" opacity={0.11} transparent wireframe />
+        <MachineMaterial tint={selectedSide === 1 ? "#ff1728" : "#d7d7d2"} opacity={selectedSide === 1 ? 0.42 : 0.11} transparent wireframe />
       </mesh>
       <mesh position={[0, 0, 0.02]}>
         <boxGeometry args={[0.018, 1.28, 0.018]} />
@@ -41,8 +42,8 @@ export function AiVsRealWorld({ quality }: WorldProps) {
             <planeGeometry args={[0.13, 0.16]} />
           )}
           <MachineMaterial
-            tint={position[0] < 0 ? "#535b61" : "#c0c3c1"}
-            opacity={0.62}
+            tint={(position[0] < 0 ? 0 : 1) === selectedSide ? "#ff1728" : position[0] < 0 ? "#535b61" : "#c0c3c1"}
+            opacity={(position[0] < 0 ? 0 : 1) === selectedSide ? 0.9 : 0.62}
             transparent
             wireframe={index % 2 === 0}
           />

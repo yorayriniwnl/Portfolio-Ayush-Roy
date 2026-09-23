@@ -4,11 +4,12 @@ const panelRows = [-0.34, 0.34] as const;
 const panelColumns = [-0.48, 0, 0.48] as const;
 const irradianceStart: Point3 = [-0.68, 0.92, -0.08];
 
-export function ZenithWorld({ quality }: WorldProps) {
+export function ZenithWorld({ quality, demo }: WorldProps) {
   const columns = quality === "low" ? panelColumns.filter((_, index) => index !== 1) : panelColumns;
+  const expandedScenario = demo?.choice === 1;
 
   return (
-    <group rotation={[0.12, -0.18, -0.12]}>
+    <group rotation={[expandedScenario ? 0.2 : 0.12, -0.18, -0.12]} scale={expandedScenario ? 1.12 : 1}>
       {panelRows.flatMap((y, row) =>
         columns.map((x, column) => {
           const position: Point3 = [x, y, -0.06 + row * 0.035 + column * 0.012];
@@ -30,7 +31,7 @@ export function ZenithWorld({ quality }: WorldProps) {
         from={irradianceStart}
         to={[0.1, 0.36, 0.18]}
         tint="#ff1728"
-        radius={0.008}
+        radius={expandedScenario ? 0.014 : 0.008}
       />
       <Connector
         from={irradianceStart}

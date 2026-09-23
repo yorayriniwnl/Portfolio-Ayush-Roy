@@ -34,10 +34,12 @@ function ProjectWorld({
   projectId,
   stateRef,
   quality,
+  demo,
 }: {
   projectId: ProjectId;
   stateRef: MutableRefObject<ExperienceState>;
   quality: SceneQuality;
+  demo?: ExperienceState["demo"];
 }) {
   const group = useRef<THREE.Group>(null);
   const World = worlds[projectId];
@@ -57,7 +59,7 @@ function ProjectWorld({
 
   return (
     <group ref={group} position={positions[projectId]} scale={0.25}>
-      <World quality={quality} />
+      <World quality={quality} demo={demo} />
     </group>
   );
 }
@@ -65,9 +67,13 @@ function ProjectWorld({
 export const MachineWorld = memo(function MachineWorld({
   stateRef,
   quality,
+  demo,
+  selectedProjectId,
 }: {
   stateRef: MutableRefObject<ExperienceState>;
   quality: SceneQuality;
+  demo: ExperienceState["demo"];
+  selectedProjectId?: ProjectId;
 }) {
   const root = useRef<THREE.Group>(null);
   const camera = useThree((state) => state.camera);
@@ -105,6 +111,7 @@ export const MachineWorld = memo(function MachineWorld({
           projectId={projectId}
           stateRef={stateRef}
           quality={quality}
+          demo={selectedProjectId === projectId ? demo : undefined}
         />
       ))}
     </group>

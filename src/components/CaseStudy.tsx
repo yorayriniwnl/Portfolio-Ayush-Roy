@@ -1,13 +1,13 @@
 import { ActionLink } from "./ActionLink";
 import { ClaimStrip } from "./ClaimStrip";
-import { DeferredProjectDemo } from "./DeferredProjectDemo";
+import { ProjectInteractionPanel } from "./ProjectInteractionPanel";
 import { ProjectGallery } from "./ProjectGallery";
 import { cvProjects, recruiterProjects } from "@/content/project-registry";
 import type { Project } from "@/content/projects";
 
 function CaseSection({ id, number, title, children }: { id: string; number: string; title: string; children: React.ReactNode }) {
   return (
-    <section id={id} className="case-section">
+    <section id={id} className="case-section" data-experience-section="projects" data-case-section={id}>
       <h2><span className="technical">{number}</span>{title}.</h2>
       {children}
     </section>
@@ -28,8 +28,8 @@ export function CaseStudy({ project }: { project: Project }) {
   const next = isCvProject && index >= 0 ? recruiterProjects[(index + 1) % recruiterProjects.length] : undefined;
 
   return (
-    <main id="main">
-      <section className="case-hero" aria-labelledby="case-title">
+    <main id="main" data-experience-project={project.slug}>
+      <section className="case-hero" aria-labelledby="case-title" data-experience-section="projects" data-case-section="hero">
         <div className="container case-grid">
           <span className="technical case-kicker" style={{ gridColumn: "1/-1" }}>{project.index} / {project.kicker} / case study</span>
           <h1 id="case-title" className="case-title">{project.title}</h1>
@@ -119,8 +119,8 @@ export function CaseStudy({ project }: { project: Project }) {
           </div>
         </CaseSection>
 
-        {project.media.length > 0 && <div id="gallery"><ProjectGallery media={project.media} /></div>}
-        {project.demoMode && <DeferredProjectDemo mode={project.demoMode} art={project.art} />}
+        {project.media.length > 0 && <div id="gallery"><ProjectGallery media={project.media} projectSlug={project.slug} /></div>}
+        {project.demoMode && <ProjectInteractionPanel project={project} />}
 
         <CaseSection id="limitations" number="07 /" title="Limitations">
           <EvidenceList items={project.limitations} />

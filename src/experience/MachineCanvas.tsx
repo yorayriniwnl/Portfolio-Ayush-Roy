@@ -147,7 +147,12 @@ export function MachineCanvas({
 
         root.render(
           <MachineRenderBoundary onFail={fail}>
-            <MachineWorld stateRef={stateRef} quality={stateRef.current.quality} />
+            <MachineWorld
+              stateRef={stateRef}
+              quality={stateRef.current.quality}
+              demo={stateRef.current.demo}
+              selectedProjectId={stateRef.current.projectId}
+            />
           </MachineRenderBoundary>,
         );
         setRootReady(true);
@@ -212,13 +217,6 @@ export function MachineCanvas({
         dpr: pixelRatio,
         frameloop: state.pageVisible ? "always" : "never",
       })
-      .then(() => {
-        root.render(
-          <MachineRenderBoundary onFail={() => setSceneStatus("failed")}>
-            <MachineWorld stateRef={stateRef} quality={state.quality} />
-          </MachineRenderBoundary>,
-        );
-      })
       .catch(() => {
         if (current) setSceneStatus("failed");
       });
@@ -227,6 +225,22 @@ export function MachineCanvas({
       current = false;
     };
   }, [pixelRatio, rootReady, setSceneStatus, state.pageVisible, state.quality]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!rootReady || !root) return;
+
+    root.render(
+      <MachineRenderBoundary onFail={() => setSceneStatus("failed")}>
+        <MachineWorld
+          stateRef={stateRef}
+          quality={stateRef.current.quality}
+          demo={state.demo}
+          selectedProjectId={state.projectId}
+        />
+      </MachineRenderBoundary>,
+    );
+  }, [rootReady, setSceneStatus, state.demo, state.projectId, state.quality]);
 
   return (
     <div className="machine-canvas" data-renderer={backend}>

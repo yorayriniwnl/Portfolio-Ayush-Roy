@@ -174,9 +174,10 @@
 ## Task 7: Integrate Shared Project Worlds with Semantic Case Studies
 
 **Files:**
-- Modify: `src/components/CaseStudy.tsx`, `ProjectGallery.tsx`, `DeferredProjectDemo.tsx`, `src/experience/experience-state.ts`, `ExperienceProvider.tsx`, `ExperienceDirector.tsx`, all six `src/experience/worlds/*` components, `src/styles/machine.css`
+- Modify: `src/components/CaseStudy.tsx`, `ProjectGallery.tsx`, `src/experience/MachineCanvas.tsx`, `MachineWorld.tsx`, `src/experience/worlds/shared.tsx`, `ZenithWorld.tsx`, `HeliosWorld.tsx`, `AiVsRealWorld.tsx`, `TalksWorld.tsx`, `src/styles/machine.css`
 - Create: `src/components/ProjectInteractionPanel.tsx`, `tests/case-study.test.ts`
-- Delete after replacement: `src/components/ProjectDemo.tsx`
+- Delete after replacement: `src/components/ProjectDemo.tsx`, `src/components/DeferredProjectDemo.tsx`
+- Reuse: the shared reducer, provider actions, and director established in Tasks 1 and 3.
 
 **Interfaces:**
 - CaseStudy remains server-rendered and marks its project and semantic sections for the director.
@@ -185,12 +186,12 @@
 - Gallery retains descriptive alternative text and captions; images stay lazy-loaded and decode after scroll.
 - Case titles wrap responsively; no primary title is cropped at production widths.
 
-- [ ] Add static-render tests for all six studies: one h1; overview, contribution, architecture, testing, evidence, limitations; correct identity; no per-study Canvas.
-- [ ] Run `node --import tsx --test tests/case-study.test.ts` and confirm it fails while old per-study rendering remains.
-- [ ] Move demo actions into ProjectInteractionPanel, connect shared scene state, add project markers, preserve evidence/action URLs, and remove per-study Canvas.
-- [ ] Adjust gallery semantics and case typography while retaining repository-authored assets, captions, and lazy loading.
-- [ ] Run case-study and project SEO tests plus typecheck; confirm all pass.
-- [ ] Commit as `feat: connect case studies to shared worlds`.
+- [x] Add static-render tests for all six studies: one h1; overview, contribution, architecture, testing, evidence, limitations; correct identity; no per-study Canvas.
+- [x] Run `node --import tsx --test tests/case-study.test.ts` and confirm it fails while old per-study rendering remains.
+- [x] Move demo actions into ProjectInteractionPanel, connect shared scene state, add project markers, preserve evidence/action URLs, and remove per-study Canvas.
+- [x] Adjust gallery semantics and case typography while retaining repository-authored assets, captions, and lazy loading.
+- [x] Run case-study and project SEO tests plus typecheck; confirm all pass.
+- [x] Commit as `feat: connect case studies to shared worlds`.
 
 ## Task 8: Finish Navigation and Secondary Routes, Then Remove Legacy CSS
 

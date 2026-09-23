@@ -2,7 +2,9 @@ import { useMemo } from "react";
 import * as THREE from "three/webgpu";
 import { MachineMaterial, type WorldProps } from "./shared";
 
-export function HeliosWorld({ quality }: WorldProps) {
+export function HeliosWorld({ quality, demo }: WorldProps) {
+  const anomalySelected = demo?.choice === 1;
+  const signalPosition = anomalySelected ? [0.76, -0.34, 0.1] as const : [0.56, -0.2, 0.08] as const;
   const curve = useMemo(
     () =>
       new THREE.CatmullRomCurve3([
@@ -24,8 +26,8 @@ export function HeliosWorld({ quality }: WorldProps) {
         <tubeGeometry args={[curve, segments, 0.025, quality === "high" ? 8 : 5, false]} />
         <MachineMaterial tint="#8c969a" roughness={0.38} metalness={0.82} />
       </mesh>
-      <mesh position={[0.56, -0.2, 0.08]}>
-        <sphereGeometry args={[0.075, quality === "high" ? 18 : 10, 8]} />
+      <mesh position={signalPosition}>
+        <sphereGeometry args={[anomalySelected ? 0.105 : 0.075, quality === "high" ? 18 : 10, 8]} />
         <MachineMaterial tint="#ff1728" roughness={0.24} metalness={0.54} />
       </mesh>
       <mesh position={[-0.34, 0.11, 0]}>
@@ -36,7 +38,7 @@ export function HeliosWorld({ quality }: WorldProps) {
         <sphereGeometry args={[0.033, 10, 8]} />
         <MachineMaterial tint="#d7d7d2" opacity={0.62} transparent />
       </mesh>
-      <mesh position={[0.56, -0.2, -0.02]}>
+      <mesh position={[signalPosition[0], signalPosition[1], signalPosition[2] - 0.1]}>
         <ringGeometry args={[0.11, 0.13, quality === "high" ? 32 : 18]} />
         <MachineMaterial tint="#ff1728" opacity={0.55} transparent wireframe />
       </mesh>

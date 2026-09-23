@@ -795,6 +795,102 @@
     list-style: none;
   }
 
+  .demo {
+    grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+    margin: 10px 0 clamp(62px, 8vw, 104px);
+    border-color: rgba(215, 215, 210, .2);
+    background: linear-gradient(132deg, rgba(21, 6, 9, .96), rgba(8, 9, 11, .98));
+    box-shadow: inset 0 0 90px rgba(255, 23, 40, .035);
+  }
+
+  .case-title {
+    grid-column: 1 / -1;
+    min-width: 0;
+    max-width: 12ch;
+    font-family: var(--font-display);
+    font-size: clamp(58px, 8.5vw, 144px);
+    line-height: .84;
+    letter-spacing: -.075em;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+
+  .case-summary {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .demo-copy {
+    min-width: 0;
+    padding: clamp(25px, 4vw, 54px);
+    border-right-color: rgba(215, 215, 210, .14);
+  }
+
+  .demo-copy h2 {
+    max-width: 11ch;
+    font-size: clamp(42px, 5vw, 72px);
+    text-wrap: balance;
+  }
+
+  .demo-copy .project-interaction-status {
+    min-height: 3.4em;
+    max-width: 44ch;
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .project-interaction-choices {
+    gap: 8px;
+    margin-top: 23px;
+  }
+
+  .project-interaction-choices .action {
+    min-height: 44px;
+    gap: 16px;
+    padding: 10px 13px;
+    font-size: 8px;
+  }
+
+  .demo-stage--shared {
+    min-height: 360px;
+    background-color: var(--graphite);
+    background-position: center;
+    background-size: cover;
+  }
+
+  .demo-stage--shared::after {
+    inset: 18px;
+    border-color: rgba(215, 215, 210, .24);
+  }
+
+  .project-interaction-footnote {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 0 24px 19px;
+    color: var(--muted);
+    font-size: 8px;
+    line-height: 1.6;
+  }
+
+  .architecture-explorer {
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  .architecture-node-button[aria-pressed="true"] {
+    border-color: var(--signal);
+    color: var(--paper);
+    box-shadow: inset 3px 0 0 var(--signal);
+  }
+
+  .project-interaction-choices :where(button, a):focus-visible,
+  .architecture-node-button:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 4px;
+  }
+
   .project-world {
     position: relative;
     min-width: 0;
@@ -978,6 +1074,29 @@
   }
 
   @media (max-width: 760px) {
+    .case-title {
+      max-width: 10ch;
+      font-size: clamp(52px, 10.6vw, 88px);
+    }
+
+    .demo {
+      grid-template-columns: minmax(0, 1fr);
+      margin-bottom: 62px;
+    }
+
+    .demo-copy {
+      border-right: 0;
+      border-bottom: 1px solid rgba(215, 215, 210, .14);
+    }
+
+    .demo-stage--shared {
+      min-height: min(76vw, 390px);
+    }
+
+    .project-interaction-footnote {
+      padding: 15px 20px 18px;
+    }
+
     .project-world {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -1000,6 +1119,39 @@
   }
 
   @media (max-width: 430px) {
+    .case-title {
+      max-width: 9ch;
+      font-size: clamp(42px, 11.6vw, 58px);
+      letter-spacing: -.082em;
+    }
+
+    .demo-copy {
+      padding: 24px 19px;
+    }
+
+    .demo-copy h2 {
+      font-size: clamp(38px, 11vw, 52px);
+    }
+
+    .project-interaction-choices {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .project-interaction-choices .action {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .architecture-node-button {
+      flex: 1 1 calc(50% - 3px);
+      justify-content: flex-start;
+    }
+
+    .demo-stage--shared {
+      min-height: 290px;
+    }
+
     .project-world-list {
       gap: 13px;
     }
