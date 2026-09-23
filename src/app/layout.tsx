@@ -62,7 +62,7 @@ export default function RootLayout({
       lang="en"
       data-scroll-behavior="smooth"
     >
-      <body>
+      <body suppressHydrationWarning>
         <a className="skip" href="#main">
           Skip to content
         </a>
