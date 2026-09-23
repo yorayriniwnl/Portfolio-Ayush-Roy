@@ -22,6 +22,13 @@ This report records the existing production experience and repository before the
 - The public resume still includes education and a BSNL Telecom & Data Network internship entry. Preserve those verified resume facts while keeping the project worlds limited to the six canonical project records.
 - A direct production HTTP smoke check returned 200 for `/`, `/projects`, all six canonical case studies, `/resume`, and `/lab`; an unknown project slug returned 404. The sampled `/work/helios` legacy route returned 308 to `/projects/helios`. All six `/projects/[slug]/source` routes returned 307 to their configured repositories; the five verified `/live` routes returned 307 to their configured destinations; `/projects/talks/live` returned 200 with the unavailable/deployment-blocked state. Redirects were inspected without following them. This verifies current HTTP route behavior, not browser history or every legacy alias.
 
+### Baseline browser visual and interaction QA — 2026-09-23
+
+- Headless Chrome captured the production homepage at all ten requested viewport sizes; the screenshots and report are retained in the task visualization workspace, outside the Git checkout. The homepage had no horizontal overflow at any of those widths. Route captures cover `/projects`, CandidateX, resume, and Lab; the accessibility sweep found no unnamed interactive nodes on those sampled routes.
+- At 390×844 with reduced motion emulated, the homepage reported `Static field · reduced motion` and mounted zero canvases. The desktop capture still shows the dim name/supporting copy, the separate faceted core with orbit rings, and hero actions falling below the first viewport; the mobile capture places the oversized name ahead of the supporting copy and pushes the remaining action links below the captured screen.
+- The browser sweep exposed one actual 404: Chromium requests `/favicon.ico`, which is absent. The repository has `public/favicon.svg` and it returns 200, but the production document emits no `rel="icon"` link; the current QA runner filters favicon errors, masking the missing icon declaration.
+- The production console had no other captured HTTP error during the sampled homepage, projects, CandidateX, resume, and Lab routes. This was a headless smoke/a11y pass, not a Lighthouse, field-performance, or 60 FPS measurement.
+
 ## Rendering and interaction architecture
 
 - The homepage `Home` component is a Server Component. The hero loads through `HeroSceneIsland`, which dynamically imports one client Canvas after idle time and skips it for reduced motion.
@@ -66,7 +73,8 @@ This report records the existing production experience and repository before the
 - A production build completed successfully and statically generated 41 pages. The generated static-chunk directory contains 2,218,099 bytes across 15 files in aggregate; this is a whole-build total, not homepage transfer size or a measured Web Vital.
 - Browser QA passed after a temporary Windows-only audit shim. It covered the homepage at 1440, 1366, 768, 390, 360, and 320 widths; checked the project index, CandidateX, resume, and Lab at desktop/mobile; and checked keyboard navigation, Escape dismissal, reduced motion, accessibility basics, overflow, and the not-found page.
 - The checked-in browser QA script needs harness fixes: it starts the dev server via `npm` and discovers Chromium with Unix `which`, neither of which works in this Windows shell. Its project/resume text checks were case-sensitive against visually uppercased labels, and its final error scan treated the deliberately requested 404 route as an unexpected browser error.
-- No reliable FPS, Lighthouse, LCP, or field-performance measurement was available in this audit. Do not present the 60 FPS target as a measured result.
+- A repeated cold-cache headless Chrome sample reported `PerformanceResourceTiming.transferSize` of 562,300 bytes across 8 homepage script resources and 613,221 bytes across 26 total resources at 1440×900. CandidateX reported 149,942 bytes across 7 script resources and 196,319 bytes across 23 total resources at 1440×900. These are browser-observed transfer totals, not uncompressed bundle size or field data.
+- The LCP observer produced a homepage desktop candidate between 1.23–1.34 seconds, but returned no candidate on mobile and was inconsistent for CandidateX across repeats. Treat LCP as unmeasured for comparison purposes. No FPS, Lighthouse, or field-performance measurement was available; do not present the 60 FPS target as measured.
 
 ## Design implications
 
