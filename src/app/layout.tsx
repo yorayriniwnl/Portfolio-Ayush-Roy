@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./rebuild.css";
 import { SiteNav } from "@/components/SiteNav";
+import { CustomCursor } from "@/components/CustomCursor";
 import { profile } from "@/content/profile";
 import { getSiteOrigin } from "@/content/site";
 
@@ -71,6 +72,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
         />
         {children}
+        <CustomCursor />
       </body>
     </html>
   );
