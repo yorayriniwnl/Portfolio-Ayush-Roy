@@ -20,6 +20,7 @@ This report records the existing production experience and repository before the
 - The production project list currently appears in this display order: CandidateX, Yor Helios, Personal Developer Portfolio, Yor Zenith, Yor AI vs. Real Image Detector, Yor Talks V2. The requested rebuild order is CandidateX, Zenith, Helios, AI vs Real, Yor Talks, Portfolio.
 - The CandidateX route still exposes semantic role, contribution, architecture, implementation, validation, results, limitations, and four repository-authored visuals with alt text. This is valuable evidence to preserve and enlarge rather than replace with a scene-only explanation.
 - The public resume still includes education and a BSNL Telecom & Data Network internship entry. Preserve those verified resume facts while keeping the project worlds limited to the six canonical project records.
+- A direct production HTTP smoke check returned 200 for `/`, `/projects`, all six canonical case studies, `/resume`, and `/lab`; an unknown project slug returned 404. The sampled `/work/helios` legacy route returned 308 to `/projects/helios`; CandidateX `/source` and `/live` returned 307 to their configured GitHub and Vercel targets. This verifies route responses and representative resolver behavior, not browser history or every alias/resolver combination.
 
 ## Rendering and interaction architecture
 
