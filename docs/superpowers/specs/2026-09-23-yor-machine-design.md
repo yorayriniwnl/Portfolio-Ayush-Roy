@@ -119,6 +119,7 @@ Design and inspect at: 375×812, 390×844, 430×932, 768×1024, 1024×768, 1280�
 - Reduced motion disables WebGL animation and route choreography and preserves a polished static composition.
 - Repository visuals retain descriptive alternative text and captions that distinguish artwork/diagrams from live product captures.
 - Preserve canonical URLs, metadata, Open Graph/Twitter metadata, sitemap, robots, Person JSON-LD, source/live resolvers, legacy redirects, and security headers.
+- Declare the existing repository-authored favicon asset in page metadata and verify that browsers load the intended icon without a `/favicon.ico` 404; the live baseline currently has `public/favicon.svg` but no icon link.
 
 ## CSS and asset architecture
 
@@ -156,7 +157,7 @@ The implementation will add/adjust automated coverage for registry display integ
 
 Implementation follows reviewable visual milestones: machine foundation, hero, project world, project selection/transitions, case studies, then About/contact and the secondary Lab/resume experience. At each major milestone, run the site, inspect screenshots, test interactions and responsive behavior, measure available performance signals, fix issues, and repeat before moving on. Give the most attention to arrival, first scroll into the machine, project selection, project transition, and the contact resolution.
 
-The cross-platform browser QA runner must work from this Windows environment and run the ten specified viewports. It must check all canonical recruiter routes, project source/live resolver destinations without following off-site URLs unnecessarily, missing assets, browser/console errors, no horizontal overflow, keyboard navigation, mobile menu, reduced motion, route refresh, and screenshot output. Its intentional 404 check must not be reported as an unexpected console failure.
+The cross-platform browser QA runner must work from this Windows environment and run the ten specified viewports. It must check all canonical recruiter routes, project source/live resolver destinations without following off-site URLs unnecessarily, missing assets including the site icon, browser/console errors, no horizontal overflow, keyboard navigation, mobile menu, reduced motion, route refresh, and screenshot output. Its intentional 404 check must not be reported as an unexpected console failure.
 
 Before release, run the project’s existing validation scripts (equivalents may use the available package runner): tests, lint, typecheck, content validation, asset validation, and production build. Inspect screenshots for desktop hero, desktop project world, project case study, mobile hero, mobile project world, and contact finale. Reopen and audit the production-equivalent build. Report measured results separately from targets and preserve any remaining limitation.
 
