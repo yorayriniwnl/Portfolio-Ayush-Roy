@@ -10,11 +10,13 @@ export function ProjectPreviewLink({
   href,
   children,
   className,
+  ariaLabel,
 }: {
   projectId: ProjectId;
   href: string;
   children: ReactNode;
   className: string;
+  ariaLabel?: string;
 }) {
   const dispatch = useExperienceDispatch();
   const { projectId: routeProject, activeProject } = useExperienceProject();
@@ -31,6 +33,7 @@ export function ProjectPreviewLink({
       className={className}
       href={href}
       data-project-active={isActive ? "true" : "false"}
+      aria-label={ariaLabel}
       onPointerEnter={activate}
       onPointerLeave={(event) => release(event.currentTarget)}
       onFocus={activate}
@@ -40,6 +43,7 @@ export function ProjectPreviewLink({
         release(event.currentTarget);
       }}
       onTouchStart={activate}
+      onClick={activate}
     >
       {children}
     </Link>

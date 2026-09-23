@@ -164,12 +164,12 @@
 - Project rows remain server-rendered native links with visible active state. Pointer enter, keyboard focus, touch selection, and click call `setActiveProject` with the row's ProjectId.
 - Case/source/verified-live URLs and availability rules remain intact. Selection must be clear without hover or signal color alone.
 
-- [ ] Update tests to assert the exact six-project sequence, all case URLs, verified live/source actions, and correct resolver use.
-- [ ] Run `node --import tsx --test tests/project-index.test.ts` and confirm ordering fails against the current registry.
-- [ ] Change recruiter display order and rebuild the list as editorial oversized links with numbered metadata and focus/touch selection handlers.
-- [ ] Test selected labels and semantic names; preserve all factual metrics and status from the registry.
-- [ ] Run project-index and project-system tests plus typecheck; confirm all pass.
-- [ ] Commit as `feat: order projects as machine worlds`.
+- [x] Update tests to assert the exact six-project sequence, all case URLs, verified live/source actions, and correct resolver use.
+- [x] Run `node --import tsx --test tests/project-index.test.ts` and confirm ordering fails against the current registry.
+- [x] Change recruiter display order and rebuild the list as editorial oversized links with numbered metadata and focus/touch selection handlers.
+- [x] Test selected labels and semantic names; preserve all factual metrics and status from the registry.
+- [x] Run project-index and project-system tests plus typecheck; confirm all pass.
+- [x] Commit as `feat: order projects as machine worlds`.
 
 ## Task 7: Integrate Shared Project Worlds with Semantic Case Studies
 
