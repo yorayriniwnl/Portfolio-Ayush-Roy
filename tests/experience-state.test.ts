@@ -71,6 +71,11 @@ test("section updates retain the selected section and clamp progress to its vali
     experienceReducer(active, { type: "section", section: "contact", progress: 2 }).progress,
     1,
   );
+
+  assert.equal(
+    experienceReducer(active, { type: "section", section: "unknown-marker", progress: 0.7 }),
+    active,
+  );
 });
 
 test("project preview can be selected and cleared independently of the route project", () => {

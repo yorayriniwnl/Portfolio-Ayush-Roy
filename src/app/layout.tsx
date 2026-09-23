@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./rebuild.css";
 import { SiteNav } from "@/components/SiteNav";
+import { ExperienceRuntime } from "@/experience/ExperienceRuntime";
 import { profile } from "@/content/profile";
 import { getSiteOrigin } from "@/content/site";
 
@@ -63,15 +64,17 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
     >
       <body>
-        <a className="skip" href="#main">
-          Skip to content
-        </a>
-        <SiteNav />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
-        />
-        {children}
+        <ExperienceRuntime>
+          <a className="skip" href="#main">
+            Skip to content
+          </a>
+          <SiteNav />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+          />
+          {children}
+        </ExperienceRuntime>
       </body>
     </html>
   );
