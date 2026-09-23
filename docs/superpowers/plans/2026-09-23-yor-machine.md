@@ -241,4 +241,4 @@
 - Record implementation branch/commit, major files, validation results, measured performance versus targets, and remaining limits in the audit.
 - Provide links to the six screenshots and final audit report.
 - Confirm no Canvas on resume/Lab/reduced motion; DOM selection equivalents for all project worlds; intact source/live resolvers and legacy redirects; working favicon at `/favicon.svg`.
-- [ ] Complete the fresh whole-branch review after the Task 9 commit and address any required findings.
+- [x] Complete the fresh whole-branch review after the Task 9 commit and address any required findings.
