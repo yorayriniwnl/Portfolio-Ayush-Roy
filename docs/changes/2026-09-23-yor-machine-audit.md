@@ -38,6 +38,14 @@ This report records the existing production experience and repository before the
 - The browser runner uses full-page `Page.navigate`, so it does not verify in-app route transitions or back/forward history. It checks the mobile menu, initial skip-link focus, reduced-motion homepage fallback, basic accessible names, one H1, overflow, and CandidateX gallery/live CTA. It currently asserts baseline-specific headings/status selectors that must change with the new design. Its global browser-error collection also includes the intentional 404 visit, so expected not-found diagnostics must be isolated from unexpected runtime errors.
 - The final audit should run against a production build, while the checked-in runner currently starts the development server. The runner also assumes Unix `which` and a `npm` executable on PATH; neither is reliable in the current Windows environment. The final harness needs a configurable cross-platform package-manager/browser path and a production-equivalent server mode.
 
+## Crosswalk to the existing 2026-09-18 implementation plan
+
+- The core deliverables from the earlier production-hardening plan are already in the baseline: centralized six-project registry/resolvers, server-rendered homepage with a dynamically isolated hero island, `/lab` separation, repository-authored CandidateX evidence visuals, resume/metadata/security work, and automated project/content/SEO tests. Reuse these rather than rebuilding them.
+- The old scene-cleanup milestone removed the `Universe` components, but `package.json` and the tracked lockfile still declare `chess.js` and `motion`. A source search found no TypeScript imports for either dependency; retain Motion only if the new centralized choreography actually uses it, and remove `chess.js` if no other runtime consumer exists.
+- The old plan's remaining scene and QA milestones are not sufficient for the new directive: the current hero still uses the faceted core/orbit-ring language, project focus does not drive a shared route state, and each eligible case-study demo mounts its own Canvas. The requested persistent machine world is a new architectural step.
+- The old browser QA milestone covers the prior six-width matrix and a small subset of routes. It does not satisfy this brief's ten viewports, all six case-study routes, all resolver outcomes, client-side history/transition behavior, production-build browser pass, or required visual screenshot set.
+- Prior baseline tests and production build passed, but the old plan's final-checklist state is not current proof of the new release bar. Final validation must be rerun after implementation against the expanded route/motion/performance matrix.
+
 ## Live SEO and security recheck — 2026-09-23
 
 - The production root response returned HTTP 200 with canonical `https://yorayriniwnl.in`, an Open Graph title, a `summary_large_image` Twitter card, and a Person JSON-LD script.
