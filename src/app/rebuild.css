@@ -1,3 +1,4 @@
+@layer legacy {
 /* Production rebuild overrides: readability, progressive motion, Lab, and case-study navigation. */
 .technical { font-size: 11px; }
 .hub-hero-status { font-size: 10px; }
@@ -74,4 +75,5 @@
 @media (max-width: 850px) {
   .case-toc { top: 68px; }
   .case-toc-inner { width: 100%; padding-right: 20px; padding-left: 20px; }
+}
 }

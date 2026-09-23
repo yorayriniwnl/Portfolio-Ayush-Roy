@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     "Ayush Roy builds realtime systems, full-stack products, applied ML workflows, and interactive Three.js experiences with evidence-backed engineering case studies.",
   keywords: ["Ayush Roy", "Product Engineer", "Full-Stack Engineer", "Next.js", "Realtime Systems", "Applied ML", "Three.js"],
   alternates: { canonical: "/" },
+  icons: { icon: { url: "/favicon.svg", type: "image/svg+xml" } },
   openGraph: {
     title: "Ayush Roy · Product & Full-Stack Engineer",
     description: profile.positioning,

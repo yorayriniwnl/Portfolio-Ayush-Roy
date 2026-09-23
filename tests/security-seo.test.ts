@@ -10,6 +10,15 @@ test("root metadata leads with the engineer identity while retaining YOR", () =>
   assert.doesNotMatch(layout, /play chess and arcade games/i);
 });
 
+test("root metadata declares the checked-in SVG favicon with its MIME type", () => {
+  const layout = readFileSync("src/app/layout.tsx", "utf8");
+  assert.match(
+    layout,
+    /icons\s*:\s*\{\s*icon\s*:\s*\{\s*url\s*:\s*["']\/favicon\.svg["']\s*,\s*type\s*:\s*["']image\/svg\+xml["']/s,
+  );
+  assert.ok(readFileSync("public/favicon.svg", "utf8").includes("<svg"));
+});
+
 test("security headers include a restrictive content security policy", () => {
   const config = readFileSync("next.config.ts", "utf8");
   assert.match(config, /Content-Security-Policy/);

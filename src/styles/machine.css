@@ -1,0 +1,79 @@
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    min-width: 320px;
+    min-height: 100%;
+  }
+}
+
+@layer base {
+  html {
+    background: var(--void);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--void);
+    color: var(--paper);
+    font-family: var(--font-body);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  img,
+  svg,
+  video {
+    max-width: 100%;
+  }
+
+  ::selection {
+    background: var(--signal);
+    color: var(--void);
+  }
+
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 4px;
+  }
+}
+
+@layer typography {
+  body {
+    font-family: var(--font-body);
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer layout {
+  [data-experience-section] {
+    scroll-margin-top: var(--space-24);
+  }
+}
+
+@layer motion {
+  @media (prefers-reduced-motion: reduce) {
+    html,
+    * {
+      scroll-behavior: auto !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

@@ -1,5 +1,9 @@
-@import "../styles/tokens.css";
+@layer reset, legacy, tokens, base, typography, layout, components, motion, experience;
 
+@import "../styles/tokens.css";
+@import "../styles/machine.css";
+
+@layer legacy {
 :root {
   --surface-alt: #1b1b20;
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
@@ -510,4 +514,5 @@ button { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
 }
