@@ -1,0 +1,99 @@
+.cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+  contain: layout style;
+  will-change: opacity;
+}
+
+.cursor[data-visible="true"] {
+  opacity: 1;
+}
+
+.asset {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  filter: drop-shadow(0 2px 4px rgba(5, 2, 12, 0.85)) drop-shadow(0 0 7px rgba(142, 52, 255, 0.48));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 170ms ease, scale 220ms cubic-bezier(.16, 1, .3, 1), filter 220ms ease;
+  will-change: transform;
+}
+
+.arrow {
+  width: 40px;
+  height: 40px;
+  background-image: url("/cursors/void-tech-arrow.png");
+  opacity: 1;
+  transform-origin: 6px 1px;
+}
+
+.gauntlet {
+  width: 48px;
+  height: 48px;
+  background-image: url("/cursors/void-tech-gauntlet.png");
+  transform-origin: 13px 1px;
+  scale: 0.92;
+}
+
+.glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 48, 64, 0.22), rgba(255, 48, 64, 0.08) 44%, rgba(126, 54, 255, 0.05) 62%, transparent 76%);
+  filter: blur(8px);
+  opacity: 0.62;
+  pointer-events: none;
+  transition: width 240ms cubic-bezier(.16, 1, .3, 1), height 240ms cubic-bezier(.16, 1, .3, 1), opacity 180ms ease;
+  will-change: transform;
+}
+
+.cursor[data-hovered="true"] .arrow {
+  opacity: 0;
+  scale: 0.84;
+}
+
+.cursor[data-hovered="true"] .gauntlet {
+  filter: drop-shadow(0 2px 5px rgba(5, 2, 12, 0.9)) drop-shadow(0 0 10px rgba(169, 91, 255, 0.74));
+  opacity: 1;
+  scale: 1;
+}
+
+.cursor[data-hovered="true"] .glow {
+  width: 64px;
+  height: 64px;
+  opacity: 0.9;
+}
+
+.cursor[data-pressed="true"] .gauntlet {
+  scale: 0.94;
+}
+
+.cursor[data-pressed="true"] .glow {
+  width: 74px;
+  height: 74px;
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :global(body[data-custom-cursor="active"]),
+  :global(body[data-custom-cursor="active"] *) {
+    cursor: none !important;
+  }
+
+  :global(body[data-custom-cursor="active"] input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"])),
+  :global(body[data-custom-cursor="active"] textarea),
+  :global(body[data-custom-cursor="active"] [contenteditable]:not([contenteditable="false"])) {
+    cursor: text !important;
+  }
+}

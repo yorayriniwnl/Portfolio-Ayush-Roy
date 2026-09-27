@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SiteNav } from "@/components/SiteNav";
 import { ExperienceRuntime } from "@/experience/ExperienceRuntime";
+import { CustomCursor } from "@/components/CustomCursor";
 import { profile } from "@/content/profile";
 import { getSiteOrigin } from "@/content/site";
 
@@ -62,7 +63,7 @@ export default function RootLayout({
       lang="en"
       data-scroll-behavior="smooth"
     >
-      <body>
+      <body suppressHydrationWarning>
         <ExperienceRuntime>
           <a className="machine-skip-link" href="#main">
             Skip to content
@@ -74,6 +75,7 @@ export default function RootLayout({
           />
           {children}
         </ExperienceRuntime>
+        <CustomCursor />
       </body>
     </html>
   );
