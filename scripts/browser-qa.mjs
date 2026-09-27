@@ -219,6 +219,7 @@ try {
 
   chrome = spawn(chromiumPath, [
     "--headless=new",
+    "--blink-settings=primaryPointerType=4,availablePointerTypes=4,primaryHoverType=2,availableHoverTypes=2",
     "--no-sandbox",
     "--disable-dev-shm-usage",
     "--enable-webgl",
@@ -530,6 +531,9 @@ try {
   await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 700, y: 100 });
   assert(await cdp.evaluate(`!document.body.dataset.customCursor`), "Reduced motion must preserve the native cursor");
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
+  const cursorEnvironment = await cdp.evaluate(`({ fine: matchMedia('(pointer: fine)').matches, hover: matchMedia('(hover: hover)').matches, touchPoints: navigator.maxTouchPoints })`);
+  report.interaction.cursorEnvironment = cursorEnvironment;
+  assert(cursorEnvironment.fine && cursorEnvironment.hover, `Desktop pointer configuration was not applied: ${JSON.stringify(cursorEnvironment)}`);
   await cdp.evaluate(`Promise.all(['/cursors/void-tech-arrow.png', '/cursors/void-tech-gauntlet.png'].map(async (src) => { const image = new Image(); image.src = src; await image.decode(); return image.naturalWidth > 0; }))`);
   await delay(100);
   await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 710, y: 100 });
@@ -670,6 +674,11 @@ try {
   if (backgroundTargetId && browserCdp) {
     try { await browserCdp.send("Target.closeTarget", { targetId: backgroundTargetId }); } catch {}
   }
+  // Chrome can relaunch under a new PID on Windows. Close the isolated browser
+  // over its own debugger connection before falling back to process teardown.
+  if (browserCdp) {
+    try { await browserCdp.send("Browser.close", {}, 5000); } catch {}
+  }
   cdp?.close();
   browserCdp?.close();
   killTree(chrome);
@@ -680,6 +689,7 @@ try {
     await fs.promises.rm(resolvedProfile, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
   } catch (error) {
     report.failures.push(`temporary browser profile cleanup: ${error.message}`);
+    console.error(`Temporary browser profile cleanup failed: ${error.message}`);
     report.status = "failed";
     process.exitCode = 1;
   }
@@ -696,6 +706,7 @@ try {
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
   } catch (error) {
     console.error(`Unable to write ${reportPath}: ${error.message}`);
+    report.status = "failed";
     process.exitCode = 1;
   }
 }
