@@ -642,14 +642,20 @@ try {
   await waitForCondition(cdp, `Boolean(document.querySelector('a[href="/projects"]'))`, { description: "work navigation link" });
   await clickAtSelector('a[href="/projects"]');
   await waitForCondition(cdp, `location.pathname === '/projects'`, { timeoutMs: 8000, description: "client navigation to project index" });
+  const reloaded = cdp.once("Page.loadEventFired", 20_000);
   await cdp.send("Page.reload", { ignoreCache: true });
-  await cdp.once("Page.loadEventFired", 20_000).catch(() => null);
+  await reloaded;
   await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { description: "refresh project index" });
+  // Server-rendered cards can appear before the refreshed router hydrates.
+  // Confirm a real client interaction before traversing its history entries.
+  await cdp.evaluate(`document.querySelector('a.project-world__title-link')?.focus(); true`);
+  await waitForCondition(cdp, `document.querySelector('a.project-world__title-link')?.dataset.projectActive === 'true'`, { description: "refreshed project interaction is hydrated" });
   const history = await cdp.send("Page.getNavigationHistory");
   const entries = history.entries;
   const projectEntry = entries[history.currentIndex];
   const homeIndex = entries.slice(0, history.currentIndex).findLastIndex((entry) => new URL(entry.url).pathname === "/");
   assert(homeIndex >= 0, "Browser history did not retain the homepage entry");
+  report.interaction.historyEntries = { beforeBack: projectEntry, backTarget: entries[homeIndex] };
   await cdp.send("Page.navigateToHistoryEntry", { entryId: entries[homeIndex].id });
   await waitForCondition(cdp, `location.pathname === '/' && Boolean(document.querySelector('#contact'))`, { description: "browser back navigation" });
   const afterBack = await cdp.send("Page.getNavigationHistory");
@@ -698,6 +704,13 @@ try {
 } catch (error) {
   recordFailure(error);
   report.failedScenario = activeScenario;
+  if (cdp) {
+    try {
+      report.failurePage = await cdp.evaluate(`({ url: location.href, readyState: document.readyState, visibility: document.visibilityState, heading: document.querySelector('h1')?.innerText, text: document.body.innerText.slice(0, 1800) })`);
+      console.error(`failure page: ${JSON.stringify(report.failurePage)}`);
+      await capture(cdp, outputDir, "failure-page");
+    } catch {}
+  }
   if (appOutput) console.error(`production server output:\n${appOutput}`);
   if (chromeOutput) console.error(`Chromium output:\n${chromeOutput}`);
 } finally {
