@@ -77,6 +77,7 @@ let primaryTargetId;
 let backgroundTargetId;
 let activeScenario = "startup";
 let appOutput = "";
+let chromeOutput = "";
 const browserErrors = [];
 const requestUrls = new Map();
 
@@ -101,7 +102,7 @@ function recordFailure(error) {
 }
 
 async function fetchManual(routePath) {
-  return fetch(new URL(routePath, baseUrl), { redirect: "manual", cache: "no-store" });
+  return fetch(new URL(routePath, baseUrl), { redirect: "manual", cache: "no-store", signal: AbortSignal.timeout(15_000) });
 }
 
 function assertSameOriginLocation(location, routePath) {
@@ -156,7 +157,10 @@ function killTree(child) {
     } catch {}
   }
   try {
-    child.kill("SIGTERM");
+    // Each Unix child starts in its own process group. Stop its descendants too,
+    // including browser launchers that exit before their Chrome process does.
+    if (process.platform !== "win32") process.kill(-child.pid, "SIGKILL");
+    else child.kill("SIGTERM");
   } catch {}
 }
 
@@ -194,6 +198,8 @@ try {
     cwd: root,
     env: { ...process.env, NEXT_TELEMETRY_DISABLED: "1" },
     stdio: ["ignore", "pipe", "pipe"],
+    detached: process.platform !== "win32",
+    windowsHide: true,
   });
   app.stdout?.on("data", (chunk) => { appOutput = (appOutput + String(chunk)).slice(-8000); });
   app.stderr?.on("data", (chunk) => { appOutput = (appOutput + String(chunk)).slice(-8000); });
@@ -219,6 +225,8 @@ try {
 
   chrome = spawn(chromiumPath, [
     "--headless=new",
+    "--no-first-run",
+    "--no-default-browser-check",
     "--blink-settings=primaryPointerType=4,availablePointerTypes=4,primaryHoverType=2,availableHoverTypes=2",
     "--no-sandbox",
     "--disable-dev-shm-usage",
@@ -230,13 +238,14 @@ try {
     `--remote-debugging-port=${chromePort}`,
     `--user-data-dir=${chromeProfile}`,
     "about:blank",
-  ], { stdio: "ignore" });
+  ], { stdio: ["ignore", "ignore", "pipe"], detached: process.platform !== "win32", windowsHide: true });
+  chrome.stderr?.on("data", (chunk) => { chromeOutput = (chromeOutput + String(chunk)).slice(-8000); });
   chrome.once("error", (error) => addError(`Chromium spawn error: ${error.message}`));
 
   const debuggerUrl = await findPageDebugger(chromePort);
   const [targets, browserEndpoint] = await Promise.all([
-    fetch(`http://127.0.0.1:${chromePort}/json/list`).then((response) => response.json()),
-    fetch(`http://127.0.0.1:${chromePort}/json/version`).then((response) => response.json()),
+    fetch(`http://127.0.0.1:${chromePort}/json/list`, { signal: AbortSignal.timeout(5000) }).then((response) => response.json()),
+    fetch(`http://127.0.0.1:${chromePort}/json/version`, { signal: AbortSignal.timeout(5000) }).then((response) => response.json()),
   ]);
   primaryTargetId = targets.find((target) => target.webSocketDebuggerUrl === debuggerUrl)?.id;
   assert(primaryTargetId, "Unable to identify the primary browser tab for visibility tests");
@@ -254,6 +263,7 @@ try {
   ]);
   const browserVersion = await browserCdp.send("Browser.getVersion");
   report.browser.version = `${browserVersion.product} / ${browserVersion.revision}`;
+  console.log(`browser QA: connected to ${report.browser.version} at ${chromiumPath}`);
   cdp.on("Runtime.exceptionThrown", (params) => {
     const details = params.exceptionDetails;
     const sourceUrl = details?.url ?? "";
@@ -387,6 +397,7 @@ try {
     }
   }
   report.routeMatrix.routes = matrix;
+  console.log(`browser QA: completed ${report.routeMatrix.checked} route/viewport checks`);
   if (report.routeMatrix.clippingIssues.length) {
     const examples = report.routeMatrix.clippingIssues.slice(0, 12).map((issue) => `${issue.path} ${issue.viewport} ${issue.kind}: ${issue.text}`).join("\n");
     throw new Error(`Heading or essential-copy clipping detected (${report.routeMatrix.clippingIssues.length} instances):\n${examples}`);
@@ -669,7 +680,9 @@ try {
   report.completedAt = new Date().toISOString();
 } catch (error) {
   recordFailure(error);
+  report.failedScenario = activeScenario;
   if (appOutput) console.error(`production server output:\n${appOutput}`);
+  if (chromeOutput) console.error(`Chromium output:\n${chromeOutput}`);
 } finally {
   if (backgroundTargetId && browserCdp) {
     try { await browserCdp.send("Target.closeTarget", { targetId: backgroundTargetId }); } catch {}

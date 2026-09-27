@@ -218,7 +218,7 @@ export function resolveChromiumPath({
     throw new Error(`No Chromium-compatible browser found in Windows install locations. Set CHROMIUM_PATH. Searched: ${candidates.join(", ")}`);
   }
 
-  for (const command of ["chromium", "chromium-browser", "google-chrome", "google-chrome-stable", "microsoft-edge", "microsoft-edge-stable"]) {
+  for (const command of ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "microsoft-edge-stable"]) {
     try {
       const resolved = runCommand("which", [command], { encoding: "utf8" }).trim();
       if (resolved && existsSync(resolved)) return resolved;
@@ -404,9 +404,9 @@ export function assert(condition, message) {
 
 export async function findPageDebugger(port) {
   const started = Date.now();
-  while (Date.now() - started < 20_000) {
+  while (Date.now() - started < 30_000) {
     try {
-      const targets = await fetch(`http://127.0.0.1:${port}/json/list`).then((response) => response.json());
+      const targets = await fetch(`http://127.0.0.1:${port}/json/list`, { signal: AbortSignal.timeout(1000) }).then((response) => response.json());
       const page = targets.find((target) => target.type === "page");
       if (page?.webSocketDebuggerUrl) return page.webSocketDebuggerUrl;
     } catch {}
