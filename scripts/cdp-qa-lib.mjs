@@ -289,7 +289,7 @@ export async function waitForHttp(url, timeoutMs = 90_000) {
   let lastError;
   while (Date.now() - started < timeoutMs) {
     try {
-      const response = await fetch(url, { redirect: "manual" });
+      const response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(Math.min(5000, timeoutMs - (Date.now() - started))) });
       if (response.status < 500) return response;
     } catch (error) {
       lastError = error;
@@ -320,20 +320,45 @@ export class CdpClient {
         const pending = this.pending.get(message.id);
         if (!pending) return;
         this.pending.delete(message.id);
+        clearTimeout(pending.timeout);
         if (message.error) pending.reject(new Error(`${pending.method}: ${message.error.message}`));
         else pending.resolve(message.result ?? {});
         return;
       }
       for (const listener of this.listeners.get(message.method) ?? []) listener(message.params ?? {});
     });
+    this.ws.addEventListener("close", () => this.rejectPending(new Error("CDP connection closed")));
+    this.ws.addEventListener("error", () => this.rejectPending(new Error("CDP connection failed")));
   }
 
-  send(method, params = {}) {
+  send(method, params = {}, timeoutMs = 20_000) {
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
-      this.pending.set(id, { resolve, reject, method });
-      this.ws.send(JSON.stringify({ id, method, params }));
+      if (this.ws?.readyState !== WebSocket.OPEN) {
+        reject(new Error(`Cannot send ${method}: CDP connection is not open`));
+        return;
+      }
+      const timeout = setTimeout(() => {
+        this.pending.delete(id);
+        reject(new Error(`Timed out waiting for CDP response ${method}`));
+      }, timeoutMs);
+      this.pending.set(id, { resolve, reject, method, timeout });
+      try {
+        this.ws.send(JSON.stringify({ id, method, params }));
+      } catch (error) {
+        clearTimeout(timeout);
+        this.pending.delete(id);
+        reject(error);
+      }
     });
+  }
+
+  rejectPending(error) {
+    for (const pending of this.pending.values()) {
+      clearTimeout(pending.timeout);
+      pending.reject(error);
+    }
+    this.pending.clear();
   }
 
   once(method, timeoutMs = 12_000) {
@@ -368,6 +393,7 @@ export class CdpClient {
   }
 
   close() {
+    this.rejectPending(new Error("CDP client closed"));
     this.ws?.close();
   }
 }

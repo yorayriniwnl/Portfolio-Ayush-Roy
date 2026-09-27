@@ -148,14 +148,16 @@ async function pressKey(key, code, windowsVirtualKeyCode) {
 
 function killTree(child) {
   if (!child?.pid) return;
+  if (process.platform === "win32") {
+    try {
+      // Terminate descendants before their parent disappears from the process tree.
+      execFileSync("taskkill", ["/PID", String(child.pid), "/T", "/F"], { stdio: "ignore", timeout: 8000, windowsHide: true });
+      return;
+    } catch {}
+  }
   try {
     child.kill("SIGTERM");
   } catch {}
-  if (process.platform === "win32") {
-    try {
-      execFileSync("taskkill", ["/PID", String(child.pid), "/T", "/F"], { stdio: "ignore", timeout: 8000 });
-    } catch {}
-  }
 }
 
 const browserBootstrap = `${PERFORMANCE_OBSERVER_INSTALL};
@@ -489,6 +491,18 @@ try {
   assert(menuClosed.expanded === "false", "Escape did not close the mobile menu");
   assert(menuClosed.focus === "Open navigation menu", "Closing menu did not restore focus to its trigger");
 
+  await pressKey("Enter", "Enter", 13);
+  await clickAtSelector('a[aria-label="Ayush Roy home"]');
+  await waitForCondition(cdp, `document.querySelector('#mobile-nav')?.dataset.open === 'false'`, { description: "home logo closes the menu on the same route" });
+  await navigate(cdp, `${baseUrl}/projects`);
+  await clickAtSelector('button[aria-controls="mobile-nav"]');
+  await clickAtSelector('a[aria-label="Ayush Roy home"]');
+  await waitForCondition(cdp, `location.pathname === '/' && document.querySelector('#mobile-nav')?.dataset.open === 'false'`, { description: "home navigation closes the mobile menu" });
+  await clickAtSelector('button[aria-controls="mobile-nav"]');
+  await cdp.evaluate(`history.back(); true`);
+  await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelector('#mobile-nav')?.dataset.open === 'false'`, { description: "browser history closes the mobile menu" });
+  report.interaction.mobileRouteDismissal = { sameRouteLogo: true, homeNavigation: true, browserBack: true };
+
   await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 1 });
   await navigate(cdp, `${baseUrl}/projects`);
   const touchTarget = await cdp.evaluate(`(async () => {
@@ -508,6 +522,30 @@ try {
   await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
   report.interaction.keyboard = { skipLinkFirst: true, menuEnter: true, escapeDismissal: true, focusRestored: true };
   report.interaction.touch = { projectWorldSelection: true };
+
+  activeScenario = "custom cursor accessibility and asset fallback";
+  await setViewport(cdp, 1440, 900);
+  await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+  await navigate(cdp, `${baseUrl}/lab`);
+  await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 700, y: 100 });
+  assert(await cdp.evaluate(`!document.body.dataset.customCursor`), "Reduced motion must preserve the native cursor");
+  await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
+  await cdp.evaluate(`Promise.all(['/cursors/void-tech-arrow.png', '/cursors/void-tech-gauntlet.png'].map(async (src) => { const image = new Image(); image.src = src; await image.decode(); return image.naturalWidth > 0; }))`);
+  await delay(100);
+  await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 710, y: 100 });
+  await waitForCondition(cdp, `document.body.dataset.customCursor === 'active'`, { description: "cursor restores after motion preference changes" });
+  await cdp.evaluate(`(() => { const input = document.createElement('input'); input.id = 'qa-text-cursor'; input.style.cssText = 'position:fixed;left:600px;top:100px;z-index:9999;width:200px;height:40px'; document.body.append(input); return true; })()`);
+  await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 650, y: 120 });
+  assert(await cdp.evaluate(`!document.body.dataset.customCursor && getComputedStyle(document.querySelector('#qa-text-cursor')).cursor === 'text'`), "Text inputs must retain their native text cursor");
+  await cdp.evaluate(`document.querySelector('#qa-text-cursor').remove(); true`);
+  await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1439, y: 899 });
+  assert(await cdp.evaluate(`document.documentElement.scrollWidth <= innerWidth + 1`), "Cursor at the viewport edge causes horizontal overflow");
+  const brokenCursor = await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: `window.Image = class extends Image { decode() { return Promise.reject(new Error('QA cursor image decode failure')); } };` });
+  await navigate(cdp, `${baseUrl}/lab`);
+  await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 710, y: 100 });
+  assert(await cdp.evaluate(`!document.body.dataset.customCursor && document.querySelector('[data-custom-cursor-layer]')?.dataset.visible === 'false'`), "Failed cursor images must leave the native pointer visible");
+  await cdp.send("Page.removeScriptToEvaluateOnNewDocument", { identifier: brokenCursor.identifier });
+  report.interaction.customCursor = { reducedMotion: true, preferenceRestoration: true, textInput: true, edgeOverflow: false, imageFailureFallback: true };
 
   activeScenario = "reduced motion and renderer behavior";
   await setViewport(cdp, 1440, 900);
@@ -625,7 +663,6 @@ try {
   assert(missingScreenshots.length === 0, `Review screenshots missing or empty: ${missingScreenshots.join(", ")}`);
   report.screenshots = actualScreenshots.map((file) => path.relative(root, file).replaceAll("\\", "/"));
   report.completedAt = new Date().toISOString();
-  console.log(`browser QA: passed · ${report.routeMatrix.checked} route/viewport checks · ${report.screenshots.length} review captures · ${path.relative(root, reportPath)}`);
 } catch (error) {
   recordFailure(error);
   if (appOutput) console.error(`production server output:\n${appOutput}`);
@@ -638,7 +675,9 @@ try {
   killTree(chrome);
   killTree(app);
   try {
-    fs.rmSync(chromeProfile, { recursive: true, force: true });
+    const resolvedProfile = path.resolve(chromeProfile);
+    assert(path.dirname(resolvedProfile) === path.resolve(os.tmpdir()) && path.basename(resolvedProfile).startsWith("yor-machine-browser-qa-"), "Refusing to remove a browser profile outside the QA temporary directory");
+    await fs.promises.rm(resolvedProfile, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
   } catch (error) {
     report.failures.push(`temporary browser profile cleanup: ${error.message}`);
     report.status = "failed";
@@ -659,4 +698,8 @@ try {
     console.error(`Unable to write ${reportPath}: ${error.message}`);
     process.exitCode = 1;
   }
+}
+
+if (report.status === "passed") {
+  console.log(`browser QA: passed · ${report.routeMatrix.checked} route/viewport checks · ${report.screenshots.length} review captures · ${path.relative(root, reportPath)}`);
 }

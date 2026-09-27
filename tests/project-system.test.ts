@@ -94,6 +94,21 @@ test("returns not-found for an unknown project link", () => {
   assert.equal(resolveProjectLink("missing", "source").kind, "not-found");
 });
 
+test("rejects credential-bearing destinations and alternate localhost spellings", () => {
+  const project = getCvProject("zenith");
+  assert.ok(project);
+  for (const live of [
+    "https://username:password@example.com",
+    "https://username@example.com",
+    "http://localhost.:3000",
+    "http://preview.localhost:3000",
+    "http://127.0.0.1.:3000",
+    "javascript:alert(1)",
+  ]) {
+    assert.equal(resolveConfiguredProjectLink({ ...project, links: { ...project.links, live } }, "live").kind, "unavailable", live);
+  }
+});
+
 test("generates stable canonical project paths and keeps demo modes scoped", () => {
   assert.equal(projectPath("ai-vs-real"), "/projects/ai-vs-real");
   assert.equal(projectLinkPath("talks", "source"), "/projects/talks/source");

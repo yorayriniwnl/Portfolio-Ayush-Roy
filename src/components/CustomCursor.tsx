@@ -23,6 +23,9 @@ export function CustomCursor() {
 
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let assetsReady = false;
+    let assetLoadRequested = false;
+    let disposed = false;
     let targetX = 0;
     let targetY = 0;
     let glowX = 0;
@@ -62,7 +65,7 @@ export function CustomCursor() {
     };
 
     const handlePointerMove = (event: PointerEvent) => {
-      if (!finePointer.matches || reducedMotion.matches || event.pointerType === "touch") {
+      if (!assetsReady || !finePointer.matches || reducedMotion.matches || event.pointerType !== "mouse") {
         hideCursor();
         return;
       }
@@ -105,9 +108,27 @@ export function CustomCursor() {
       if (document.visibilityState !== "visible") hideCursor();
     };
 
+    // Keep the native cursor until both replacements have decoded successfully.
+    // A blocked or missing image must never leave the visitor without a pointer.
+    const loadAssets = () => {
+      if (assetLoadRequested || !finePointer.matches || reducedMotion.matches) return;
+      assetLoadRequested = true;
+      void Promise.all(["/cursors/void-tech-arrow.png", "/cursors/void-tech-gauntlet.png"].map(async (src) => {
+        const asset = new Image();
+        asset.src = src;
+        await asset.decode();
+      })).then(() => {
+        if (!disposed) assetsReady = true;
+      }).catch(() => {
+        if (!disposed) hideCursor();
+      });
+    };
+
     const handlePreferenceChange = () => {
       if (!finePointer.matches || reducedMotion.matches) hideCursor();
+      else loadAssets();
     };
+    loadAssets();
 
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     window.addEventListener("pointerdown", handlePointerDown);
@@ -120,6 +141,7 @@ export function CustomCursor() {
     reducedMotion.addEventListener("change", handlePreferenceChange);
 
     return () => {
+      disposed = true;
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointerup", handlePointerUp);
@@ -134,7 +156,7 @@ export function CustomCursor() {
   }, []);
 
   return (
-    <div ref={cursorRef} className={styles.cursor} aria-hidden="true" data-visible="false" data-hovered="false" data-pressed="false">
+    <div ref={cursorRef} className={styles.cursor} aria-hidden="true" data-custom-cursor-layer data-visible="false" data-hovered="false" data-pressed="false">
       <span ref={glowRef} className={styles.glow} />
       <span ref={arrowRef} className={`${styles.asset} ${styles.arrow}`} />
       <span ref={gauntletRef} className={`${styles.asset} ${styles.gauntlet}`} />

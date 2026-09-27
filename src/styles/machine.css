@@ -75,6 +75,18 @@
   }
 }
 
+@layer typography {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
 @layer layout {
   .container {
     width: var(--content);
@@ -2276,6 +2288,10 @@
     text-wrap: balance;
   }
 
+  .machine-section-heading > div {
+    min-width: 0;
+  }
+
   .machine-section-heading h2 em {
     color: var(--signal);
     font-style: normal;
@@ -3003,7 +3019,7 @@
     padding: 7px 9px;
     border: 1px solid rgba(215, 215, 210, .17);
     color: var(--paper);
-    font-family: var(--font-technical);
+    font-family: var(--font-mono);
     font-size: 8px;
     letter-spacing: .05em;
     text-transform: uppercase;
@@ -3025,7 +3041,7 @@
 
   .project-world__metrics dt {
     color: var(--signal);
-    font-family: var(--font-technical);
+    font-family: var(--font-mono);
     font-size: 8px;
     letter-spacing: .08em;
     text-transform: uppercase;

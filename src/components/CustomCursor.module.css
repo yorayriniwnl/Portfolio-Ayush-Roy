@@ -4,6 +4,7 @@
   z-index: 199;
   opacity: 0;
   pointer-events: none;
+  overflow: clip;
   transition: opacity 160ms ease;
   contain: layout style;
   will-change: opacity;

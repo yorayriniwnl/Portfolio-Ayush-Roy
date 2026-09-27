@@ -37,7 +37,7 @@ export const portfolioProject: Project = {
   decisions: [
     { title: "Keep project facts centralized", body: "The public project set, aliases, links, availability, claims, and SEO copy live in the content model rather than being repeated across route components." },
     { title: "Make external destinations resolvers", body: "Live and source routes are data-driven redirects; the portfolio never embeds or proxies another application." },
-    { title: "Defer heavy scenes", body: "The existing Three/R3F explanation loads only when its section approaches the viewport, keeping engineering text cheap to read." },
+    { title: "Defer heavy scenes", body: "One shared Three/R3F scene loads after browser idle time and persists across recruiter routes. Reduced motion and unavailable graphics retain a static composition alongside server-rendered content." },
   ],
   architecture: ["Next.js App Router", "Central project registry", "Server-rendered case studies", "Stable live/source resolvers", "Deferred R3F scene boundary"],
   implementation: [
@@ -56,7 +56,7 @@ export const portfolioProject: Project = {
   ],
   metrics: [
     { label: "Public project scope", value: "Registry-backed", context: "Canonical CV projects in the recruiter-facing index" },
-    { label: "Rendering boundary", value: "Deferred", context: "R3F scene loads below the textual case-study surface" },
+    { label: "Rendering boundary", value: "Deferred", context: "Shared R3F scene loads after idle time; reduced motion retains static artwork" },
   ],
   limitations: [
     "The custom-domain deployment is verified at audit time; uptime and performance traces still need ongoing measurement.",

@@ -12,7 +12,7 @@ tsconfig.tsbuildinfo
 docs/
 imported-deliverables/
 qa/
-artifacts/browser-qa/
+artifacts/
 review-build/
 AGENTS.md
 CLAUDE.md

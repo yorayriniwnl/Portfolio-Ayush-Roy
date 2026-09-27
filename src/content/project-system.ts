@@ -47,9 +47,10 @@ function safeExternalTarget(target: string | undefined): string | undefined {
 
   try {
     const url = new URL(target);
-    const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
     const isLoopback =
       hostname === "localhost" ||
+      hostname.endsWith(".localhost") ||
       hostname === "::1" ||
       hostname === "127.0.0.1" ||
       hostname === "0.0.0.0" ||
@@ -59,7 +60,7 @@ function safeExternalTarget(target: string | undefined): string | undefined {
       /^192\.168\.(?:\d{1,3}\.)\d{1,3}$/.test(hostname) ||
       /^172\.(?:1[6-9]|2\d|3[0-1])\.(?:\d{1,3}\.)\d{1,3}$/.test(hostname);
 
-    if (!(["http:", "https:"] as readonly string[]).includes(url.protocol) || isLoopback) {
+    if (!(["http:", "https:"] as readonly string[]).includes(url.protocol) || url.username || url.password || isLoopback) {
       return undefined;
     }
 

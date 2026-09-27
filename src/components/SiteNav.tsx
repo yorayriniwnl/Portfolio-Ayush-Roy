@@ -14,6 +14,10 @@ function isCurrentPage(href: (typeof links)[number][1], pathname: string) {
 
 export function SiteNav() {
   const pathname = usePathname() ?? "/";
+  return <Navigation key={pathname} pathname={pathname} />;
+}
+
+function Navigation({ pathname }: { pathname: string }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLButtonElement>(null);
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
@@ -39,7 +43,7 @@ export function SiteNav() {
   return (
     <header className={styles.header}>
       <div className={`container ${styles.inner}`}>
-        <Link className={styles.mark} href="/" aria-label="Ayush Roy home" aria-current={pathname === "/" ? "page" : undefined}><b>Y</b>OR / AYUSH ROY</Link>
+        <Link className={styles.mark} href="/" onClick={() => setOpen(false)} aria-label="Ayush Roy home" aria-current={pathname === "/" ? "page" : undefined}><b>Y</b>OR / AYUSH ROY</Link>
         <nav className={styles.links} aria-label="Primary">
           {links.map(([label, href]) => <Link key={label} href={href} aria-current={isCurrentPage(href, pathname) ? "page" : undefined}>{label}</Link>)}
         </nav>

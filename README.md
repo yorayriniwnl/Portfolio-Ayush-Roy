@@ -15,7 +15,7 @@ The portfolio deployment is served from `https://yorayriniwnl.in`. The six recru
 ## Run
 
 ```bash
-npm install
+npm ci
 npm run validate:content
 npm run dev
 ```
@@ -29,9 +29,14 @@ npm run lint
 npm run typecheck
 npm run validate
 npm run build
+npm run validate:full
 ```
 
-GitHub Actions runs tests, lint, content, asset, typecheck, production-build, and browser-QA checks on pushes and pull requests (`.github/workflows/ci.yml`) with a non-production placeholder origin. Set `NEXT_PUBLIC_SITE_URL=https://yorayriniwnl.in` in the deployment environment.
+GitHub Actions runs dependency auditing, tests, lint, content, asset, typecheck, production-build, and browser-QA checks on pushes and pull requests (`.github/workflows/ci.yml`) with a non-production placeholder origin. It retains the browser report and screenshots as a workflow artifact. Set `NEXT_PUBLIC_SITE_URL=https://yorayriniwnl.in` in the deployment environment.
+
+`npm run qa:browser` requires a production build and Chrome, Chromium, or Edge; set `CHROMIUM_PATH` if the browser is not in a standard installation path. It checks eight recruiter routes at ten viewport sizes, source/live resolvers, legacy redirects, accessibility, navigation, reduced motion, graphics fallback, and the custom cursor. Reports and screenshots are written to `artifacts/browser-qa/`.
+
+The root layout owns one persistent machine scene across the homepage, project index, and canonical case studies. The scene loads after browser idle time; reduced motion and graphics failures preserve static artwork and server-rendered content. Resume and Lab do not mount a scene. The optional desktop cursor retains the native pointer on touch devices, text controls, reduced motion, or image-loading failure.
 
 Routes:
 
@@ -68,7 +73,7 @@ Experimental game-room and media concepts live under `/lab` and are labelled as 
 
 ## Content and evidence
 
-The five original project records remain in `src/content/projects.ts`, while CandidateX is defined in `src/content/candidatex.ts` and combined into the six-project public registry in `src/content/project-registry.ts`. Quantitative claims that need an evidence record live in `src/content/claims.ts`, where each item records its method, date, and evidence URL. Case studies render those claims beside the relevant boundary instead of repeating unsupported badges. External repositories remain the source of truth; this site does not claim a public deployment when one has not been verified. Project evidence and engineering claims remain independently scoped and sourced.
+The four original project records in `src/content/projects.ts`, the canonical portfolio record in `src/content/portfolio-project.ts`, and CandidateX in `src/content/candidatex.ts` form the six-project public registry in `src/content/project-registry.ts`. Quantitative claims that need an evidence record live in `src/content/claims.ts`, where each item records its method, date, and evidence URL. Case studies render those claims beside the relevant boundary instead of repeating unsupported badges. External repositories remain the source of truth; this site does not claim a public deployment when one has not been verified. Project evidence and engineering claims remain independently scoped and sourced.
 
 The Yor Talks case study also includes a keyboard-operable path explorer. Each boundary exposes its responsibility, failure mode, design decision, test surface, source location, and repository evidence link.
 

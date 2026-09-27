@@ -65,19 +65,21 @@ export function ExperienceSceneLayer() {
 
   useEffect(() => {
     if (eligible && !state.reducedMotion) return;
-    window.setTimeout(() => {
+    const resetTimer = window.setTimeout(() => {
       setCanvasRequested(false);
       setRendererChoice(null);
       setSceneStatus("static");
     }, 0);
+    return () => window.clearTimeout(resetTimer);
   }, [eligible, setSceneStatus, state.reducedMotion]);
 
   useEffect(() => {
     if (state.sceneStatus !== "failed") return;
-    window.setTimeout(() => {
+    const resetTimer = window.setTimeout(() => {
       setCanvasRequested(false);
       setRendererChoice(null);
     }, 0);
+    return () => window.clearTimeout(resetTimer);
   }, [state.sceneStatus]);
 
   useEffect(() => {
