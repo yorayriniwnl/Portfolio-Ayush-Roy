@@ -646,6 +646,9 @@ try {
   await cdp.send("Page.reload", { ignoreCache: true });
   await reloaded;
   await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { description: "refresh project index" });
+  // A visible headless tab can remain unfocused after the background-tab test
+  // on Windows. Activate it before exercising keyboard focus handlers.
+  await cdp.send("Page.bringToFront");
   // Server-rendered cards can appear before the refreshed router hydrates.
   // Confirm a real client interaction before traversing its history entries.
   await waitForCondition(cdp, `(() => {
@@ -712,7 +715,7 @@ try {
   report.failedScenario = activeScenario;
   if (cdp) {
     try {
-      report.failurePage = await cdp.evaluate(`({ url: location.href, readyState: document.readyState, visibility: document.visibilityState, heading: document.querySelector('h1')?.innerText, text: document.body.innerText.slice(0, 1800) })`);
+      report.failurePage = await cdp.evaluate(`({ url: location.href, readyState: document.readyState, visibility: document.visibilityState, focused: document.hasFocus(), heading: document.querySelector('h1')?.innerText, text: document.body.innerText.slice(0, 1800) })`);
       console.error(`failure page: ${JSON.stringify(report.failurePage)}`);
       await capture(cdp, outputDir, "failure-page");
     } catch {}
