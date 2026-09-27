@@ -545,10 +545,27 @@ try {
   const cursorEnvironment = await cdp.evaluate(`({ fine: matchMedia('(pointer: fine)').matches, hover: matchMedia('(hover: hover)').matches, touchPoints: navigator.maxTouchPoints })`);
   report.interaction.cursorEnvironment = cursorEnvironment;
   assert(cursorEnvironment.fine && cursorEnvironment.hover, `Desktop pointer configuration was not applied: ${JSON.stringify(cursorEnvironment)}`);
-  await cdp.evaluate(`Promise.all(['/cursors/void-tech-arrow.png', '/cursors/void-tech-gauntlet.png'].map(async (src) => { const image = new Image(); image.src = src; await image.decode(); return image.naturalWidth > 0; }))`);
-  await delay(100);
-  await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 710, y: 100 });
-  await waitForCondition(cdp, `document.body.dataset.customCursor === 'active'`, { description: "cursor restores after motion preference changes" });
+  await cdp.evaluate(`(() => {
+    window.__qaCursorEvents = [];
+    window.addEventListener('pointermove', (event) => {
+      window.__qaCursorEvents.push({ pointerType: event.pointerType, target: event.target?.tagName, x: event.clientX, y: event.clientY });
+      window.__qaCursorEvents = window.__qaCursorEvents.slice(-4);
+    });
+    return true;
+  })()`);
+  // The cursor loads lazily after the preference event and hydration. Keep
+  // moving through that transition instead of assuming a fixed decode delay.
+  const cursorStarted = Date.now();
+  let cursorActive = false;
+  let cursorMoves = 0;
+  while (!cursorActive && Date.now() - cursorStarted < 10_000) {
+    await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", pointerType: "mouse", x: 710 + (cursorMoves++ % 2), y: 100 });
+    await delay(100);
+    cursorActive = await cdp.evaluate(`document.body.dataset.customCursor === 'active'`);
+  }
+  const cursorState = await cdp.evaluate(`({ active: document.body.dataset.customCursor, visible: document.querySelector('[data-custom-cursor-layer]')?.dataset.visible, reduced: matchMedia('(prefers-reduced-motion: reduce)').matches, visibility: document.visibilityState, events: window.__qaCursorEvents, images: performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/cursors/')).map((entry) => ({ url: entry.name, type: entry.initiatorType })) })`);
+  report.interaction.cursorRestoration = { elapsedMs: Date.now() - cursorStarted, moves: cursorMoves, ...cursorState };
+  assert(cursorActive, `Cursor did not restore after motion preference changes: ${JSON.stringify(cursorState)}`);
   await cdp.evaluate(`(() => { const input = document.createElement('input'); input.id = 'qa-text-cursor'; input.style.cssText = 'position:fixed;left:600px;top:100px;z-index:9999;width:200px;height:40px'; document.body.append(input); return true; })()`);
   await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 650, y: 120 });
   assert(await cdp.evaluate(`!document.body.dataset.customCursor && getComputedStyle(document.querySelector('#qa-text-cursor')).cursor === 'text'`), "Text inputs must retain their native text cursor");
