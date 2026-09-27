@@ -1,11 +1,11 @@
 import Image from "next/image";
 import type { ProjectMedia } from "@/content/projects";
 
-export function ProjectGallery({ media }: { media: readonly ProjectMedia[] }) {
+export function ProjectGallery({ media, projectSlug }: { media: readonly ProjectMedia[]; projectSlug: string }) {
   if (!media.length) return null;
 
   return (
-    <section className="case-section case-gallery" aria-labelledby="gallery-title">
+    <section className="case-section case-gallery" aria-labelledby="gallery-title" data-experience-section="projects" data-case-section="gallery" data-gallery-project={projectSlug}>
       <div className="case-gallery-heading">
         <div>
           <span className="technical">Source visuals / repository assets</span>
@@ -17,7 +17,7 @@ export function ProjectGallery({ media }: { media: readonly ProjectMedia[] }) {
         {media.map((item) => (
           <figure className={`case-gallery-item case-gallery-item-${item.kind}`} key={item.src}>
             <div className="case-gallery-frame">
-              <Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes="(max-width: 760px) 100vw, 50vw" />
+              <Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes="(max-width: 760px) 100vw, 50vw" loading="lazy" decoding="async" />
             </div>
             <figcaption>
               <div className="case-gallery-caption">

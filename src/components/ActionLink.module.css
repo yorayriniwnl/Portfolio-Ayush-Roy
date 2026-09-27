@@ -8,17 +8,17 @@
   padding: 12px 16px;
   background: transparent;
   color: var(--paper);
-  font-family: var(--technical);
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: .1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background var(--fast), border-color var(--fast), transform var(--fast), box-shadow var(--fast);
+  transition: background var(--motion-micro), border-color var(--motion-micro), transform var(--motion-micro), box-shadow var(--motion-micro);
 }
 
 .link::after { content: "↗"; color: var(--signal); }
-.link:hover { border-color: var(--crimson); background: var(--surface-alt); transform: translateY(-1px); box-shadow: 0 12px 30px rgba(0,0,0,.18); }
+.link:hover { border-color: var(--signal); background: var(--surface-alt); transform: translateY(-1px); box-shadow: 0 12px 30px rgba(0,0,0,.18); }
 .link:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }
-.primary { border-color: var(--crimson); background: var(--crimson); color: #090001; font-weight: 700; }
+.primary { border-color: var(--signal); background: var(--signal); color: #090001; font-weight: 700; }
 .primary::after { color: #090001; }
 .primary:hover { background: var(--signal); }

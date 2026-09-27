@@ -9,7 +9,7 @@ export function Lab() {
         <div className="container">
           <div className="hub-section-heading">
             <div><span className="technical hub-section-kicker">YOR / EXPERIMENTAL FIELD</span><h1 id="lab-title" className="lab-title">Play without<br /><em>pretending.</em></h1></div>
-            <p>These are concepts, interface studies, and media experiments. Status is intentionally explicit so a prototype never masquerades as a shipped product.</p>
+            <p data-essential-copy>These are concepts, interface studies, and media experiments. Status is intentionally explicit so a prototype never masquerades as a shipped product.</p>
           </div>
           <div className="actions"><ActionLink href="/projects" primary>Back to engineering work</ActionLink></div>
         </div>

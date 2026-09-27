@@ -2,8 +2,8 @@
   position: fixed;
   inset: 0 0 auto;
   z-index: 80;
-  border-bottom: 1px solid rgba(244, 240, 234, 0.13);
-  background: rgba(7, 7, 8, 0.74);
+  border-bottom: 1px solid rgba(215, 215, 210, .13);
+  background: rgba(7, 7, 8, .78);
   backdrop-filter: blur(18px) saturate(120%);
 }
 
@@ -19,73 +19,137 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--technical);
-  font-size: 11px;
-  letter-spacing: 0.17em;
   color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .17em;
   white-space: nowrap;
 }
 
 .mark::before {
-  content: "";
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--crimson);
-  box-shadow: 0 0 18px rgba(255, 48, 64, 0.85);
+  background: var(--signal);
+  box-shadow: 0 0 18px rgba(255, 23, 40, .65);
+  content: "";
 }
 
-.mark b { color: var(--crimson); font-weight: 500; }
+.mark b {
+  color: var(--signal);
+  font-weight: 600;
+}
 
 .links {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: clamp(18px, 2.4vw, 34px);
   color: var(--muted);
-  font-family: var(--technical);
-  font-size: 10px;
-  letter-spacing: 0.13em;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .12em;
   text-transform: uppercase;
 }
 
-.links a { transition: color var(--fast), opacity var(--fast); }
-.links a:hover { color: var(--paper); }
-
-.resume {
-  color: var(--paper) !important;
-  border: 1px solid rgba(244, 240, 234, 0.38);
-  padding: 11px 15px;
-  transition: background var(--fast), border-color var(--fast), color var(--fast);
+.links a {
+  position: relative;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  transition: color var(--motion-micro), opacity var(--motion-micro);
 }
 
-.resume:hover { background: var(--paper); border-color: var(--paper); color: var(--void) !important; }
-
-.menu {
-  display: none;
-  width: 44px;
-  height: 44px;
-  border: 1px solid rgba(244, 240, 234, 0.3);
-  background: transparent;
+.links a[aria-current="page"] {
   color: var(--paper);
 }
 
-.mobile { display: none; }
+.links a[aria-current="page"]::after {
+  position: absolute;
+  right: 0;
+  bottom: 3px;
+  left: 0;
+  height: 1px;
+  background: var(--signal);
+  content: "";
+}
+
+.links a:hover,
+.mobile a:hover {
+  color: var(--signal);
+}
+
+.menu {
+  width: 44px;
+  height: 44px;
+  display: none;
+  place-items: center;
+  border: 1px solid rgba(215, 215, 210, .34);
+  background: transparent;
+  color: var(--paper);
+  font-size: 19px;
+  line-height: 1;
+}
+
+.mobile {
+  display: none;
+}
+
+.mobile a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(215, 215, 210, .12);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.mobile a[aria-current="page"] {
+  box-shadow: inset 3px 0 0 var(--signal);
+  color: var(--signal);
+  padding-left: 11px;
+}
+
+.mark:focus-visible,
+.links a:focus-visible,
+.menu:focus-visible,
+.mobile a:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 4px;
+}
 
 @media (max-width: 850px) {
-  .inner { height: 68px; }
-  .links { display: none; }
-  .menu { display: grid; place-items: center; }
-  .mobile[data-open="true"] {
+  .inner {
+    height: 68px;
+  }
+
+  .links {
+    display: none;
+  }
+
+  .menu {
     display: grid;
+  }
+
+  .mobile[data-open="true"] {
     position: fixed;
     inset: 68px 0 auto;
-    gap: 19px;
-    padding: 25px 20px 29px;
-    border-bottom: 1px solid rgba(244, 240, 234, 0.14);
-    background: rgba(7, 7, 8, 0.96);
-    font-family: var(--technical);
-    font-size: 11px;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    z-index: 81;
+    display: grid;
+    gap: 0;
+    max-height: calc(100svh - 68px);
+    overflow-y: auto;
+    padding: 13px 20px 20px;
+    border-bottom: 1px solid rgba(215, 215, 210, .17);
+    background: rgba(7, 7, 8, .97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .links a,
+  .mobile a {
+    transition-duration: .01ms;
   }
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./rebuild.css";
 import { SiteNav } from "@/components/SiteNav";
+import { ExperienceRuntime } from "@/experience/ExperienceRuntime";
 import { profile } from "@/content/profile";
 import { getSiteOrigin } from "@/content/site";
 
@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     "Ayush Roy builds realtime systems, full-stack products, applied ML workflows, and interactive Three.js experiences with evidence-backed engineering case studies.",
   keywords: ["Ayush Roy", "Product Engineer", "Full-Stack Engineer", "Next.js", "Realtime Systems", "Applied ML", "Three.js"],
   alternates: { canonical: "/" },
+  icons: { icon: { url: "/favicon.svg", type: "image/svg+xml" } },
   openGraph: {
     title: "Ayush Roy · Product & Full-Stack Engineer",
     description: profile.positioning,
@@ -62,15 +63,17 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
     >
       <body>
-        <a className="skip" href="#main">
-          Skip to content
-        </a>
-        <SiteNav />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
-        />
-        {children}
+        <ExperienceRuntime>
+          <a className="machine-skip-link" href="#main">
+            Skip to content
+          </a>
+          <SiteNav />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+          />
+          {children}
+        </ExperienceRuntime>
       </body>
     </html>
   );

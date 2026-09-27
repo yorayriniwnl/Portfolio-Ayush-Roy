@@ -10,6 +10,7 @@
     "build": "npm run verify:code && next build",
     "start": "next start",
     "test": "node --import tsx --test tests/*.test.ts",
+    "test:browser-qa-contract": "node --import tsx --test tests/browser-qa-contract.test.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "validate:content": "node --import tsx scripts/validate-content.mjs",

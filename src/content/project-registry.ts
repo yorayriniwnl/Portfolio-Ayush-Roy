@@ -28,11 +28,11 @@ export const allProjects: readonly Project[] = [...cvProjects, ...legacyProjects
 export const featuredProjects = cvProjects.filter((project) => project.visibility.featured);
 const recruiterDisplaySlugs = [
   "candidatex",
-  "helios",
-  "portfolio",
   "zenith",
+  "helios",
   "ai-vs-real",
   "talks",
+  "portfolio",
 ] as const;
 
 export const recruiterProjects: readonly Project[] = recruiterDisplaySlugs.map((slug) => {
