@@ -648,8 +648,14 @@ try {
   await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { description: "refresh project index" });
   // Server-rendered cards can appear before the refreshed router hydrates.
   // Confirm a real client interaction before traversing its history entries.
-  await cdp.evaluate(`document.querySelector('a.project-world__title-link')?.focus(); true`);
-  await waitForCondition(cdp, `document.querySelector('a.project-world__title-link')?.dataset.projectActive === 'true'`, { description: "refreshed project interaction is hydrated" });
+  await waitForCondition(cdp, `(() => {
+    const link = document.querySelector('a.project-world__title-link');
+    if (!link) return false;
+    if (link.dataset.projectActive === 'true') return true;
+    link.blur();
+    link.focus();
+    return link.dataset.projectActive === 'true';
+  })()`, { description: "refreshed project interaction is hydrated" });
   const history = await cdp.send("Page.getNavigationHistory");
   const entries = history.entries;
   const projectEntry = entries[history.currentIndex];
