@@ -8,7 +8,7 @@ export function MachineHero() {
         <div className="machine-hero__identity">
           <p className="machine-hero__eyebrow">
             <span className="machine-signal-dot" aria-hidden="true" />
-            AYUSH ROY / PRODUCT ENGINEER / 2026
+            AYUSH ROY / BACKEND + FULL STACK / 2026
           </p>
           <p className="machine-hero__wordmark" aria-label="YOR" aria-hidden="true">
             <span>Y</span><span>O</span><span>R</span>
