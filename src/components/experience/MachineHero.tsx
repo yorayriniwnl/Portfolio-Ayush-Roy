@@ -36,7 +36,7 @@ export function MachineHero() {
         </div>
 
         <div className="machine-hero__coordinates">
-          <p><span>ROLE</span><strong>{profile.role}</strong></p>
+          <p><span>ROLE</span><strong>{profile.headline}</strong></p>
           <p><span>BASE</span><strong>{profile.location}</strong></p>
           <a href="#projects"><span>SCROLL TO ENTER</span><span aria-hidden="true">↓</span></a>
         </div>
