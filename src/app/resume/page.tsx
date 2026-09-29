@@ -27,7 +27,7 @@ export default function Resume() {
         <div className="resume-section__heading">
           <span className="technical">01 / EVIDENCE</span>
           <h2 id="selected-work-title">Selected work.</h2>
-          <p>Six canonical projects with source-backed contribution boundaries and explicit outcomes.</p>
+          <p>Six portfolio case studies with source-backed contribution boundaries; the downloadable SWE resume highlights the strongest systems.</p>
         </div>
         <div className="resume-project-list">
           {recruiterProjects.map((project) => (
