@@ -116,7 +116,7 @@ if (!talks?.technologies.includes("Socket.IO") || !talks.technologies.includes("
 const zenith = cvProjects.find((project) => project.slug === "zenith");
 if (!zenith?.collaborators?.includes("Nivedana")) throw new Error("Zenith collaborator attribution missing");
 
-if (profile.headline !== "Product / Full-Stack Engineer") throw new Error("Primary positioning missing");
+if (profile.headline !== "Backend / Full-Stack Software Engineer") throw new Error("Primary positioning missing");
 if (!read("src/content/site.ts").includes("NEXT_PUBLIC_SITE_URL")) throw new Error("Deployment origin configuration missing");
 
 const publicSurfaceFiles = [
