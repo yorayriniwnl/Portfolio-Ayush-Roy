@@ -13,7 +13,7 @@ export default function Resume() {
       <header className="resume-hero">
         <span className="technical">Resume / public reading view</span>
         <h1 className="resume-hero__name">{profile.name}</h1>
-        <p className="resume-hero__role">{profile.role}</p>
+        <p className="resume-hero__role">{profile.headline}</p>
         <p className="resume-hero__positioning" data-essential-copy>{profile.positioning}</p>
         <div className="actions resume-hero__actions" aria-label="Resume and profile links">
           <ActionLink href="/media/Ayush_Roy_Resume.pdf" external primary>Open PDF</ActionLink>
@@ -27,7 +27,7 @@ export default function Resume() {
         <div className="resume-section__heading">
           <span className="technical">01 / EVIDENCE</span>
           <h2 id="selected-work-title">Selected work.</h2>
-          <p>Six canonical projects with source-backed contribution boundaries and explicit outcomes.</p>
+          <p>Six portfolio case studies with source-backed contribution boundaries; the downloadable SWE resume highlights the strongest systems.</p>
         </div>
         <div className="resume-project-list">
           {recruiterProjects.map((project) => (

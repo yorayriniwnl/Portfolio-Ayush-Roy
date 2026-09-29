@@ -29,7 +29,7 @@ test("resume preserves identity, education, internship, project evidence, and co
   const html = renderToStaticMarkup(React.createElement(Resume));
   assert.match(html, /<main id="main" class="resume-page container"[^>]*>/);
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1);
-  for (const fact of [profile.name, profile.role, profile.positioning, "B.Tech in Computer Science and Communication Engineering", "KIIT Deemed University", "2023–2027", "Bharat Sanchar Nigam Limited (BSNL)", "Telecom & Data Network Intern", "June 2026", "Chennai (Hybrid)", "Open PDF"]) {
+  for (const fact of [profile.name, profile.headline, profile.positioning, "B.Tech in Computer Science and Communication Engineering", "KIIT Deemed University", "2023–2027", "Bharat Sanchar Nigam Limited (BSNL)", "Telecom & Data Network Intern", "June 2026", "Chennai (Hybrid)", "Open PDF"]) {
     assert.ok(html.includes(escapeHtml(fact)), `resume is missing ${fact}`);
   }
   for (const href of ["/media/Ayush_Roy_Resume.pdf", `mailto:${profile.email}`, profile.links.github, profile.links.linkedin]) {
