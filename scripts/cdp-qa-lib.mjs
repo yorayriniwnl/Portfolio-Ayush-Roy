@@ -32,7 +32,7 @@ export const QA_CORE_ROUTES = [
 ];
 
 export const QA_SECONDARY_ROUTES = [
-  { path: "/resume", label: "resume", requiredHeading: "Ayush Roy", requiredText: "Open PDF" },
+  { path: "/resume", label: "resume", requiredHeading: "Ayush Roy", requiredText: "EMAIL" },
   { path: "/lab", label: "lab", requiredHeading: "Play without", requiredText: "ROOM CONCEPT" },
 ];
 
