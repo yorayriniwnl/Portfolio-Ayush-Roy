@@ -26,7 +26,7 @@ export default function Resume() {
         <div className="resume-section__heading">
           <span className="technical">01 / EVIDENCE</span>
           <h2 id="selected-work-title">Selected work.</h2>
-          <p>Six portfolio case studies with source-backed contribution boundaries; the downloadable SWE resume highlights the strongest systems.</p>
+          <p>Six portfolio case studies with source-backed contribution boundaries; the strongest backend and systems work leads the sequence.</p>
         </div>
         <div className="resume-project-list">
           {recruiterProjects.map((project) => (
@@ -53,10 +53,15 @@ export default function Resume() {
       <section className="resume-section resume-section--education" aria-labelledby="education-title">
         <div className="resume-section__heading">
           <span className="technical">02 / FOUNDATION</span>
-          <h2 id="education-title">Education &amp; training.</h2>
-          <p>Verified academic and internship experience.</p>
+          <h2 id="education-title">Education, training &amp; selection.</h2>
+          <p>Academic foundation, internship experience, and current campus-selection status.</p>
         </div>
         <div className="resume-education-list">
+          <article className="resume-education">
+            <span className="technical">2027 campus selection · onboarding pending</span>
+            <h3>KPIT Technologies · Associate Engineer 2027</h3>
+            <p>Selected through KIIT campus recruitment; Letter of Intent accepted. This is a selection, not current employment.</p>
+          </article>
           <article className="resume-education">
             <span className="technical">2023–2027 (Expected)</span>
             <h3>B.Tech in Computer Science and Communication Engineering</h3>
