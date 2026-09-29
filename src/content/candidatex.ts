@@ -33,11 +33,11 @@ export const candidateXProject: Project = {
   whyItMatters: "Interviewers need to know what a candidate claims, what the supplied artifacts actually support, where evidence is missing, and which questions would reduce uncertainty before making a human hiring decision.",
   constraints: [
     "The system is employer decision support only; it does not autonomously hire or reject candidates.",
-    "Analysis stays inside a closed-world manifest of candidate-supplied resources rather than unconstrained identity discovery.",
+    "The public demo must use synthetic candidate data; real candidate resumes are outside the demonstrated privacy boundary.",
     "Candidate repositories are inspected statically; untrusted candidate code is not executed.",
     "Missing evidence is represented as unknown coverage rather than an arbitrary zero capability score.",
   ],
-  workflow: "A CV, job description, and candidate-supplied links are normalized into a manifest; evidence is acquired under safety constraints, analyzed into a provenance-backed graph, scored against role requirements, checked for contradictions, and converted into an interviewer dossier with prioritized probes.",
+  workflow: "A synthetic CV, job description, and selected public links are normalized into a manifest; evidence is acquired under safety constraints, analyzed into a provenance-backed graph, scored against role requirements, checked for contradictions, and converted into an interviewer dossier with prioritized probes.",
   hardPart: "The central engineering problem is preserving provenance and uncertainty while still producing a result that is useful to an interviewer. CandidateX therefore separates observed capability from evidence coverage and keeps source lineage beside the resulting diagnostics.",
   decisions: [
     { title: "Keep the human in the hiring loop", body: "CandidateX produces evidence, uncertainty, contradictions, and interview probes rather than an autonomous employment decision." },
