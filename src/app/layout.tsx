@@ -13,8 +13,8 @@ export const metadata: Metadata = {
     template: "%s | Ayush Roy",
   },
   description:
-    "Ayush Roy builds realtime systems, full-stack products, applied ML workflows, and interactive Three.js experiences with evidence-backed engineering case studies.",
-  keywords: ["Ayush Roy", "Product Engineer", "Full-Stack Engineer", "Next.js", "Realtime Systems", "Applied ML", "Three.js"],
+    "Ayush Roy builds backend systems, full-stack products, realtime APIs, applied ML workflows, and evidence-backed engineering case studies.",
+  keywords: ["Ayush Roy", "Backend Software Engineer", "Full-Stack Engineer", "Python", "TypeScript", "PostgreSQL", "Redis", "Realtime Systems", "Applied ML"],
   alternates: { canonical: "/" },
   icons: { icon: { url: "/favicon.svg", type: "image/svg+xml" } },
   openGraph: {
