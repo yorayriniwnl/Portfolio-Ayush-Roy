@@ -16,7 +16,7 @@ export function HomeAbout() {
         <dl className="machine-about__facts">
           <div>
             <dt>ROLE</dt>
-            <dd>{profile.role}</dd>
+            <dd>{profile.headline}</dd>
           </div>
           <div>
             <dt>PROFESSIONAL FOCUS</dt>
