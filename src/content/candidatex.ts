@@ -8,7 +8,7 @@ export const candidateXProject: Project = {
   title: "CandidateX",
   shortTitle: "CandidateX",
   kicker: "Candidate capability intelligence",
-  purpose: "A provenance-grounded hiring decision-support system that turns candidate-supplied evidence into role-specific capability estimates, contradiction diagnostics, and targeted interview probes.",
+  purpose: "A provenance-grounded hiring research prototype that turns synthetic candidate documents and selected public technical evidence into role-specific capability estimates, contradiction diagnostics, and targeted interview probes.",
   status: "Research prototype · source + live",
   role: "Research engineer · full-stack / evaluation systems",
   contribution: "I designed and implemented the end-to-end CandidateX research and product prototype represented by the repository: candidate intake, evidence acquisition boundaries, static analyzers, Candidate Evidence Graph construction, scoring, diagnostics, interview probes, backend APIs, and recruiter-facing web workflow.",
