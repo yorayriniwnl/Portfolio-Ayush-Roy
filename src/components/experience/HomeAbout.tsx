@@ -15,11 +15,11 @@ export function HomeAbout() {
 
         <dl className="machine-about__facts">
           <div>
-            <dt>ROLE</dt>
-            <dd>{profile.headline}</dd>
+            <dt>CURRENT</dt>
+            <dd>{profile.role}</dd>
           </div>
           <div>
-            <dt>PROFESSIONAL FOCUS</dt>
+            <dt>ENGINEERING FOCUS</dt>
             <dd>{profile.headline}</dd>
           </div>
           <div>
