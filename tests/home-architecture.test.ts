@@ -41,9 +41,12 @@ test("home narrative keeps the approved identity, essential actions, and section
   assert.match(hero, /Resume/);
   assert.match(hero, /GitHub/);
   assert.equal((hero.match(/className="machine-action(?:\s|")/g) ?? []).length, 3);
-  assert.match(hero, /AYUSH ROY \/ PRODUCT ENGINEER \/ 2026/);
+  assert.match(hero, /AYUSH ROY \/ BACKEND \+ FULL STACK \/ 2026/);
   assert.match(projects, /data-experience-section=["']projects["']/);
   assert.match(about, /data-experience-section=["']about["']/);
+  assert.match(about, /<dt>CURRENT<\/dt>/);
+  assert.match(about, /profile\.role/);
+  assert.match(about, /<dt>ENGINEERING FOCUS<\/dt>/);
   assert.match(contact, /data-experience-section=["']contact["']/);
   assert.match(contact, /THAT SHOULDN(?:&apos;|')T/);
   assert.match(contact, /BUILD<\/span>\{" "\}\s*<span>SOMETHING/);
