@@ -610,7 +610,10 @@ try {
   const rafWhileHidden = await cdp.evaluate(`window.__qaRafCalls || 0`);
   await browserCdp.send("Target.activateTarget", { targetId: primaryTargetId });
   await waitForCondition(cdp, `document.visibilityState === 'visible' && document.querySelector('.machine-scene-layer')?.dataset.pageVisible === 'true'`, { timeoutMs: 4000, description: "visible scene resume state" });
-  await delay(500);
+  // Headless Chromium can acknowledge visibility before its compositor grants
+  // the foreground tab another animation frame. Poll the observable behavior
+  // instead of assuming a fixed 500 ms wake-up budget.
+  await waitForCondition(cdp, `(window.__qaRafCalls || 0) > ${rafWhileHidden}`, { timeoutMs: 4000, intervalMs: 100, description: "animation callbacks resume after visibility restoration" });
   const rafAfterVisible = await cdp.evaluate(`window.__qaRafCalls || 0`);
   report.rendering.visibility = { rafBeforeHidden, rafWhileHidden, rafAfterVisible, hiddenDelta: rafWhileHidden - rafBeforeHidden, resumedDelta: rafAfterVisible - rafWhileHidden };
   assert(rafWhileHidden - rafBeforeHidden < 30, "Animation callbacks continued rapidly while page visibility was hidden");
