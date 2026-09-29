@@ -46,8 +46,8 @@ export function getProjectResolverMetadata(project: Project, kind: ProjectLinkKi
 
 export function getResumeMetadata(): Metadata {
   const canonical = absoluteSiteUrl("/resume");
-  const title = "Resume";
-  const description = "Professional overview and selected engineering work by Ayush Roy.";
+  const title = "Backend / Full-Stack Software Engineer Resume";
+  const description = "Backend and full-stack software engineering overview with selected systems work by Ayush Roy.";
   return {
     title,
     description,
