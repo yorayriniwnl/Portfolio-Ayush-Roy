@@ -32,7 +32,7 @@ test("resume preserves identity, selection, education, internship, project evide
   for (const fact of [profile.name, profile.headline, profile.positioning, "KPIT Technologies", "Associate Engineer 2027", "onboarding pending", "This is a selection, not current employment.", "B.Tech in Computer Science and Communication Engineering", "KIIT Deemed University", "2023–2027", "Bharat Sanchar Nigam Limited (BSNL)", "Telecom & Data Network Intern", "June 2026", "Chennai (Hybrid)"]) {
     assert.ok(html.includes(escapeHtml(fact)), `resume is missing ${fact}`);
   }
-  for (const href of [`mailto:${profile.email}`, profile.links.github, profile.links.linkedin]) {
+  for (const href of [profile.links.resumePdf, `mailto:${profile.email}`, profile.links.github, profile.links.linkedin]) {
     assert.ok(html.includes(href), `resume is missing contact action ${href}`);
   }
   for (const project of cvProjects) {
