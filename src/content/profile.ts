@@ -10,6 +10,7 @@ export const profile = {
   links: {
     github: "https://github.com/yorayriniwnl",
     linkedin: "https://www.linkedin.com/in/yorayriniwnl",
+    resumePdf: "https://raw.githubusercontent.com/yorayriniwnl/Yorayriniwnl/output/Ayush_Roy_Resume_Public.pdf",
   steam: "https://steamcommunity.com/id/yorayriniwnl/"
   },
   referenceCommit: "3386f2deb0a5f98e5a101ee42b65b25d51e3588f",
