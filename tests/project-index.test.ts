@@ -7,7 +7,7 @@ import { ExperienceProvider } from "../src/experience/ExperienceProvider";
 import { recruiterProjects } from "../src/content/project-registry";
 import { projectLinkPath, projectPath, resolveProjectLink } from "../src/content/project-system";
 
-const expectedOrder = ["candidatex", "zenith", "helios", "ai-vs-real", "talks", "portfolio"] as const;
+const expectedOrder = ["candidatex", "talks", "helios", "zenith", "ai-vs-real", "portfolio"] as const;
 
 function renderIndex() {
   const providerProps = { initialPathname: "/projects" } as React.ComponentProps<typeof ExperienceProvider>;
@@ -27,11 +27,12 @@ test("recruiter index presents the six canonical projects in the approved order"
     assert.ok(html.includes(`data-project-slug="${slug}"`));
     assert.ok(html.includes(`href="${projectPath(slug as (typeof expectedOrder)[number])}"`));
   }
-  assert.ok(html.indexOf('data-project-slug="candidatex"') < html.indexOf('data-project-slug="zenith"'));
-  assert.ok(html.indexOf('data-project-slug="zenith"') < html.indexOf('data-project-slug="helios"'));
-  assert.ok(html.indexOf('data-project-slug="helios"') < html.indexOf('data-project-slug="ai-vs-real"'));
-  assert.ok(html.indexOf('data-project-slug="ai-vs-real"') < html.indexOf('data-project-slug="talks"'));
-  assert.ok(html.indexOf('data-project-slug="talks"') < html.indexOf('data-project-slug="portfolio"'));
+  for (let index = 1; index < expectedOrder.length; index += 1) {
+    assert.ok(
+      html.indexOf(`data-project-slug="${expectedOrder[index - 1]}"`) <
+        html.indexOf(`data-project-slug="${expectedOrder[index]}"`),
+    );
+  }
 });
 
 test("case, source, and live actions use stable internal resolver paths", () => {
