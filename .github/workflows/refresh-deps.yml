@@ -6,6 +6,7 @@ on:
       - fix/brace-expansion-audit-20261001
     paths:
       - ".github/workflows/refresh-deps.yml"
+      - "package.json"
 
 permissions:
   contents: write
@@ -24,8 +25,10 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-      - name: Apply lockfile security fix
-        run: npm audit fix --package-lock-only
+      - name: Regenerate patched lockfile
+        run: |
+          npm install --package-lock-only
+          npm audit fix --package-lock-only
       - name: Install validated tree
         run: npm ci
       - name: Verify high-severity audit
