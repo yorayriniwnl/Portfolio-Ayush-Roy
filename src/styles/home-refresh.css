@@ -1,0 +1,691 @@
+/* Home reframe: editorial engineering portfolio with a cinematic workspace.
+   Intentionally scoped to the homepage; case studies and recruiter routes keep their own visual language. */
+@layer experience {
+  .machine-home {
+    --reframe-bg: #090e13;
+    --reframe-panel: #141c23;
+    --reframe-ink: #f6f2eb;
+    --reframe-muted: #a7b0b8;
+    --reframe-accent: #f98d71;
+    --reframe-accent-light: #ffc0a3;
+    --reframe-hairline: rgba(240, 245, 248, .13);
+    background: var(--reframe-bg);
+    color: var(--reframe-ink);
+  }
+
+  .machine-home .machine-container {
+    width: min(1420px, calc(100% - clamp(40px, 8.2vw, 128px)));
+  }
+
+  .machine-home .machine-hero {
+    min-height: 0;
+    padding: clamp(130px, 13vw, 188px) 0 45px;
+    background: radial-gradient(ellipse at 80% 37%, rgba(166, 85, 65, .13), transparent 47%),
+      radial-gradient(ellipse at 17% 2%, rgba(77, 114, 139, .11), transparent 38%), #090e13;
+    border-bottom-color: var(--reframe-hairline);
+    overflow: hidden;
+  }
+
+  .machine-home .machine-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .19;
+    background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+    background-size: 84px 84px;
+    mask-image: linear-gradient(90deg, transparent, #000 46%, #000 90%, transparent);
+  }
+
+  .machine-home .reframe-hero__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+    align-items: center;
+    gap: clamp(35px, 6vw, 105px);
+    min-height: 600px;
+  }
+
+  .machine-home .machine-hero__identity {
+    position: relative;
+    z-index: 2;
+    transform: none;
+  }
+
+  .machine-home .machine-hero__eyebrow {
+    margin: 0 0 38px;
+    color: var(--reframe-muted);
+    font-size: 10px;
+    letter-spacing: .14em;
+  }
+
+  .machine-home .machine-signal-dot {
+    background: var(--reframe-accent);
+    box-shadow: 0 0 0 5px rgba(249,141,113,.12);
+  }
+
+  .machine-home .machine-hero__wordmark {
+    display: inline-flex;
+    margin: 0 0 42px;
+    color: var(--reframe-ink);
+    font-size: clamp(22px, 2.2vw, 34px);
+    font-weight: 750;
+    line-height: 1;
+    letter-spacing: -.115em;
+    text-shadow: none;
+  }
+
+  .machine-home .machine-hero__wordmark span {
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .machine-home .machine-hero__wordmark::after {
+    content: "®";
+    align-self: flex-start;
+    margin-left: 10px;
+    color: var(--reframe-accent);
+    font: 500 9px/1.4 var(--font-mono);
+    letter-spacing: 0;
+  }
+
+  .machine-home .reframe-hero__kicker {
+    margin: 0 0 20px;
+    color: var(--reframe-accent);
+    font: 600 10px/1.6 var(--font-mono);
+    letter-spacing: .19em;
+  }
+
+  .machine-home .machine-hero__statement {
+    max-width: 700px;
+    color: var(--reframe-ink);
+    font-size: clamp(60px, 6.8vw, 104px);
+    font-weight: 720;
+    line-height: .99;
+    letter-spacing: -.083em;
+    text-wrap: balance;
+  }
+
+  .machine-home .machine-hero__statement span { display: block; }
+  .machine-home .machine-hero__statement span:last-child {
+    color: var(--reframe-accent);
+    font-weight: 680;
+  }
+
+  .machine-home .reframe-hero__intro {
+    max-width: 520px;
+    margin: 29px 0 0;
+    color: #d2d9dc;
+    font-size: clamp(16px, 1.3vw, 19px);
+    line-height: 1.62;
+    letter-spacing: -.012em;
+  }
+
+  .machine-home .machine-hero__discipline {
+    margin-top: 28px;
+    color: var(--reframe-muted);
+    font-size: 10px;
+    letter-spacing: .09em;
+  }
+  .machine-home .machine-hero__discipline i { color: var(--reframe-accent); }
+
+  .machine-home .machine-hero__actions {
+    margin-top: 35px;
+    gap: 10px;
+  }
+
+  .machine-home .machine-action {
+    min-height: 53px;
+    gap: clamp(18px, 2.7vw, 45px);
+    padding: 14px 19px;
+    color: var(--reframe-ink);
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 4px;
+    background: rgba(255,255,255,.035);
+    font-size: 10px;
+    letter-spacing: .075em;
+    transition: transform .25s ease, border-color .25s ease, background .25s ease, color .25s ease;
+  }
+  .machine-home .machine-action span:last-child { color: var(--reframe-accent); }
+  .machine-home .machine-action--primary {
+    color: #101418;
+    border-color: var(--reframe-accent);
+    background: var(--reframe-accent);
+    font-weight: 700;
+  }
+  .machine-home .machine-action--primary span:last-child { color: #101418; }
+  .machine-home .machine-action:hover {
+    transform: translateY(-3px);
+    border-color: var(--reframe-accent);
+    background: rgba(249,141,113,.1);
+    color: var(--reframe-ink);
+  }
+  .machine-home .machine-action--primary:hover { color: #101418; background: #ffc5aa; }
+
+  .machine-home .reframe-hero__note {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-top: 34px;
+    color: #97a3aa;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .machine-home .reframe-hero__note-mark {
+    color: var(--reframe-accent);
+    font-size: 20px;
+  }
+
+  .machine-home .reframe-hero__visual {
+    position: relative;
+    min-height: 650px;
+    display: grid;
+    align-items: center;
+    isolation: isolate;
+  }
+  .machine-home .reframe-hero__aura {
+    position: absolute;
+    z-index: -1;
+    inset: 7% -8% 0 -4%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(235,115,88,.26), rgba(100,108,138,.11) 38%, transparent 68%);
+    filter: blur(30px);
+  }
+  .machine-home .reframe-hero__halo {
+    position: absolute;
+    z-index: -1;
+    inset: 8% 1% 10%;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 50%;
+    transform: rotate(-17deg) scaleX(1.13);
+    box-shadow: 0 0 0 36px rgba(255,255,255,.008), 0 0 0 82px rgba(255,255,255,.006);
+  }
+  .machine-home .reframe-hero__view-label {
+    position: absolute;
+    top: 15px;
+    right: 0;
+    color: #8c979e;
+    font: 10px/1.6 var(--font-mono);
+    letter-spacing: .13em;
+  }
+  .machine-home .reframe-hero__screen {
+    position: relative;
+    display: grid;
+    grid-template-rows: 45px minmax(0, 1fr) 48px;
+    height: clamp(330px, 35vw, 450px);
+    width: 100%;
+    color: var(--reframe-ink);
+    background: #141c22;
+    border: 1px solid #4b535b;
+    border-radius: 13px;
+    overflow: hidden;
+    box-shadow: 0 45px 85px rgba(0,0,0,.55), 0 0 0 8px rgba(255,255,255,.027), 0 0 0 9px rgba(255,255,255,.065);
+    transform: perspective(1100px) rotateY(-6deg) rotateX(3deg) rotateZ(1deg);
+    transition: transform .6s cubic-bezier(.2,.8,.2,1), box-shadow .6s ease;
+  }
+  .machine-home .reframe-hero__screen:hover,
+  .machine-home .reframe-hero__screen:focus-visible {
+    transform: perspective(1100px) rotateY(0) rotateX(0) rotateZ(0) translateY(-7px);
+    box-shadow: 0 52px 100px rgba(0,0,0,.6), 0 0 0 8px rgba(255,255,255,.03), 0 0 0 9px rgba(249,141,113,.26);
+    color: var(--reframe-ink);
+  }
+  .machine-home .reframe-hero__screen-top,
+  .machine-home .reframe-hero__screen-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 0 19px;
+    color: #a7b1ba;
+    font: 9px/1.4 var(--font-mono);
+    letter-spacing: .11em;
+  }
+  .machine-home .reframe-hero__screen-top { border-bottom: 1px solid rgba(255,255,255,.09); }
+  .machine-home .reframe-hero__screen-top > span:last-child { color: var(--reframe-accent); font-size: 18px; }
+  .machine-home .reframe-hero__screen-lights { display: inline-flex; gap: 5px; }
+  .machine-home .reframe-hero__screen-lights i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #59626a;
+  }
+  .machine-home .reframe-hero__screen-lights i:first-child { background: #f98d71; }
+  .machine-home .reframe-hero__screen-media {
+    position: relative;
+    min-height: 0;
+    background: radial-gradient(circle at 78% 12%, rgba(224,105,81,.21), transparent 40%),
+      linear-gradient(180deg, rgba(6,10,14,.1), rgba(5,8,11,.93)),
+      url("/media/github/candidatex/hero.svg") center/cover no-repeat;
+  }
+  .machine-home .reframe-hero__screen-media::before {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: linear-gradient(90deg, rgba(5,9,12,.91) 0%, rgba(5,9,12,.34) 65%, rgba(5,9,12,.12));
+    pointer-events: none;
+  }
+  .machine-home .reframe-hero__screen-scan {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 30%;
+    opacity: .34;
+    border-left: 1px solid rgba(249,141,113,.2);
+    background: repeating-linear-gradient(0deg, transparent 0 15px, rgba(255,255,255,.06) 16px);
+  }
+  .machine-home .reframe-hero__screen-caption {
+    position: absolute;
+    left: clamp(20px, 3vw, 42px);
+    bottom: clamp(23px, 4vw, 55px);
+    right: 20px;
+    display: grid;
+    align-content: end;
+    gap: 10px;
+  }
+  .machine-home .reframe-hero__screen-caption small {
+    color: var(--reframe-accent-light);
+    font: 10px var(--font-mono);
+    letter-spacing: .15em;
+  }
+  .machine-home .reframe-hero__screen-caption strong {
+    font-size: clamp(40px, 5vw, 72px);
+    letter-spacing: -.08em;
+    line-height: 1;
+  }
+  .machine-home .reframe-hero__screen-caption strong span { color: var(--reframe-accent); }
+  .machine-home .reframe-hero__screen-caption > span:last-child { color: #c8d1d6; font-size: 12px; }
+  .machine-home .reframe-hero__screen-bottom {
+    border-top: 1px solid rgba(255,255,255,.09);
+    font-size: 9px;
+  }
+  .machine-home .reframe-hero__screen-bottom span:first-child { display: inline-flex; align-items: center; gap: 9px; }
+  .machine-home .reframe-hero__screen-bottom i {
+    width: 6px;
+    height: 6px;
+    background: #9dd4b0;
+    border-radius: 50%;
+  }
+  .machine-home .reframe-hero__screen-bottom span:last-child { color: var(--reframe-accent); }
+  .machine-home .reframe-hero__floating {
+    position: absolute;
+    z-index: 1;
+    display: grid;
+    gap: 8px;
+    padding: 16px 20px;
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 6px;
+    background: rgba(15,23,30,.95);
+    box-shadow: 0 20px 40px rgba(0,0,0,.34);
+    pointer-events: none;
+  }
+  .machine-home .reframe-hero__floating span {
+    color: #9eabb3;
+    font: 9px/1.6 var(--font-mono);
+    letter-spacing: .12em;
+  }
+  .machine-home .reframe-hero__floating strong {
+    color: var(--reframe-ink);
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .machine-home .reframe-hero__floating--upper { top: 55px; left: -48px; transform: rotate(-5deg); }
+  .machine-home .reframe-hero__floating--lower { right: -18px; bottom: 55px; transform: rotate(4deg); }
+  .machine-home .reframe-hero__floating--lower strong { font-size: 20px; letter-spacing: -.05em; }
+  .machine-home .reframe-hero__floating--lower i { color: var(--reframe-accent); font-style: normal; }
+  .machine-home .reframe-hero__visual-foot {
+    position: absolute;
+    right: 5px;
+    bottom: 12px;
+    left: 5px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    color: #798991;
+    font: 9px var(--font-mono);
+    letter-spacing: .13em;
+  }
+
+  .machine-home .machine-hero__coordinates {
+    margin-top: clamp(28px, 5vw, 66px);
+    padding-top: 22px;
+    gap: 22px;
+    border-color: var(--reframe-hairline);
+    color: #829098;
+    font-size: 9px;
+  }
+  .machine-home .machine-hero__coordinates p span { color: var(--reframe-accent); }
+  .machine-home .machine-hero__coordinates strong { color: #c7d0d5; font-size: 11px; }
+  .machine-home .machine-hero__coordinates > a { color: #e7ecee; }
+  .machine-home .machine-hero__coordinates > a span:last-child { color: var(--reframe-accent); }
+  .machine-home .machine-hero__axis { color: #657179; }
+
+  .machine-home .machine-projects {
+    padding-block: clamp(95px, 10vw, 145px);
+    background: linear-gradient(180deg, #0d141b, #10171e 50%, #0c1218);
+  }
+  .machine-home .machine-projects__heading {
+    grid-template-columns: 160px minmax(0, 1fr) 90px;
+    gap: 30px;
+    margin-bottom: 54px;
+  }
+  .machine-home .machine-section-index { color: #a7b0b8; font-size: 10px; }
+  .machine-home .machine-section-index span { color: var(--reframe-accent); }
+  .machine-home .machine-section-heading h2 {
+    max-width: 19ch;
+    color: var(--reframe-ink);
+    font-size: clamp(46px, 5.9vw, 84px);
+    line-height: 1.03;
+    letter-spacing: -.065em;
+    font-weight: 670;
+  }
+  .machine-home .machine-section-heading h2 em {
+    color: var(--reframe-accent);
+    font-style: normal;
+  }
+  .machine-home .machine-section-heading > div > p {
+    max-width: 60ch;
+    margin-top: 23px;
+    color: #a7b2ba;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .machine-home .machine-section-heading__axis { color: #73838b; font-size: 9px; }
+
+  .machine-home .machine-project-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .machine-home .reframe-project {
+    grid-column: span 6;
+    min-width: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.11);
+    border-radius: 9px;
+    background: #161f27;
+    transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .machine-home .reframe-project:first-child { grid-column: span 7; }
+  .machine-home .reframe-project:nth-child(2) { grid-column: span 5; }
+  .machine-home .reframe-project:hover {
+    transform: translateY(-5px);
+    border-color: rgba(249,141,113,.65);
+    box-shadow: 0 24px 65px rgba(0,0,0,.3);
+  }
+  .machine-home .machine-project__preview {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .machine-home .machine-project__art {
+    width: 100%;
+    min-height: clamp(245px, 26vw, 375px);
+    border: 0;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    padding: 20px 23px;
+    background: linear-gradient(180deg, rgba(11,17,22,.1) 10%, rgba(11,17,22,.44) 75%, rgba(11,17,22,.85)),
+      var(--project-art, linear-gradient(130deg, #1c2830, #101419));
+    background-size: cover;
+    background-position: center;
+    transition: background-position .6s ease, filter .6s ease;
+  }
+  .machine-home .reframe-project:first-child .machine-project__art,
+  .machine-home .reframe-project:nth-child(2) .machine-project__art { min-height: 400px; }
+  .machine-home .machine-project__art::after {
+    inset: 11px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 2px;
+  }
+  .machine-home .machine-project__index {
+    align-self: flex-start;
+    padding: 7px 11px;
+    border-radius: 3px;
+    background: rgba(11,17,21,.78);
+    color: #e8ede9;
+    font-size: 10px;
+  }
+  .machine-home .machine-project__art-label { color: #f6f1e9; font-size: 12px; }
+  .machine-home .machine-project__art-coordinates { color: var(--reframe-accent-light); font-size: 9px; }
+  .machine-home .machine-project__copy {
+    flex: 1;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: clamp(22px, 2.8vw, 38px);
+    border: 0;
+    background: #161f27;
+  }
+  .machine-home .machine-project__kicker { color: var(--reframe-accent); font-size: 10px; }
+  .machine-home .machine-project__title {
+    margin-top: 11px;
+    color: var(--reframe-ink);
+    font-size: clamp(30px, 3.5vw, 51px);
+    line-height: 1.06;
+    font-weight: 670;
+    letter-spacing: -.055em;
+  }
+  .machine-home .machine-project__purpose {
+    max-width: 49ch;
+    margin-top: 15px;
+    color: #a8b5bd;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .machine-home .machine-project__open {
+    margin-top: auto;
+    padding-top: 25px;
+    color: var(--reframe-accent-light);
+    font-size: 10px;
+  }
+  .machine-home .machine-project__open span,
+  .machine-home .machine-project__meta nav a { color: var(--reframe-accent); }
+  .machine-home .machine-project__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px 24px;
+    justify-content: space-between;
+    padding: 17px 22px;
+    border-top: 1px solid rgba(255,255,255,.1);
+    color: #8998a0;
+    background: #121a21;
+    font-size: 10px;
+    line-height: 1.5;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .machine-home .machine-project__meta nav { gap: 15px; }
+  .machine-home .machine-project__meta nav a {
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--reframe-accent-light);
+    font-size: 10px;
+  }
+  .machine-home .machine-project__preview:hover .machine-project__art,
+  .machine-home .machine-project__preview[data-project-active="true"] .machine-project__art,
+  .machine-home .machine-project__preview:focus-visible .machine-project__art {
+    border-color: rgba(255,255,255,.1);
+    background-position: 53% center;
+  }
+  .machine-home .machine-project__preview[data-project-active="true"] .machine-project__copy {
+    border: 0;
+    background: #1c2932;
+  }
+  .machine-home .reframe-work-outro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    padding-top: 46px;
+  }
+  .machine-home .reframe-work-outro p {
+    max-width: 520px;
+    margin: 0;
+    color: #9aa8b0;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .machine-home .reframe-work-outro a {
+    flex-shrink: 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--reframe-accent);
+    color: #f6f2ed;
+    font: 10px var(--font-mono);
+    letter-spacing: .1em;
+  }
+  .machine-home .reframe-work-outro a span { margin-left: 25px; color: var(--reframe-accent); }
+
+  .machine-home .machine-about {
+    padding-block: clamp(90px, 10vw, 145px);
+    background: #f0ebe1;
+    border: 0;
+    color: #20262c;
+  }
+  .machine-home .machine-about .machine-section-heading h2 { color: #172029; }
+  .machine-home .machine-about .machine-section-heading h2 em { color: #bf573e; }
+  .machine-home .machine-about .machine-section-index { color: #5b6368; }
+  .machine-home .machine-about .machine-section-index span { color: #bf573e; }
+  .machine-home .machine-about .machine-section-heading > div > p {
+    max-width: 44ch;
+    margin-top: 40px;
+    color: #43494b;
+    font-size: clamp(18px, 2vw, 25px);
+    line-height: 1.5;
+  }
+  .machine-home .machine-about__heading { margin-bottom: clamp(30px, 5vw, 70px); }
+  .machine-home .machine-about__facts {
+    border-color: rgba(32,38,44,.22);
+  }
+  .machine-home .machine-about__facts > div + div { border-color: rgba(32,38,44,.15); }
+  .machine-home .machine-about__facts dt { color: #b34f39; font-size: 10px; }
+  .machine-home .machine-about__facts dd { color: #20262c; font-weight: 550; }
+
+  .machine-home .machine-contact {
+    padding: clamp(95px, 11vw, 150px) 0 32px;
+    background: radial-gradient(ellipse at 100% 0, rgba(164,78,64,.16), transparent 45%), #0a1015;
+  }
+  .machine-home .machine-contact h2 {
+    max-width: 13ch;
+    margin: 52px 0;
+    color: var(--reframe-ink);
+    font-size: clamp(52px, 8.3vw, 115px);
+    line-height: .98;
+    letter-spacing: -.075em;
+  }
+  .machine-home .machine-contact h2 span:last-child { color: var(--reframe-accent); }
+  .machine-home .machine-contact__email {
+    color: var(--reframe-ink);
+    font-size: clamp(18px, 2.5vw, 33px);
+    overflow-wrap: anywhere;
+  }
+  .machine-home .machine-contact__email span { color: var(--reframe-accent); }
+  .machine-home .machine-contact__footer { color: #97a5ab; }
+
+  @media (max-width: 1100px) {
+    .machine-home .reframe-hero__layout { gap: 40px; }
+    .machine-home .machine-hero__statement { font-size: clamp(48px, 6vw, 74px); }
+    .machine-home .reframe-hero__visual { min-height: 520px; }
+    .machine-home .reframe-hero__floating--upper { left: -10px; }
+    .machine-home .reframe-hero__floating--lower { right: 0; }
+    .machine-home .machine-projects__heading,
+    .machine-home .machine-about__heading { grid-template-columns: 1fr; gap: 14px; }
+    .machine-home .machine-section-heading__axis { display: none; }
+    .machine-home .machine-section-heading h2 { font-size: clamp(45px, 6vw, 74px); }
+  }
+
+  @media (max-width: 850px) {
+    .machine-home .machine-hero { padding-top: 112px; }
+    .machine-home .reframe-hero__layout { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+    .machine-home .machine-hero__eyebrow { margin-bottom: 26px; }
+    .machine-home .machine-hero__wordmark { margin-bottom: 28px; }
+    .machine-home .machine-hero__statement { max-width: 680px; font-size: clamp(58px, 10vw, 90px); }
+    .machine-home .reframe-hero__visual { min-height: 520px; max-width: 620px; width: 100%; margin: 0 auto; }
+    .machine-home .reframe-hero__screen { height: 380px; transform: perspective(1100px) rotateY(-4deg) rotateX(2deg); }
+    .machine-home .machine-hero__coordinates { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .machine-home .machine-hero__coordinates > a { grid-column: 1/-1; justify-self: start; margin-top: 12px; }
+    .machine-home .machine-project-grid { gap: 14px; }
+    .machine-home .reframe-project:first-child,
+    .machine-home .reframe-project:nth-child(2) { grid-column: span 6; }
+    .machine-home .reframe-project:first-child .machine-project__art,
+    .machine-home .reframe-project:nth-child(2) .machine-project__art { min-height: 300px; }
+    .machine-home .machine-project__art { min-height: 230px; }
+    .machine-home .machine-project__meta > span:nth-child(2) { display: none; }
+  }
+
+  @media (max-width: 640px) {
+    .machine-home .machine-container { width: calc(100% - 38px); }
+    .machine-home .machine-hero { padding-top: 112px; padding-bottom: 35px; }
+    .machine-home .machine-hero__eyebrow { font-size: 8px; letter-spacing: .08em; }
+    .machine-home .machine-hero__wordmark { font-size: 25px; margin-bottom: 28px; }
+    .machine-home .reframe-hero__kicker { font-size: 9px; letter-spacing: .11em; }
+    .machine-home .machine-hero__statement {
+      max-width: 100%;
+      font-size: clamp(44px, 10.6vw, 64px);
+      letter-spacing: -.075em;
+      line-height: 1.07;
+    }
+    .machine-home .reframe-hero__intro { margin-top: 21px; font-size: 15px; line-height: 1.6; }
+    .machine-home .machine-hero__discipline { gap: 5px 9px; font-size: 9px; margin-top: 23px; }
+    .machine-home .machine-hero__actions { gap: 8px; margin-top: 24px; }
+    .machine-home .machine-action { min-height: 46px; padding: 11px 13px; gap: 20px; font-size: 9px; }
+    .machine-home .reframe-hero__note { margin-top: 22px; font-size: 11px; }
+    .machine-home .reframe-hero__visual { min-height: 375px; }
+    .machine-home .reframe-hero__view-label { top: 0; font-size: 8px; }
+    .machine-home .reframe-hero__screen {
+      height: 266px;
+      grid-template-rows: 33px minmax(0,1fr) 35px;
+      transform: none;
+      border-radius: 7px;
+    }
+    .machine-home .reframe-hero__screen-top,
+    .machine-home .reframe-hero__screen-bottom { padding-inline: 12px; font-size: 7px; }
+    .machine-home .reframe-hero__screen-caption { left: 16px; bottom: 23px; gap: 7px; }
+    .machine-home .reframe-hero__screen-caption strong { font-size: 44px; }
+    .machine-home .reframe-hero__screen-caption small { font-size: 8px; }
+    .machine-home .reframe-hero__screen-caption > span:last-child { font-size: 10px; }
+    .machine-home .reframe-hero__floating { padding: 10px 12px; gap: 4px; }
+    .machine-home .reframe-hero__floating span { font-size: 7px; }
+    .machine-home .reframe-hero__floating strong { font-size: 10px; }
+    .machine-home .reframe-hero__floating--upper { top: 1px; left: 0; transform: rotate(-3deg); }
+    .machine-home .reframe-hero__floating--lower { right: 0; bottom: 2px; transform: rotate(2deg); }
+    .machine-home .reframe-hero__floating--lower strong { font-size: 13px; }
+    .machine-home .reframe-hero__visual-foot { display: none; }
+    .machine-home .machine-hero__coordinates { margin-top: 12px; gap: 20px 12px; }
+    .machine-home .machine-hero__coordinates strong { font-size: 10px; }
+    .machine-home .machine-hero__axis { display: none; }
+    .machine-home .machine-projects { padding-block: 80px; }
+    .machine-home .machine-section-heading h2 { font-size: clamp(40px, 9vw, 59px); }
+    .machine-home .machine-section-heading > div > p { font-size: 14px; }
+    .machine-home .machine-projects__heading { margin-bottom: 33px; }
+    .machine-home .machine-project-grid { grid-template-columns: minmax(0,1fr); gap: 18px; }
+    .machine-home .reframe-project,
+    .machine-home .reframe-project:first-child,
+    .machine-home .reframe-project:nth-child(2) { grid-column: 1; }
+    .machine-home .machine-project__art,
+    .machine-home .reframe-project:first-child .machine-project__art,
+    .machine-home .reframe-project:nth-child(2) .machine-project__art { min-height: 280px; }
+    .machine-home .machine-project__copy { padding: 23px; }
+    .machine-home .machine-project__title { font-size: 35px; }
+    .machine-home .machine-project__meta { padding: 13px 19px; font-size: 9px; }
+    .machine-home .reframe-work-outro { align-items: flex-start; flex-direction: column; gap: 19px; padding-top: 34px; }
+    .machine-home .machine-about { padding-block: 80px; }
+    .machine-home .machine-about .machine-section-heading > div > p { font-size: 18px; margin-top: 26px; }
+    .machine-home .machine-about__facts { grid-template-columns: 1fr; }
+    .machine-home .machine-about__facts > div,
+    .machine-home .machine-about__facts > div + div { padding: 17px 0; border-left: 0; border-bottom: 1px solid rgba(32,38,44,.15); }
+    .machine-home .machine-contact { padding-top: 85px; }
+    .machine-home .machine-contact h2 { font-size: clamp(43px, 10vw, 66px); margin: 32px 0; }
+    .machine-home .machine-contact__email { font-size: 19px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .machine-home .reframe-hero__screen,
+    .machine-home .reframe-project,
+    .machine-home .machine-action,
+    .machine-home .machine-project__art { transition: none; }
+    .machine-home .reframe-hero__screen:hover,
+    .machine-home .reframe-hero__screen:focus-visible,
+    .machine-home .reframe-project:hover,
+    .machine-home .machine-action:hover { transform: none; }
+  }
+}
