@@ -38,6 +38,7 @@ export function StudioRoom() {
   const [selected, setSelected] = useState<StudioTarget>("work");
   const [visible, setVisible] = useState(false);
   const [allowed, setAllowed] = useState(true);
+  const [graphicsAvailable, setGraphicsAvailable] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -45,6 +46,22 @@ export function StudioRoom() {
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    // WebGL can be absent even when motion is allowed (software rendering,
+    // privacy settings, headless browsers, or hardware failure).
+    const probe = document.createElement("canvas");
+    let available = false;
+    try {
+      const context = probe.getContext("webgl2", { failIfMajorPerformanceCaveat: true });
+      available = Boolean(context);
+      context?.getExtension("WEBGL_lose_context")?.loseContext();
+    } catch {
+      available = false;
+    }
+    const frame = window.requestAnimationFrame(() => setGraphicsAvailable(available));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
@@ -79,7 +96,7 @@ export function StudioRoom() {
           <div className="yor-studio__fallback-drawer"/>
           <div className="yor-studio__fallback-lamp"/>
         </div>
-        {allowed && visible && <Scene onSelect={setSelected}/>}
+        {allowed && visible && graphicsAvailable && <Scene onSelect={setSelected}/>}
         <div className="yor-studio__hud" aria-hidden="true">
           <span>INTERACTIVE WORKSPACE</span><span>EXPLORE THE OBJECTS ↗</span>
         </div>
