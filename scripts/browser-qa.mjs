@@ -426,6 +426,8 @@ try {
   const heroStart = Date.now();
   const heroScene = await waitForCondition(cdp, `(() => { const layer = document.querySelector('.machine-scene-layer'); return layer && (layer.dataset.sceneStatus === 'ready' || layer.dataset.sceneStatus === 'failed') ? { status: layer.dataset.sceneStatus, renderer: document.querySelector('.machine-canvas')?.dataset.renderer || null } : null; })()`, { timeoutMs: 25_000, description: "homepage scene initialization" });
   report.rendering.home = { ...heroScene.value, initializationMs: Date.now() - heroStart };
+  await waitForCondition(cdp, `Boolean(document.querySelector('.yor-studio__viewport canvas'))`, { timeoutMs: 12000, description: "interactive 3D studio canvas on capable desktop" });
+  report.rendering.studio = { desktopCanvas: true };
   await capture(cdp, outputDir, "desktop-hero");
   report.performance.samples.push({ path: "/", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
 
@@ -471,6 +473,8 @@ try {
   await setViewport(cdp, 390, 844);
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'ready' || document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'failed'`, { timeoutMs: 25_000, description: "mobile homepage scene initialization" });
+  await waitForCondition(cdp, `Boolean(document.querySelector('.yor-studio__viewport canvas'))`, { timeoutMs: 12000, description: "interactive 3D studio canvas on capable mobile browser" });
+  report.rendering.studio.mobileCanvas = true;
   await capture(cdp, outputDir, "mobile-hero");
   await navigate(cdp, `${baseUrl}/projects`);
   await waitForCondition(cdp, `document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'ready' || document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'failed'`, { timeoutMs: 25_000, description: "mobile project scene initialization" });

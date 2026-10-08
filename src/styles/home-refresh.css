@@ -1,690 +1,464 @@
-/* Home reframe: editorial engineering portfolio with a cinematic workspace.
-   Intentionally scoped to the homepage; case studies and recruiter routes keep their own visual language. */
+/* Immersive studio: one visual language for the landing experience.
+   Scoped to .machine-home so recruiter case studies remain accessible and stable. */
 @layer experience {
   .machine-home {
-    --reframe-bg: #090e13;
-    --reframe-panel: #141c23;
-    --reframe-ink: #f6f2eb;
-    --reframe-muted: #a7b0b8;
-    --reframe-accent: #f98d71;
-    --reframe-accent-light: #ffc0a3;
-    --reframe-hairline: rgba(240, 245, 248, .13);
-    background: var(--reframe-bg);
-    color: var(--reframe-ink);
+    --yor-orange: #f4a77f;
+    --yor-cream: #f5f0e7;
+    --yor-muted: #a9b3bd;
+    --yor-border: rgba(237,235,230,.13);
+    --yor-black: #080b10;
+    background: #080b10;
+    color: var(--yor-cream);
   }
-
-  .machine-home .machine-container {
-    width: min(1420px, calc(100% - clamp(40px, 8.2vw, 128px)));
-  }
-
+  .machine-home .machine-container { width: min(1490px, calc(100% - clamp(36px, 7vw, 120px))); }
   .machine-home .machine-hero {
+    position: relative;
     min-height: 0;
-    padding: clamp(130px, 13vw, 188px) 0 45px;
-    background: radial-gradient(ellipse at 80% 37%, rgba(166, 85, 65, .13), transparent 47%),
-      radial-gradient(ellipse at 17% 2%, rgba(77, 114, 139, .11), transparent 38%), #090e13;
-    border-bottom-color: var(--reframe-hairline);
     overflow: hidden;
+    padding: clamp(120px, 10.5vw, 172px) 0 38px;
+    border-color: var(--yor-border);
+    background: radial-gradient(circle at 74% 43%, rgba(97,85,106,.19), transparent 40%),
+      radial-gradient(circle at 13% 12%, rgba(103,63,48,.13), transparent 42%), #080b10;
   }
-
   .machine-home .machine-hero::before {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 700px;
     content: "";
-    position: absolute;
-    inset: 0;
+    opacity: .24;
     pointer-events: none;
-    opacity: .19;
-    background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
-    background-size: 84px 84px;
-    mask-image: linear-gradient(90deg, transparent, #000 46%, #000 90%, transparent);
+    background: radial-gradient(ellipse at 70% 50%, rgba(247,151,110,.12), transparent 49%);
   }
-
-  .machine-home .reframe-hero__layout {
+  .machine-home .machine-hero__frame { position: relative; z-index: 1; }
+  .machine-home .yor-hero-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
-    align-items: center;
-    gap: clamp(35px, 6vw, 105px);
-    min-height: 600px;
+    grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr);
+    grid-template-areas:
+      "eyebrow studio"
+      "greeting studio"
+      "title studio"
+      "lede studio"
+      "discipline studio"
+      "actions studio"
+      "aside studio";
+    align-content: center;
+    align-items: start;
+    column-gap: clamp(24px,3.8vw,65px);
+    row-gap: 0;
   }
-
-  .machine-home .machine-hero__identity {
-    position: relative;
-    z-index: 2;
-    transform: none;
-  }
-
-  .machine-home .machine-hero__eyebrow {
-    margin: 0 0 38px;
-    color: var(--reframe-muted);
-    font-size: 10px;
-    letter-spacing: .14em;
-  }
-
-  .machine-home .machine-signal-dot {
-    background: var(--reframe-accent);
-    box-shadow: 0 0 0 5px rgba(249,141,113,.12);
-  }
-
-  .machine-home .machine-hero__wordmark {
-    display: inline-flex;
-    margin: 0 0 42px;
-    color: var(--reframe-ink);
-    font-size: clamp(22px, 2.2vw, 34px);
-    font-weight: 750;
-    line-height: 1;
-    letter-spacing: -.115em;
-    text-shadow: none;
-  }
-
-  .machine-home .machine-hero__wordmark span {
-    transform: none !important;
-    will-change: auto;
-  }
-
-  .machine-home .machine-hero__wordmark::after {
-    content: "®";
-    align-self: flex-start;
-    margin-left: 10px;
-    color: var(--reframe-accent);
-    font: 500 9px/1.4 var(--font-mono);
-    letter-spacing: 0;
-  }
-
-  .machine-home .reframe-hero__kicker {
-    margin: 0 0 20px;
-    color: var(--reframe-accent);
-    font: 600 10px/1.6 var(--font-mono);
-    letter-spacing: .19em;
-  }
-
-  .machine-home .machine-hero__statement {
-    max-width: 700px;
-    color: var(--reframe-ink);
-    font-size: clamp(60px, 6.8vw, 104px);
-    font-weight: 720;
-    line-height: .99;
-    letter-spacing: -.083em;
-    text-wrap: balance;
-  }
-
-  .machine-home .machine-hero__statement span { display: block; }
-  .machine-home .machine-hero__statement span:last-child {
-    color: var(--reframe-accent);
-    font-weight: 680;
-  }
-
-  .machine-home .reframe-hero__intro {
-    max-width: 520px;
-    margin: 29px 0 0;
-    color: #d2d9dc;
-    font-size: clamp(16px, 1.3vw, 19px);
-    line-height: 1.62;
-    letter-spacing: -.012em;
-  }
-
-  .machine-home .machine-hero__discipline {
-    margin-top: 28px;
-    color: var(--reframe-muted);
-    font-size: 10px;
-    letter-spacing: .09em;
-  }
-  .machine-home .machine-hero__discipline i { color: var(--reframe-accent); }
-
-  .machine-home .machine-hero__actions {
-    margin-top: 35px;
-    gap: 10px;
-  }
-
-  .machine-home .machine-action {
-    min-height: 53px;
-    gap: clamp(18px, 2.7vw, 45px);
-    padding: 14px 19px;
-    color: var(--reframe-ink);
-    border: 1px solid rgba(255,255,255,.22);
-    border-radius: 4px;
-    background: rgba(255,255,255,.035);
-    font-size: 10px;
-    letter-spacing: .075em;
-    transition: transform .25s ease, border-color .25s ease, background .25s ease, color .25s ease;
-  }
-  .machine-home .machine-action span:last-child { color: var(--reframe-accent); }
-  .machine-home .machine-action--primary {
-    color: #101418;
-    border-color: var(--reframe-accent);
-    background: var(--reframe-accent);
-    font-weight: 700;
-  }
-  .machine-home .machine-action--primary span:last-child { color: #101418; }
-  .machine-home .machine-action:hover {
-    transform: translateY(-3px);
-    border-color: var(--reframe-accent);
-    background: rgba(249,141,113,.1);
-    color: var(--reframe-ink);
-  }
-  .machine-home .machine-action--primary:hover { color: #101418; background: #ffc5aa; }
-
-  .machine-home .reframe-hero__note {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    margin-top: 34px;
-    color: #97a3aa;
-    font-size: 12px;
-    line-height: 1.5;
-  }
-  .machine-home .reframe-hero__note-mark {
-    color: var(--reframe-accent);
-    font-size: 20px;
-  }
-
-  .machine-home .reframe-hero__visual {
-    position: relative;
-    min-height: 650px;
-    display: grid;
-    align-items: center;
-    isolation: isolate;
-  }
-  .machine-home .reframe-hero__aura {
-    position: absolute;
-    z-index: -1;
-    inset: 7% -8% 0 -4%;
-    border-radius: 50%;
-    background: radial-gradient(ellipse, rgba(235,115,88,.26), rgba(100,108,138,.11) 38%, transparent 68%);
-    filter: blur(30px);
-  }
-  .machine-home .reframe-hero__halo {
-    position: absolute;
-    z-index: -1;
-    inset: 8% 1% 10%;
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 50%;
-    transform: rotate(-17deg) scaleX(1.13);
-    box-shadow: 0 0 0 36px rgba(255,255,255,.008), 0 0 0 82px rgba(255,255,255,.006);
-  }
-  .machine-home .reframe-hero__view-label {
-    position: absolute;
-    top: 15px;
-    right: 0;
-    color: #8c979e;
-    font: 10px/1.6 var(--font-mono);
-    letter-spacing: .13em;
-  }
-  .machine-home .reframe-hero__screen {
-    position: relative;
-    display: grid;
-    grid-template-rows: 45px minmax(0, 1fr) 48px;
-    height: clamp(330px, 35vw, 450px);
-    width: 100%;
-    color: var(--reframe-ink);
-    background: #141c22;
-    border: 1px solid #4b535b;
-    border-radius: 13px;
-    overflow: hidden;
-    box-shadow: 0 45px 85px rgba(0,0,0,.55), 0 0 0 8px rgba(255,255,255,.027), 0 0 0 9px rgba(255,255,255,.065);
-    transform: perspective(1100px) rotateY(-6deg) rotateX(3deg) rotateZ(1deg);
-    transition: transform .6s cubic-bezier(.2,.8,.2,1), box-shadow .6s ease;
-  }
-  .machine-home .reframe-hero__screen:hover,
-  .machine-home .reframe-hero__screen:focus-visible {
-    transform: perspective(1100px) rotateY(0) rotateX(0) rotateZ(0) translateY(-7px);
-    box-shadow: 0 52px 100px rgba(0,0,0,.6), 0 0 0 8px rgba(255,255,255,.03), 0 0 0 9px rgba(249,141,113,.26);
-    color: var(--reframe-ink);
-  }
-  .machine-home .reframe-hero__screen-top,
-  .machine-home .reframe-hero__screen-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 0 19px;
-    color: #a7b1ba;
-    font: 9px/1.4 var(--font-mono);
-    letter-spacing: .11em;
-  }
-  .machine-home .reframe-hero__screen-top { border-bottom: 1px solid rgba(255,255,255,.09); }
-  .machine-home .reframe-hero__screen-top > span:last-child { color: var(--reframe-accent); font-size: 18px; }
-  .machine-home .reframe-hero__screen-lights { display: inline-flex; gap: 5px; }
-  .machine-home .reframe-hero__screen-lights i {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #59626a;
-  }
-  .machine-home .reframe-hero__screen-lights i:first-child { background: #f98d71; }
-  .machine-home .reframe-hero__screen-media {
-    position: relative;
-    min-height: 0;
-    background: radial-gradient(circle at 78% 12%, rgba(224,105,81,.21), transparent 40%),
-      linear-gradient(180deg, rgba(6,10,14,.1), rgba(5,8,11,.93)),
-      url("/media/github/candidatex/hero.svg") center/cover no-repeat;
-  }
-  .machine-home .reframe-hero__screen-media::before {
-    position: absolute;
-    inset: 0;
-    content: "";
-    background: linear-gradient(90deg, rgba(5,9,12,.91) 0%, rgba(5,9,12,.34) 65%, rgba(5,9,12,.12));
-    pointer-events: none;
-  }
-  .machine-home .reframe-hero__screen-scan {
-    position: absolute;
-    top: 0; right: 0; bottom: 0;
-    width: 30%;
-    opacity: .34;
-    border-left: 1px solid rgba(249,141,113,.2);
-    background: repeating-linear-gradient(0deg, transparent 0 15px, rgba(255,255,255,.06) 16px);
-  }
-  .machine-home .reframe-hero__screen-caption {
-    position: absolute;
-    left: clamp(20px, 3vw, 42px);
-    bottom: clamp(23px, 4vw, 55px);
-    right: 20px;
-    display: grid;
-    align-content: end;
-    gap: 10px;
-  }
-  .machine-home .reframe-hero__screen-caption small {
-    color: var(--reframe-accent-light);
-    font: 10px var(--font-mono);
+  .machine-home .yor-hero-eyebrow { grid-area: eyebrow; }
+  .machine-home .yor-hero-greeting { grid-area: greeting; }
+  .machine-home .machine-hero__statement { grid-area: title; }
+  .machine-home .yor-hero-lede { grid-area: lede; }
+  .machine-home .machine-hero__discipline { grid-area: discipline; }
+  .machine-home .machine-hero__actions { grid-area: actions; }
+  .machine-home .yor-hero-aside { grid-area: aside; }
+  .machine-home .yor-studio { grid-area: studio; align-self: center; }
+  .machine-home .machine-hero__identity { position: relative; transform: none; min-width: 0; padding-bottom: 27px; }
+  .machine-home .yor-hero-eyebrow {
+    display: flex; align-items: center; gap: 12px; color: #c9c1bb;
+    font: 500 10px/1.6 var(--font-mono);
     letter-spacing: .15em;
   }
-  .machine-home .reframe-hero__screen-caption strong {
-    font-size: clamp(40px, 5vw, 72px);
-    letter-spacing: -.08em;
-    line-height: 1;
+  .machine-home .machine-signal-dot {
+    width: 7px; height: 7px; background: var(--yor-orange);
+    box-shadow: 0 0 0 5px rgba(244,167,127,.12);
   }
-  .machine-home .reframe-hero__screen-caption strong span { color: var(--reframe-accent); }
-  .machine-home .reframe-hero__screen-caption > span:last-child { color: #c8d1d6; font-size: 12px; }
-  .machine-home .reframe-hero__screen-bottom {
-    border-top: 1px solid rgba(255,255,255,.09);
-    font-size: 9px;
+  .machine-home .yor-hero-greeting {
+    display: flex; align-items: center; gap: 9px;
+    margin-top: clamp(55px,6vw,96px);
+    color: var(--yor-orange);
+    font: 500 clamp(14px,1.23vw,17px)/1.4 var(--font-body);
+    letter-spacing: -.015em;
   }
-  .machine-home .reframe-hero__screen-bottom span:first-child { display: inline-flex; align-items: center; gap: 9px; }
-  .machine-home .reframe-hero__screen-bottom i {
-    width: 6px;
-    height: 6px;
-    background: #9dd4b0;
-    border-radius: 50%;
+  .machine-home .yor-hero-stars { color: #f5d6b0; font-size: 24px; }
+  .machine-home .machine-hero__statement {
+    width: auto; max-width: 720px; margin: 21px 0 0;
+    color: var(--yor-cream);
+    font: 660 clamp(51px,5.8vw,94px)/1.03 var(--font-display);
+    letter-spacing: -.074em;
+    text-wrap: balance;
+    overflow-wrap: normal;
   }
-  .machine-home .reframe-hero__screen-bottom span:last-child { color: var(--reframe-accent); }
-  .machine-home .reframe-hero__floating {
-    position: absolute;
-    z-index: 1;
-    display: grid;
-    gap: 8px;
-    padding: 16px 20px;
-    border: 1px solid rgba(255,255,255,.2);
-    border-radius: 6px;
-    background: rgba(15,23,30,.95);
-    box-shadow: 0 20px 40px rgba(0,0,0,.34);
-    pointer-events: none;
+  .machine-home .machine-hero__statement span { display: block; }
+  .machine-home .machine-hero__statement span:last-child {
+    color: #f1be9e;
+    font: italic 500 1.03em/1.02 Georgia, "Times New Roman", serif;
+    letter-spacing: -.068em;
   }
-  .machine-home .reframe-hero__floating span {
-    color: #9eabb3;
-    font: 9px/1.6 var(--font-mono);
-    letter-spacing: .12em;
+  .machine-home .yor-hero-lede {
+    max-width: 510px; margin: 33px 0 0; color: #bbc4cb;
+    font-size: clamp(15px,1.25vw,18px); line-height: 1.75; letter-spacing: -.01em;
   }
-  .machine-home .reframe-hero__floating strong {
-    color: var(--reframe-ink);
-    font-size: 15px;
-    font-weight: 600;
-    white-space: nowrap;
+  .machine-home .machine-hero__discipline {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px 11px;
+    margin: 25px 0 0; color: #e5ded6; font-size: 10px; letter-spacing: .11em;
   }
-  .machine-home .reframe-hero__floating--upper { top: 55px; left: -48px; transform: rotate(-5deg); }
-  .machine-home .reframe-hero__floating--lower { right: -18px; bottom: 55px; transform: rotate(4deg); }
-  .machine-home .reframe-hero__floating--lower strong { font-size: 20px; letter-spacing: -.05em; }
-  .machine-home .reframe-hero__floating--lower i { color: var(--reframe-accent); font-style: normal; }
-  .machine-home .reframe-hero__visual-foot {
-    position: absolute;
-    right: 5px;
-    bottom: 12px;
-    left: 5px;
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    color: #798991;
-    font: 9px var(--font-mono);
-    letter-spacing: .13em;
+  .machine-home .machine-hero__discipline i { font-size: 11px; color: var(--yor-orange); font-style: normal; }
+  .machine-home .machine-hero__actions { gap: 9px; margin: 34px 0 0; }
+  .machine-home .machine-action {
+    min-height: 50px; padding: 12px 17px; gap: clamp(13px,2vw,31px);
+    background: transparent; border: 1px solid rgba(232,223,209,.28);
+    color: var(--yor-cream); border-radius: 2px;
+    font: 600 10px/1.5 var(--font-mono); letter-spacing: .04em;
+    text-transform: none; transition: transform .3s ease, background .3s ease, color .3s ease;
   }
-
+  .machine-home .machine-action span:last-child { color: var(--yor-orange); font-size: 16px; }
+  .machine-home .machine-action--primary {
+    background: var(--yor-cream); color: #16191e; border-color: var(--yor-cream);
+  }
+  .machine-home .machine-action--primary span:last-child { color: #7d543e; }
+  .machine-home .machine-action:hover {
+    transform: translateY(-3px); border-color: var(--yor-orange);
+    background: rgba(244,167,127,.1); color: var(--yor-cream);
+  }
+  .machine-home .machine-action--primary:hover { background: #f8cfb1; color: #15171b; }
+  .machine-home .yor-hero-aside {
+    margin: 48px 0 0; color: #73828b;
+    font: italic 13px/1.75 Georgia, "Times New Roman", serif;
+  }
   .machine-home .machine-hero__coordinates {
-    margin-top: clamp(28px, 5vw, 66px);
-    padding-top: 22px;
-    gap: 22px;
-    border-color: var(--reframe-hairline);
-    color: #829098;
-    font-size: 9px;
+    margin-top: 44px; padding-top: 20px; border-color: var(--yor-border);
+    color: #7d8b95; font-size: 9px;
   }
-  .machine-home .machine-hero__coordinates p span { color: var(--reframe-accent); }
-  .machine-home .machine-hero__coordinates strong { color: #c7d0d5; font-size: 11px; }
-  .machine-home .machine-hero__coordinates > a { color: #e7ecee; }
-  .machine-home .machine-hero__coordinates > a span:last-child { color: var(--reframe-accent); }
-  .machine-home .machine-hero__axis { color: #657179; }
+  .machine-home .machine-hero__coordinates p span { color: var(--yor-orange); font-size: 9px; }
+  .machine-home .machine-hero__coordinates strong { color: #c8ccd0; font-size: 11px; }
+  .machine-home .machine-hero__coordinates > a { color: #d9d9d4; }
+  .machine-home .machine-hero__coordinates > a span:last-child { color: var(--yor-orange); }
+  .machine-home .machine-hero__axis { display: none; }
 
+  /* The scene is the real hero, not an imitation screenshot tilted in CSS. */
+  .machine-home .yor-studio { position: relative; min-width: 0; width: 100%; }
+  .machine-home .yor-studio__topline {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 0 4px 14px; color: #b7b2b1;
+    font: 9px/1.4 var(--font-mono); letter-spacing: .13em;
+  }
+  .machine-home .yor-studio__topline > span:first-child { display: inline-flex; align-items: center; gap: 9px; }
+  .machine-home .yor-studio__pulse {
+    width: 7px; height: 7px; display: inline-block;
+    border-radius: 50%; background: #a2deaf; box-shadow: 0 0 0 4px rgba(162,222,175,.12);
+  }
+  .machine-home .yor-studio__viewport {
+    position: relative; width: 100%; height: clamp(450px,42vw,635px);
+    overflow: hidden; isolation: isolate;
+    border: 1px solid rgba(230,221,207,.24); border-radius: 5px;
+    background: #0b1019;
+    box-shadow: 0 38px 100px rgba(0,0,0,.44), 0 0 0 7px rgba(244,167,127,.018);
+  }
+  .machine-home .yor-studio__viewport::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3;
+    box-shadow: inset 0 0 75px 12px rgba(1,4,8,.42);
+    background: linear-gradient(180deg, rgba(5,8,12,.28), transparent 18%, transparent 75%, rgba(5,8,12,.2));
+  }
+  .machine-home .yor-studio__viewport canvas {
+    display: block; width: 100%; height: 100%; touch-action: pan-y;
+    position: relative; z-index: 2;
+  }
+  .machine-home .yor-studio__fallback {
+    position: absolute; inset: 0; z-index: 0; overflow: hidden;
+    background: linear-gradient(170deg, #242d3a, #111824 64%, #10141b);
+  }
+  .machine-home .yor-studio__fallback::before {
+    position: absolute; content: ""; inset: 0;
+    background: linear-gradient(118deg, rgba(249,167,115,.16), transparent 32%),
+      linear-gradient(0deg, rgba(0,0,0,.57),transparent 53%);
+  }
+  .machine-home .yor-studio__fallback-light {
+    position: absolute; top: 8%; left: 31%; width: 48%; height: 65%;
+    background: radial-gradient(ellipse, rgba(240,153,102,.24),transparent 68%);
+    filter: blur(12px);
+  }
+  .machine-home .yor-studio__fallback-window {
+    position: absolute; top: 11%; right: 10%; width: 28%; height: 40%;
+    border: 14px solid #404651; background: linear-gradient(145deg,#112d44,#111b35);
+    box-shadow: inset 0 0 0 3px #78828a, 0 0 35px rgba(91,134,162,.2);
+  }
+  .machine-home .yor-studio__fallback-monitor {
+    position: absolute; top: 32%; left: 17%; width: 58%; height: 35%; padding: 6% 6%;
+    border: 13px solid #242d38; border-bottom-width: 17px; border-radius: 6px;
+    background: linear-gradient(120deg, #0e2332, #123f4f);
+    box-shadow: 17px 24px 30px rgba(0,0,0,.45); transform: perspective(900px) rotateY(-13deg);
+    display: grid; align-content: center; gap: 4px; color: #f5d2ae;
+  }
+  .machine-home .yor-studio__fallback-monitor b { font: 750 clamp(23px,4vw,55px)/1 var(--font-display); letter-spacing: -.08em; }
+  .machine-home .yor-studio__fallback-monitor span { font: 600 10px/1.5 var(--font-mono); letter-spacing: .1em; color: #c1d0d2; }
+  .machine-home .yor-studio__fallback-desk {
+    position: absolute; top: 70%; left: 5%; width: 92%; height: 9%;
+    background: #76513e; transform: skewX(-12deg);
+    box-shadow: 0 80px 0 -20px #292f35, 0 0 0 6px #32343b;
+  }
+  .machine-home .yor-studio__fallback-drawer {
+    position: absolute; left: 13%; top: 77%; width: 14%; height: 23%;
+    background: linear-gradient(90deg,#36333a,#20252d);
+  }
+  .machine-home .yor-studio__fallback-lamp {
+    position: absolute; width: 22%; height: 10%; top: 24%; left: 6%;
+    transform: rotate(-32deg); background: #c4a07e; border-radius: 50% 50% 15% 15%;
+    box-shadow: 0 0 45px rgba(248,165,103,.42);
+  }
+  .machine-home .yor-studio__hud {
+    position: absolute; z-index: 4; left: 20px; right: 20px; bottom: 17px;
+    display: flex; justify-content: space-between; gap: 12px; pointer-events: none;
+    color: #e5d8cc; font: 9px/1.4 var(--font-mono); letter-spacing: .1em;
+    text-shadow: 0 2px 7px #05090d;
+  }
+  .machine-home .yor-studio__corner {
+    position: absolute; z-index: 4; width: 16px; height: 16px; pointer-events: none;
+    border-color: var(--yor-orange); border-style: solid;
+  }
+  .machine-home .yor-studio__corner--tl { top: 13px; left: 13px; border-width: 1px 0 0 1px; }
+  .machine-home .yor-studio__corner--br { right: 13px; bottom: 13px; border-width: 0 1px 1px 0; }
+  .machine-home .yor-studio__bottomline {
+    display: grid; grid-template-columns: minmax(190px,.65fr) minmax(0,1.35fr);
+    gap: 14px; margin-top: 12px;
+  }
+  .machine-home .yor-studio__locations {
+    display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px;
+  }
+  .machine-home .yor-studio__locations button {
+    display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 9px 11px;
+    border: 1px solid rgba(255,255,255,.13); border-radius: 3px;
+    color: #b5bfc6; background: #141b24; cursor: pointer;
+    font: 500 10px var(--font-mono); letter-spacing: .08em;
+    transition: color .2s ease, background .2s ease, border-color .2s ease;
+  }
+  .machine-home .yor-studio__locations button span { color: var(--yor-orange); font-size: 9px; }
+  .machine-home .yor-studio__locations button:hover,
+  .machine-home .yor-studio__locations button.is-active,
+  .machine-home .yor-studio__locations button:focus-visible {
+    border-color: rgba(244,167,127,.68); color: #f7f1e8; background: #29242a;
+  }
+  .machine-home .yor-studio__description {
+    min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 15px;
+    padding: 13px 17px; border: 1px solid rgba(255,255,255,.13);
+    border-radius: 3px; background: #161e27;
+  }
+  .machine-home .yor-studio__description > div { min-width: 0; }
+  .machine-home .yor-studio__description > div > span {
+    color: var(--yor-orange); font: 8px/1.5 var(--font-mono); letter-spacing: .12em;
+  }
+  .machine-home .yor-studio__description strong {
+    display: block; margin-top: 4px; color: #f4eae2;
+    font: 600 15px/1.3 var(--font-display);
+  }
+  .machine-home .yor-studio__description p {
+    max-width: 320px; margin: 5px 0 0; color: #a2aeb8;
+    font: 11px/1.5 var(--font-body);
+  }
+  .machine-home .yor-studio__description a {
+    flex: 0 0 auto; max-width: 122px; padding: 8px; border-bottom: 1px solid var(--yor-orange);
+    color: #f4eae2; font: 9px/1.5 var(--font-mono); letter-spacing: .04em;
+  }
+  .machine-home .yor-studio__description a span { color: var(--yor-orange); }
+  .machine-home .yor-studio__access-note {
+    margin: 8px 0 0; color: #7f8991; font: 9px/1.5 var(--font-body);
+  }
+
+  /* Selected work: wider artworks, fewer forced boxes, readable summaries. */
   .machine-home .machine-projects {
-    padding-block: clamp(95px, 10vw, 145px);
-    background: linear-gradient(180deg, #0d141b, #10171e 50%, #0c1218);
+    padding-block: clamp(90px,9vw,143px);
+    background: #10151d;
+    border-top: 1px solid rgba(247,230,208,.08);
   }
   .machine-home .machine-projects__heading {
-    grid-template-columns: 160px minmax(0, 1fr) 90px;
-    gap: 30px;
-    margin-bottom: 54px;
+    grid-template-columns: minmax(105px,.4fr) minmax(0,1.6fr) minmax(65px,.3fr);
+    gap: 30px; margin-bottom: 55px;
   }
-  .machine-home .machine-section-index { color: #a7b0b8; font-size: 10px; }
-  .machine-home .machine-section-index span { color: var(--reframe-accent); }
+  .machine-home .machine-section-index { color: #bdc1c5; font-size: 10px; }
+  .machine-home .machine-section-index span { color: var(--yor-orange); }
   .machine-home .machine-section-heading h2 {
-    max-width: 19ch;
-    color: var(--reframe-ink);
-    font-size: clamp(46px, 5.9vw, 84px);
-    line-height: 1.03;
-    letter-spacing: -.065em;
-    font-weight: 670;
+    max-width: 17ch; color: var(--yor-cream);
+    font: 670 clamp(47px,5.8vw,87px)/1.02 var(--font-display);
+    letter-spacing: -.062em;
   }
   .machine-home .machine-section-heading h2 em {
-    color: var(--reframe-accent);
-    font-style: normal;
+    color: #ebaf8b; font: italic 470 1em/1.02 Georgia, "Times New Roman", serif;
   }
   .machine-home .machine-section-heading > div > p {
-    max-width: 60ch;
-    margin-top: 23px;
-    color: #a7b2ba;
-    font-size: 15px;
-    line-height: 1.7;
+    max-width: 56ch; color: #a7b3bc; margin-top: 26px; font-size: 15px; line-height: 1.7;
   }
-  .machine-home .machine-section-heading__axis { color: #73838b; font-size: 9px; }
-
-  .machine-home .machine-project-grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 20px;
-  }
+  .machine-home .machine-section-heading__axis { color: #79858e; }
+  .machine-home .machine-project-grid { display: grid; grid-template-columns: repeat(12,minmax(0,1fr)); gap: 17px; }
   .machine-home .reframe-project {
-    grid-column: span 6;
-    min-width: 0;
-    padding: 0;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,.11);
-    border-radius: 9px;
-    background: #161f27;
-    transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+    grid-column: span 6; min-width: 0; padding: 0; overflow: hidden;
+    border: 1px solid rgba(240,227,215,.15); border-radius: 5px;
+    background: #171d26; transition: transform .35s ease, border-color .35s ease;
   }
   .machine-home .reframe-project:first-child { grid-column: span 7; }
   .machine-home .reframe-project:nth-child(2) { grid-column: span 5; }
-  .machine-home .reframe-project:hover {
-    transform: translateY(-5px);
-    border-color: rgba(249,141,113,.65);
-    box-shadow: 0 24px 65px rgba(0,0,0,.3);
-  }
-  .machine-home .machine-project__preview {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
+  .machine-home .reframe-project:hover { transform: translateY(-5px); border-color: rgba(244,167,127,.56); }
+  .machine-home .machine-project__preview { display: flex; flex-direction: column; height: 100%; }
   .machine-home .machine-project__art {
-    width: 100%;
-    min-height: clamp(245px, 26vw, 375px);
-    border: 0;
-    border-bottom: 1px solid rgba(255,255,255,.1);
-    padding: 20px 23px;
-    background: linear-gradient(180deg, rgba(11,17,22,.1) 10%, rgba(11,17,22,.44) 75%, rgba(11,17,22,.85)),
-      var(--project-art, linear-gradient(130deg, #1c2830, #101419));
-    background-size: cover;
-    background-position: center;
-    transition: background-position .6s ease, filter .6s ease;
+    position: relative; width: 100%; min-height: 315px; padding: 19px;
+    border: 0; border-bottom: 1px solid rgba(240,227,215,.1);
+    background: linear-gradient(180deg, rgba(5,8,13,.09), rgba(5,8,13,.62) 90%),
+      var(--project-art,linear-gradient(135deg,#28313b,#10141b));
+    background-position: center; background-size: cover;
   }
   .machine-home .reframe-project:first-child .machine-project__art,
-  .machine-home .reframe-project:nth-child(2) .machine-project__art { min-height: 400px; }
-  .machine-home .machine-project__art::after {
-    inset: 11px;
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 2px;
-  }
+  .machine-home .reframe-project:nth-child(2) .machine-project__art { min-height: 365px; }
+  .machine-home .machine-project__art::after { inset: 11px; border-color: rgba(255,255,255,.08); }
   .machine-home .machine-project__index {
-    align-self: flex-start;
-    padding: 7px 11px;
-    border-radius: 3px;
-    background: rgba(11,17,21,.78);
-    color: #e8ede9;
-    font-size: 10px;
+    align-self: flex-start; padding: 7px 9px; color: #e9e1d8;
+    background: #121820db; font-size: 10px;
   }
-  .machine-home .machine-project__art-label { color: #f6f1e9; font-size: 12px; }
-  .machine-home .machine-project__art-coordinates { color: var(--reframe-accent-light); font-size: 9px; }
+  .machine-home .machine-project__art-label { color: #efede8; font-size: 12px; }
+  .machine-home .machine-project__art-coordinates { color: #f2be9e; font-size: 9px; }
   .machine-home .machine-project__copy {
-    flex: 1;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: clamp(22px, 2.8vw, 38px);
-    border: 0;
-    background: #161f27;
+    align-items: flex-start; justify-content: flex-start; flex: 1;
+    padding: 28px 30px 34px; border: 0; background: #171d26;
   }
-  .machine-home .machine-project__kicker { color: var(--reframe-accent); font-size: 10px; }
+  .machine-home .machine-project__kicker { color: #f1b391; font-size: 10px; }
   .machine-home .machine-project__title {
-    margin-top: 11px;
-    color: var(--reframe-ink);
-    font-size: clamp(30px, 3.5vw, 51px);
-    line-height: 1.06;
-    font-weight: 670;
-    letter-spacing: -.055em;
+    margin-top: 13px; color: #f6efe7;
+    font: 670 clamp(31px,3.3vw,52px)/1.06 var(--font-display); letter-spacing: -.06em;
   }
-  .machine-home .machine-project__purpose {
-    max-width: 49ch;
-    margin-top: 15px;
-    color: #a8b5bd;
-    font-size: 14px;
-    line-height: 1.6;
-  }
+  .machine-home .machine-project__purpose { color: #b4bfc7; font: 14px/1.65 var(--font-body); max-width: 51ch; margin-top: 15px; }
   .machine-home .machine-project__open {
-    margin-top: auto;
-    padding-top: 25px;
-    color: var(--reframe-accent-light);
-    font-size: 10px;
+    margin-top: auto; padding-top: 23px; color: #e9bf9d;
+    font-size: 10px; letter-spacing: .08em;
   }
   .machine-home .machine-project__open span,
-  .machine-home .machine-project__meta nav a { color: var(--reframe-accent); }
+  .machine-home .machine-project__meta nav a { color: #eeb08b; }
   .machine-home .machine-project__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 9px 24px;
-    justify-content: space-between;
-    padding: 17px 22px;
-    border-top: 1px solid rgba(255,255,255,.1);
-    color: #8998a0;
-    background: #121a21;
-    font-size: 10px;
-    line-height: 1.5;
-    letter-spacing: 0;
-    text-transform: none;
+    display: flex; justify-content: space-between; gap: 11px 22px;
+    flex-wrap: wrap; padding: 15px 26px; border-top: 1px solid rgba(240,227,215,.11);
+    color: #93a0a9; background: #141922; font-size: 9px;
   }
-  .machine-home .machine-project__meta nav { gap: 15px; }
-  .machine-home .machine-project__meta nav a {
-    min-height: 24px;
-    display: inline-flex;
-    align-items: center;
-    color: var(--reframe-accent-light);
-    font-size: 10px;
-  }
+  .machine-home .machine-project__meta nav { gap: 18px; }
+  .machine-home .machine-project__meta nav a { min-height: 25px; display: inline-flex; align-items: center; }
+  .machine-home .machine-project__preview[data-project-active="true"] .machine-project__copy { border-color: transparent; background: #1b2630; }
   .machine-home .machine-project__preview:hover .machine-project__art,
-  .machine-home .machine-project__preview[data-project-active="true"] .machine-project__art,
-  .machine-home .machine-project__preview:focus-visible .machine-project__art {
-    border-color: rgba(255,255,255,.1);
-    background-position: 53% center;
-  }
-  .machine-home .machine-project__preview[data-project-active="true"] .machine-project__copy {
-    border: 0;
-    background: #1c2932;
-  }
+  .machine-home .machine-project__preview:focus-visible .machine-project__art { border-color: transparent; }
   .machine-home .reframe-work-outro {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 32px;
-    padding-top: 46px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 40px;
   }
-  .machine-home .reframe-work-outro p {
-    max-width: 520px;
-    margin: 0;
-    color: #9aa8b0;
-    font-size: 14px;
-    line-height: 1.65;
-  }
+  .machine-home .reframe-work-outro p { color: #aab5be; font-size: 14px; line-height: 1.6; max-width: 580px; margin: 0; }
   .machine-home .reframe-work-outro a {
-    flex-shrink: 0;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--reframe-accent);
-    color: #f6f2ed;
-    font: 10px var(--font-mono);
-    letter-spacing: .1em;
+    flex: 0 0 auto; color: var(--yor-cream); padding-bottom: 9px; border-bottom: 1px solid var(--yor-orange);
+    font: 10px var(--font-mono); letter-spacing: .09em;
   }
-  .machine-home .reframe-work-outro a span { margin-left: 25px; color: var(--reframe-accent); }
+  .machine-home .reframe-work-outro a span { margin-left: 20px; color: var(--yor-orange); }
 
   .machine-home .machine-about {
-    padding-block: clamp(90px, 10vw, 145px);
-    background: #f0ebe1;
-    border: 0;
-    color: #20262c;
+    padding-block: clamp(92px,11vw,164px);
+    background: #eee7dc; border-color: rgba(15,20,27,.13); color: #1c2025;
   }
-  .machine-home .machine-about .machine-section-heading h2 { color: #172029; }
-  .machine-home .machine-about .machine-section-heading h2 em { color: #bf573e; }
-  .machine-home .machine-about .machine-section-index { color: #5b6368; }
-  .machine-home .machine-about .machine-section-index span { color: #bf573e; }
+  .machine-home .machine-about .machine-section-index { color: #65646a; }
+  .machine-home .machine-about .machine-section-index span { color: #be6a49; }
+  .machine-home .machine-about .machine-section-heading h2 { color: #1c2025; }
+  .machine-home .machine-about .machine-section-heading h2 em { color: #a65d43; }
   .machine-home .machine-about .machine-section-heading > div > p {
-    max-width: 44ch;
-    margin-top: 40px;
-    color: #43494b;
-    font-size: clamp(18px, 2vw, 25px);
-    line-height: 1.5;
+    color: #4c4d4a; font-size: clamp(19px,2.2vw,28px); line-height: 1.5;
+    margin-top: 36px; max-width: 49ch;
   }
-  .machine-home .machine-about__heading { margin-bottom: clamp(30px, 5vw, 70px); }
-  .machine-home .machine-about__facts {
-    border-color: rgba(32,38,44,.22);
-  }
-  .machine-home .machine-about__facts > div + div { border-color: rgba(32,38,44,.15); }
-  .machine-home .machine-about__facts dt { color: #b34f39; font-size: 10px; }
-  .machine-home .machine-about__facts dd { color: #20262c; font-weight: 550; }
-
+  .machine-home .machine-about__heading { margin-bottom: clamp(45px,7vw,98px); }
+  .machine-home .machine-about__facts { border-color: rgba(22,29,33,.2); }
+  .machine-home .machine-about__facts > div + div { border-color: rgba(22,29,33,.15); }
+  .machine-home .machine-about__facts dt { color: #a65d43; font-size: 10px; }
+  .machine-home .machine-about__facts dd { color: #262d31; }
   .machine-home .machine-contact {
-    padding: clamp(95px, 11vw, 150px) 0 32px;
-    background: radial-gradient(ellipse at 100% 0, rgba(164,78,64,.16), transparent 45%), #0a1015;
+    background: radial-gradient(ellipse at 100% 20%, rgba(102,59,43,.21), transparent 40%), #080b10;
+    padding: clamp(90px,9vw,145px) 0 30px;
   }
   .machine-home .machine-contact h2 {
-    max-width: 13ch;
-    margin: 52px 0;
-    color: var(--reframe-ink);
-    font-size: clamp(52px, 8.3vw, 115px);
-    line-height: .98;
-    letter-spacing: -.075em;
+    max-width: 15ch; margin: 46px 0;
+    font-size: clamp(46px,7.6vw,108px); line-height: 1; letter-spacing: -.07em;
   }
-  .machine-home .machine-contact h2 span:last-child { color: var(--reframe-accent); }
-  .machine-home .machine-contact__email {
-    color: var(--reframe-ink);
-    font-size: clamp(18px, 2.5vw, 33px);
-    overflow-wrap: anywhere;
-  }
-  .machine-home .machine-contact__email span { color: var(--reframe-accent); }
-  .machine-home .machine-contact__footer { color: #97a5ab; }
+  .machine-home .machine-contact h2 span:last-child { color: var(--yor-orange); }
+  .machine-home .machine-contact__email { color: var(--yor-cream); overflow-wrap: anywhere; }
+  .machine-home .machine-contact__email span { color: var(--yor-orange); }
 
-  @media (max-width: 1100px) {
-    .machine-home .reframe-hero__layout { gap: 40px; }
-    .machine-home .machine-hero__statement { font-size: clamp(48px, 6vw, 74px); }
-    .machine-home .reframe-hero__visual { min-height: 520px; }
-    .machine-home .reframe-hero__floating--upper { left: -10px; }
-    .machine-home .reframe-hero__floating--lower { right: 0; }
+  @media (max-width: 1220px) {
+    .machine-home .yor-hero-grid { grid-template-columns: minmax(0,.88fr) minmax(0,1.12fr); gap: 24px; }
+    .machine-home .machine-hero__statement { font-size: clamp(44px,5vw,68px); }
+    .machine-home .yor-hero-greeting { margin-top: 60px; }
+    .machine-home .yor-studio__viewport { height: 490px; }
+    .machine-home .yor-studio__bottomline { grid-template-columns: 1fr; }
+    .machine-home .yor-studio__locations { display: flex; flex-wrap: wrap; }
+    .machine-home .yor-studio__locations button { flex: 1; }
     .machine-home .machine-projects__heading,
-    .machine-home .machine-about__heading { grid-template-columns: 1fr; gap: 14px; }
+    .machine-home .machine-about__heading { grid-template-columns: 1fr; gap: 20px; }
     .machine-home .machine-section-heading__axis { display: none; }
-    .machine-home .machine-section-heading h2 { font-size: clamp(45px, 6vw, 74px); }
   }
-
-  @media (max-width: 850px) {
-    .machine-home .machine-hero { padding-top: 112px; }
-    .machine-home .reframe-hero__layout { grid-template-columns: minmax(0, 1fr); min-height: 0; }
-    .machine-home .machine-hero__eyebrow { margin-bottom: 26px; }
-    .machine-home .machine-hero__wordmark { margin-bottom: 28px; }
-    .machine-home .machine-hero__statement { max-width: 680px; font-size: clamp(58px, 10vw, 90px); }
-    .machine-home .reframe-hero__visual { min-height: 520px; max-width: 620px; width: 100%; margin: 0 auto; }
-    .machine-home .reframe-hero__screen { height: 380px; transform: perspective(1100px) rotateY(-4deg) rotateX(2deg); }
-    .machine-home .machine-hero__coordinates { grid-template-columns: repeat(2,minmax(0,1fr)); }
-    .machine-home .machine-hero__coordinates > a { grid-column: 1/-1; justify-self: start; margin-top: 12px; }
-    .machine-home .machine-project-grid { gap: 14px; }
-    .machine-home .reframe-project:first-child,
-    .machine-home .reframe-project:nth-child(2) { grid-column: span 6; }
-    .machine-home .reframe-project:first-child .machine-project__art,
-    .machine-home .reframe-project:nth-child(2) .machine-project__art { min-height: 300px; }
-    .machine-home .machine-project__art { min-height: 230px; }
-    .machine-home .machine-project__meta > span:nth-child(2) { display: none; }
+  @media (max-width: 900px) {
+    .machine-home .machine-hero { padding-top: 116px; }
+    .machine-home .yor-hero-grid {
+      grid-template-columns: minmax(0,1fr);
+      grid-template-areas:
+        "eyebrow" "greeting" "title" "studio" "lede" "discipline" "actions" "aside";
+      row-gap: 0;
+    }
+    .machine-home .yor-studio { margin-top: 25px; }
+    .machine-home .yor-hero-greeting { margin-top: 43px; }
+    .machine-home .machine-hero__statement { font-size: clamp(60px,9vw,92px); }
+    .machine-home .yor-hero-lede { max-width: 640px; }
+    .machine-home .yor-studio { max-width: 760px; }
+    .machine-home .yor-studio__viewport { height: clamp(430px,60vw,570px); }
+    .machine-home .machine-hero__coordinates { grid-template-columns: 1fr 1fr; }
+    .machine-home .machine-hero__coordinates > a { grid-column: 1/-1; justify-self: start; }
   }
-
-  @media (max-width: 640px) {
-    .machine-home .machine-container { width: calc(100% - 38px); }
-    .machine-home .machine-hero { padding-top: 112px; padding-bottom: 35px; }
-    .machine-home .machine-hero__eyebrow { font-size: 8px; letter-spacing: .08em; }
-    .machine-home .machine-hero__wordmark { font-size: 25px; margin-bottom: 28px; }
-    .machine-home .reframe-hero__kicker { font-size: 9px; letter-spacing: .11em; }
+  @media (max-width: 650px) {
+    .machine-home .machine-container { width: calc(100% - 36px); }
+    .machine-home .machine-hero { padding-top: 109px; padding-bottom: 24px; }
+    .machine-home .yor-hero-eyebrow { font-size: 9px; }
+    .machine-home .yor-hero-greeting { margin-top: 31px; font-size: 14px; }
     .machine-home .machine-hero__statement {
-      max-width: 100%;
-      font-size: clamp(44px, 10.6vw, 64px);
-      letter-spacing: -.075em;
-      line-height: 1.07;
+      max-width: 100%; font-size: clamp(49px,10.7vw,75px);
+      line-height: 1.07; letter-spacing: -.065em;
     }
-    .machine-home .reframe-hero__intro { margin-top: 21px; font-size: 15px; line-height: 1.6; }
-    .machine-home .machine-hero__discipline { gap: 5px 9px; font-size: 9px; margin-top: 23px; }
-    .machine-home .machine-hero__actions { gap: 8px; margin-top: 24px; }
-    .machine-home .machine-action { min-height: 46px; padding: 11px 13px; gap: 20px; font-size: 9px; }
-    .machine-home .reframe-hero__note { margin-top: 22px; font-size: 11px; }
-    .machine-home .reframe-hero__visual { min-height: 375px; }
-    .machine-home .reframe-hero__view-label { top: 0; font-size: 8px; }
-    .machine-home .reframe-hero__screen {
-      height: 266px;
-      grid-template-rows: 33px minmax(0,1fr) 35px;
-      transform: none;
-      border-radius: 7px;
-    }
-    .machine-home .reframe-hero__screen-top,
-    .machine-home .reframe-hero__screen-bottom { padding-inline: 12px; font-size: 7px; }
-    .machine-home .reframe-hero__screen-caption { left: 16px; bottom: 23px; gap: 7px; }
-    .machine-home .reframe-hero__screen-caption strong { font-size: 44px; }
-    .machine-home .reframe-hero__screen-caption small { font-size: 8px; }
-    .machine-home .reframe-hero__screen-caption > span:last-child { font-size: 10px; }
-    .machine-home .reframe-hero__floating { padding: 10px 12px; gap: 4px; }
-    .machine-home .reframe-hero__floating span { font-size: 7px; }
-    .machine-home .reframe-hero__floating strong { font-size: 10px; }
-    .machine-home .reframe-hero__floating--upper { top: 1px; left: 0; transform: rotate(-3deg); }
-    .machine-home .reframe-hero__floating--lower { right: 0; bottom: 2px; transform: rotate(2deg); }
-    .machine-home .reframe-hero__floating--lower strong { font-size: 13px; }
-    .machine-home .reframe-hero__visual-foot { display: none; }
-    .machine-home .machine-hero__coordinates { margin-top: 12px; gap: 20px 12px; }
+    .machine-home .yor-hero-lede { margin-top: 25px; font-size: 15px; line-height: 1.66; }
+    .machine-home .machine-hero__discipline { margin-top: 20px; font-size: 9px; }
+    .machine-home .machine-hero__actions { margin-top: 26px; gap: 7px; }
+    .machine-home .machine-action { padding: 10px 12px; min-height: 46px; gap: 11px; font-size: 9px; }
+    .machine-home .yor-hero-aside { margin-top: 24px; }
+    .machine-home .yor-hero-grid { row-gap: 0; }
+    .machine-home .yor-studio__topline { font-size: 8px; }
+    .machine-home .yor-studio__viewport { height: 335px; }
+    .machine-home .yor-studio__hud { font-size: 7px; left: 13px; right: 13px; bottom: 13px; }
+    .machine-home .yor-studio__locations button { padding: 7px 8px; min-height: 41px; font-size: 9px; gap: 5px; }
+    .machine-home .yor-studio__description { align-items: flex-start; padding: 13px; gap: 9px; }
+    .machine-home .yor-studio__description strong { font-size: 14px; }
+    .machine-home .yor-studio__description p { font-size: 10px; }
+    .machine-home .yor-studio__description a { max-width: 112px; font-size: 8px; }
+    .machine-home .machine-hero__coordinates { margin-top: 26px; }
     .machine-home .machine-hero__coordinates strong { font-size: 10px; }
-    .machine-home .machine-hero__axis { display: none; }
-    .machine-home .machine-projects { padding-block: 80px; }
-    .machine-home .machine-section-heading h2 { font-size: clamp(40px, 9vw, 59px); }
+    .machine-home .machine-projects { padding-block: 72px; }
+    .machine-home .machine-section-heading h2 { font-size: clamp(40px,9vw,58px); }
     .machine-home .machine-section-heading > div > p { font-size: 14px; }
-    .machine-home .machine-projects__heading { margin-bottom: 33px; }
-    .machine-home .machine-project-grid { grid-template-columns: minmax(0,1fr); gap: 18px; }
+    .machine-home .machine-projects__heading { margin-bottom: 34px; }
+    .machine-home .machine-project-grid { grid-template-columns: 1fr; gap: 15px; }
     .machine-home .reframe-project,
     .machine-home .reframe-project:first-child,
     .machine-home .reframe-project:nth-child(2) { grid-column: 1; }
     .machine-home .machine-project__art,
     .machine-home .reframe-project:first-child .machine-project__art,
-    .machine-home .reframe-project:nth-child(2) .machine-project__art { min-height: 280px; }
-    .machine-home .machine-project__copy { padding: 23px; }
-    .machine-home .machine-project__title { font-size: 35px; }
-    .machine-home .machine-project__meta { padding: 13px 19px; font-size: 9px; }
-    .machine-home .reframe-work-outro { align-items: flex-start; flex-direction: column; gap: 19px; padding-top: 34px; }
-    .machine-home .machine-about { padding-block: 80px; }
-    .machine-home .machine-about .machine-section-heading > div > p { font-size: 18px; margin-top: 26px; }
+    .machine-home .reframe-project:nth-child(2) .machine-project__art { min-height: 275px; }
+    .machine-home .machine-project__copy { padding: 24px 20px 30px; }
+    .machine-home .machine-project__title { font-size: 36px; }
+    .machine-home .machine-project__meta { padding: 13px 18px; }
+    .machine-home .machine-project__meta > span:nth-child(2) { display: none; }
+    .machine-home .reframe-work-outro { align-items: flex-start; flex-direction: column; }
+    .machine-home .machine-about { padding-block: 75px; }
+    .machine-home .machine-about .machine-section-heading > div > p { font-size: 19px; }
     .machine-home .machine-about__facts { grid-template-columns: 1fr; }
     .machine-home .machine-about__facts > div,
-    .machine-home .machine-about__facts > div + div { padding: 17px 0; border-left: 0; border-bottom: 1px solid rgba(32,38,44,.15); }
-    .machine-home .machine-contact { padding-top: 85px; }
-    .machine-home .machine-contact h2 { font-size: clamp(43px, 10vw, 66px); margin: 32px 0; }
-    .machine-home .machine-contact__email { font-size: 19px; }
+    .machine-home .machine-about__facts > div + div {
+      padding: 17px 0; border-left: 0; border-bottom: 1px solid rgba(22,29,33,.13);
+    }
+    .machine-home .machine-contact h2 { font-size: clamp(45px,10.4vw,65px); }
+    .machine-home .machine-contact__email { font-size: clamp(18px,4.3vw,27px); }
   }
-
+  @media (max-width: 430px) {
+    .machine-home .machine-hero__statement { font-size: clamp(45px,11vw,54px); line-height: 1.1; }
+    .machine-home .yor-studio__viewport { height: 297px; }
+    .machine-home .yor-studio__description { flex-direction: column; }
+    .machine-home .yor-studio__description a { max-width: none; width: fit-content; }
+    .machine-home .yor-studio__fallback-monitor { padding: 6% 4%; }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .machine-home .reframe-hero__screen,
     .machine-home .reframe-project,
-    .machine-home .machine-action,
-    .machine-home .machine-project__art { transition: none; }
-    .machine-home .reframe-hero__screen:hover,
-    .machine-home .reframe-hero__screen:focus-visible,
+    .machine-home .machine-action { transition: none; }
     .machine-home .reframe-project:hover,
     .machine-home .machine-action:hover { transform: none; }
   }

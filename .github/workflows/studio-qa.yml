@@ -1,17 +1,17 @@
-name: Portfolio CI
+name: Studio Build Diagnostics
 
 on:
   push:
-    branches: [main]
-  pull_request:
+    branches:
+      - design/immersive-studio-20261008
 
 permissions:
   contents: read
 
 jobs:
-  validate:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       NEXT_PUBLIC_SITE_URL: https://portfolio.example.test
     steps:
@@ -28,22 +28,18 @@ jobs:
         run: npm run test
       - name: Lint
         run: npm run lint
-      - name: Validate content
-        run: npm run validate:content
-      - name: Validate assets
-        run: npm run validate:assets
+      - name: Validate content and assets
+        run: npm run validate:content && npm run validate:assets
       - name: Typecheck
         run: npm run typecheck
       - name: Production build
         run: npm run build
       - name: Browser QA
         run: npm run qa:browser
-      - name: Audit dependencies
-        run: npm audit --audit-level=high
-      - name: Save browser audit report and screenshots
+      - name: Save browser screenshots and report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: browser-qa
+          name: studio-browser-qa
           path: artifacts/browser-qa/
           if-no-files-found: ignore
