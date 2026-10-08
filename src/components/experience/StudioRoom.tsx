@@ -54,7 +54,7 @@ export function StudioRoom() {
     const probe = document.createElement("canvas");
     let available = false;
     try {
-      const context = probe.getContext("webgl2", { failIfMajorPerformanceCaveat: true });
+      const context = probe.getContext("webgl2");
       available = Boolean(context);
       context?.getExtension("WEBGL_lose_context")?.loseContext();
     } catch {
