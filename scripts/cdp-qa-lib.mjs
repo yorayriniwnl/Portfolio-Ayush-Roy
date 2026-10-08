@@ -19,7 +19,7 @@ export const QA_VIEWPORTS = [
 export const QA_PROJECT_SLUGS = ["candidatex", "zenith", "helios", "ai-vs-real", "talks", "portfolio"];
 
 export const QA_CORE_ROUTES = [
-  { path: "/", label: "home", surface: "home", requiredHeading: "I BUILD SYSTEMS THAT MOVE." },
+  { path: "/", label: "home", surface: "home", requiredHeading: "I build things that feel alive." },
   { path: "/projects", label: "project-index", surface: "project-index", requiredHeading: "Projects with receipts." },
   ...[
     ["candidatex", "CandidateX"],
