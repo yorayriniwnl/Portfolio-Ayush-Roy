@@ -432,10 +432,27 @@ try {
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "editorial homepage visible" });
-  const noHomeGpu = await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas, .yor-studio__viewport canvas').length === 0`);
-  assert(noHomeGpu, "Reference homepage should not create duplicate GPU scenes");
+  // The original interactive room is back. It is the homepage's only GPU
+  // surface, distinct from the persistent project-world renderer.
+  const studioCanvas = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio__viewport canvas') ? true : null`,
+    { timeoutMs: 18_000, description: "restored WebGL studio canvas" });
+  assert(studioCanvas.value, "Restored 3D workspace did not render in GPU-capable browser");
+  const homeGpu = await cdp.evaluate(`({
+    studioCanvases: document.querySelectorAll('.yor-studio__viewport canvas').length,
+    projectCanvases: document.querySelectorAll('.machine-canvas canvas').length,
+    sceneLayers: document.querySelectorAll('.machine-scene-layer').length,
+    controls: document.querySelectorAll('.yor-studio__locations button').length
+  })`);
+  assert(homeGpu.studioCanvases === 1 && homeGpu.projectCanvases === 0 && homeGpu.sceneLayers === 0,
+    `Homepage has missing or duplicate GPU layers: ${JSON.stringify(homeGpu)}`);
+  assert(homeGpu.controls === 4, "Studio camera presets are incomplete");
+  await clickAtSelector('.yor-studio__locations button:nth-child(2)');
+  assert(await cdp.evaluate(`document.querySelector('.yor-studio__locations button:nth-child(2)')?.getAttribute('aria-pressed') === 'true'`),
+    "Avatar camera preset did not activate");
+  await clickAtSelector('.yor-studio__locations button:nth-child(1)');
   const boardReady = await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-skills__matrix'))`, { description: "interactive technology keyboard" });
-  report.rendering.home = { sceneLayers: 0, canvases: 0, skillsReady: Boolean(boardReady.value) };
+  report.rendering.home = { ...homeGpu, skillsReady: Boolean(boardReady.value), restoredInteractiveStudio: true };
   await capture(cdp, outputDir, "desktop-hero");
   report.performance.samples.push({ path: "/", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
 
