@@ -6,7 +6,6 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
   const homepage = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
   const hero = readFileSync("src/components/experience/StudioHero.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
-  const scene = readFileSync("src/components/experience/StudioScene.tsx", "utf8");
   const runtime = readFileSync("src/experience/ExperienceRuntime.tsx", "utf8");
   assert.match(homepage, /<StudioHero \/>/);
   assert.match(hero, /<StudioRoom \/>/);
