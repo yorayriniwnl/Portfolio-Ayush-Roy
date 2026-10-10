@@ -51,6 +51,7 @@ export function StudioRoom() {
   const [allowed, setAllowed] = useState(true);
   const [graphicsAvailable, setGraphicsAvailable] = useState(false);
   const [lightsOn, setLightsOn] = useState(true);
+  const [photoMode, setPhotoMode] = useState(false);
   const [blindsOpen, setBlindsOpen] = useState(true);
   const [paintingBeat, setPaintingBeat] = useState(0);
   const [secretFound, setSecretFound] = useState(false);
@@ -141,9 +142,19 @@ export function StudioRoom() {
     return () => observer.disconnect();
   }, []);
 
+  // Scene-only mode lets the workstation art breathe; Escape restores its controls.
+  useEffect(() => {
+    if (!photoMode) return;
+    const exitPhotoMode = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPhotoMode(false);
+    };
+    window.addEventListener("keydown", exitPhotoMode);
+    return () => window.removeEventListener("keydown", exitPhotoMode);
+  }, [photoMode]);
+
   const selectedItem = destinations[selected];
   return (
-    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)} data-intro-sequence={introSequence} data-blinds-open={String(blindsOpen)} data-painting-beat={paintingBeat} data-console-open={String(consoleOpen)} data-secret-found={String(secretFound)}>
+    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)} data-intro-sequence={introSequence} data-blinds-open={String(blindsOpen)} data-painting-beat={paintingBeat} data-console-open={String(consoleOpen)} data-secret-found={String(secretFound)} data-photo-mode={String(photoMode)}>
       <div className="yor-studio__topline">
         <span><i className="yor-studio__pulse"/> ROOM ONLINE / STUDIO_001</span>
         <div className="yor-studio__utilities">
@@ -163,6 +174,12 @@ export function StudioRoom() {
           <div className="yor-studio__fallback-drawer"/>
           <div className="yor-studio__fallback-lamp"/>
         </div>
+        <button type="button" className="yor-studio__photo-toggle"
+          aria-pressed={photoMode}
+          aria-label={photoMode ? "Exit distraction-free room view" : "View the full studio without interface overlays"}
+          onClick={() => { if (!photoMode) { setConsoleOpen(false); setHoveredObject(null); } setPhotoMode(value => !value); }}>
+          {photoMode ? "↙ EXIT SCENE VIEW" : "✧ FULL SCENE"}
+        </button>
         {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} onReady={announceReady}/></StudioErrorBoundary>}
         {hoveredObject && !consoleOpen && <div className="yor-studio__hover-label" aria-hidden="true">
           {hoveredObject === "monitor" ? "OPEN PROJECT LAUNCHER" : hoveredObject === "painting" ? "TILT WALL ART" :
