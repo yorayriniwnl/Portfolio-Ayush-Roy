@@ -115,7 +115,7 @@ test("the workstation launcher is evidence-first and dismissible from keyboard",
 test("actual GLB fills the opening cinematic stage instead of an editorial side card", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
   const css = readFileSync("src/styles/studio-revival.css","utf8");
-  assert.match(scene,/work: \{ eye: \[1\.49,1\.74,1\.92\]/);
+  assert.match(scene,/work: \{ eye: \[1\.30,1\.67,1\.28\]/);
   assert.match(scene,/gl\.toneMappingExposure=\.72/);
   assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
   assert.match(scene,/<pointLight position=\{\[0,2\.05,-1\.5\]\}/);
