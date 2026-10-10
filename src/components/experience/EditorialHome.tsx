@@ -64,7 +64,7 @@ export function EditorialHome() {
         <div className="editorial-hero__topline"><span>PORTFOLIO / 2026</span><span className="editorial-availability"><span /> OPEN TO SOFTWARE ENGINEERING ROLES</span></div>
         <div className="editorial-hero__layout">
           <div className="editorial-hero__copy">
-            <p className="editorial-overline">HELLO, I'M AYUSH ROY. I MAKE THINGS WORK.</p>
+            <p className="editorial-overline">HELLO, I&apos;M AYUSH ROY. I MAKE THINGS WORK.</p>
             <h1 id="editorial-title" data-essential-copy>Full Stack<br /><em>Developer.</em></h1>
             <p className="editorial-hero__lede" data-essential-copy>Backend-first thinking. Frontend with feeling. I build ambitious software and turn complicated ideas into things people enjoy using.</p>
             <div className="editorial-hero__actions">
@@ -80,7 +80,7 @@ export function EditorialHome() {
       <section id="about" className="editorial-about editorial-section editorial-wrap" aria-labelledby="editorial-about-title" data-experience-section="about">
         <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 01 / GET TO KNOW ME</div>
         <div className="editorial-about__grid">
-          <h2 id="editorial-about-title" data-essential-copy>Hi, I'm <em>Ayush.</em></h2>
+          <h2 id="editorial-about-title" data-essential-copy>Hi, I&apos;m <em>Ayush.</em></h2>
           <div className="editorial-about__body">
             <p>I&apos;m a software engineer who enjoys the interesting part of building: making tricky systems understandable, useful and a little delightful.</p>
             <p>From evidence-first assessment tools and real-time social platforms to energy dashboards, I like getting into the details without losing sight of the people who use the product.</p>
@@ -99,7 +99,7 @@ export function EditorialHome() {
         <div className="editorial-experience__timeline">
           <article><span className="editorial-year">2023</span><div><span className="editorial-timeline__tag">THE FOUNDATION</span><h3>Started engineering.</h3><p>Computer Science and Communication Engineering at KIIT. A steady obsession with how software works.</p></div></article>
           <article><span className="editorial-year">2026</span><div><span className="editorial-timeline__tag">BUILDING IN PUBLIC</span><h3>From experiments to systems.</h3><p>Worked on backend services, full-stack products, applied ML and interactive experiences, with source-backed case studies.</p></div></article>
-          <article><span className="editorial-year">2027</span><div><span className="editorial-timeline__tag">WHAT'S NEXT</span><h3>Graduate. Keep building.</h3><p>Expected graduation. Looking for meaningful software engineering challenges and teammates who care about craft.</p></div></article>
+          <article><span className="editorial-year">2027</span><div><span className="editorial-timeline__tag">WHAT&apos;S NEXT</span><h3>Graduate. Keep building.</h3><p>Expected graduation. Looking for meaningful software engineering challenges and teammates who care about craft.</p></div></article>
         </div>
       </section>
 
@@ -115,7 +115,7 @@ export function EditorialHome() {
 
       <section id="contact" className="editorial-contact editorial-section editorial-wrap" aria-labelledby="editorial-contact-title" data-experience-section="contact">
         <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 06 / SAY HELLO</div>
-        <div className="editorial-contact__inner"><div><p>Have an idea, a role or a good question?</p><h2 id="editorial-contact-title" data-essential-copy>Let's make<br /><em>something happen.</em></h2></div><a className="editorial-contact__arrow" href={`mailto:${profile.email}`} aria-label="Email Ayush Roy">↗</a></div>
+        <div className="editorial-contact__inner"><div><p>Have an idea, a role or a good question?</p><h2 id="editorial-contact-title" data-essential-copy>Let&apos;s make<br /><em>something happen.</em></h2></div><a className="editorial-contact__arrow" href={`mailto:${profile.email}`} aria-label="Email Ayush Roy">↗</a></div>
         <div className="editorial-contact__footer"><a href={`mailto:${profile.email}`}>{profile.email}</a><div><a href={profile.links.github} target="_blank" rel="noopener noreferrer">GITHUB ↗</a><a href={profile.links.linkedin} target="_blank" rel="noopener noreferrer">LINKEDIN ↗</a><Link href="/resume">RÉSUMÉ ↗</Link></div><span>© 2026 AYUSH ROY</span></div>
       </section>
     </main>
