@@ -198,7 +198,7 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   .yor-world-hero__eyebrow { grid-column:1/-1; }
   .yor-world-hero__intro { grid-column:1; grid-row:2; grid-template-columns:1fr; padding:clamp(80px,11vw,170px) 0 30px; }
   .yor-world-hero__ornament { display:none; }
-  .editorial-home .yor-world-hero h1 { font-size:clamp(67px,6.65vw,106px); }
+  .editorial-home .yor-world-hero h1 { font-size:clamp(55px,5.3vw,86px); }
   .yor-world-hero__description { margin-top:32px; font-size:clamp(15px,1.25vw,18px); }
   .yor-world-hero__studio.machine-home { grid-column:2; grid-row:2; padding-top:30px; }
   .yor-world-hero__studio .yor-studio__viewport { height:clamp(485px,45vw,695px); }
