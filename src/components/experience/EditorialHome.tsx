@@ -60,7 +60,7 @@ export function EditorialHome() {
           <div className="ref-hero-track">
             <div className="ref-eyebrow"><span className="ref-flower" aria-hidden="true">✳</span> PORTFOLIO / EST. 2026 <span className="ref-hero-line"/></div>
             <p className="ref-handwriting">Hello there! I&apos;m Ayush <span aria-hidden="true">↗</span></p>
-            <h1 id="ref-hero-title" className="ref-hero-title" data-essential-copy>Full Stack<br /><em>Developer.</em></h1>
+            <h1 id="ref-hero-title" className="ref-hero-title" data-essential-copy>Full Stack{" "}<br /><em>Developer.</em></h1>
             <p className="ref-hero-intro" data-essential-copy>Building thoughtful digital experiences, from powerful backends to the little details that make products feel human.</p>
             <div className="ref-hero-actions">
               <a href="#projects" className="ref-button ref-button-primary">Explore my work <Arrow diagonal /></a>
