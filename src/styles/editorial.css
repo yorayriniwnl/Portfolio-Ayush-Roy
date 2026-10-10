@@ -152,10 +152,10 @@
 
 /* Use the original accessible navigation while matching the editorial visual language. */
 body:has(.editorial-home) { background: #f6f3e9; color: #25252f; }
-body:has(.editorial-home) header[class*="SiteNav_header"] { background: rgba(249,248,238,.94); border-color: rgba(38,39,46,.13); backdrop-filter: blur(17px); }
-body:has(.editorial-home) header[class*="SiteNav_header"] a { color: #292933; }
-body:has(.editorial-home) header[class*="SiteNav_header"] a[aria-current="page"] { color: #32323b; }
-body:has(.editorial-home) header[class*="SiteNav_header"] button { color: #292933; border-color: rgba(35,36,43,.35); }
+body:has(.editorial-home) header { background: rgba(249,248,238,.94); border-color: rgba(38,39,46,.13); backdrop-filter: blur(17px); }
+body:has(.editorial-home) header a { color: #292933; }
+body:has(.editorial-home) header a[aria-current="page"] { color: #32323b; }
+body:has(.editorial-home) header button { color: #292933; border-color: rgba(35,36,43,.35); }
 body:has(.editorial-home) nav[id="mobile-nav"][data-open="true"] { background: #f9f8ee; }
 body:has(.editorial-home) nav[id="mobile-nav"] a { color: #292933; }
 
