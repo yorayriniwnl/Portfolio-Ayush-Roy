@@ -169,7 +169,7 @@ export function StudioRoom() {
             hoveredObject === "blinds" ? "TOGGLE WINDOW BLINDS" : hoveredObject === "lights" ? "TOGGLE STUDIO LIGHTS" :
             hoveredObject === "avatar" ? "GREET THE CREATOR" : hoveredObject === "door" ? "OPEN THE DOOR" : "EXPLORE THE LAB"}
         </div>}
-        {consoleOpen && <section className="yor-studio__console" role="dialog" aria-labelledby="yor-room-console-title" aria-describedby="yor-room-console-desc">
+        {consoleOpen && <section className="yor-studio__console" id="yor-room-console" role="dialog" aria-labelledby="yor-room-console-title" aria-describedby="yor-room-console-desc">
           <div className="yor-studio__console-top"><span>YOR.OS / PROJECT LAUNCHER</span><button ref={consoleCloseButton} type="button" onClick={closeConsole} aria-label="Close workstation launcher">✕ CLOSE</button></div>
           <h2 id="yor-room-console-title">Select a world<span>.</span></h2>
           <p id="yor-room-console-desc">Real projects, real engineering decisions. Open a case study to explore the evidence.</p>
@@ -186,7 +186,7 @@ export function StudioRoom() {
         <div className="yor-studio__corner yor-studio__corner--tl"/><div className="yor-studio__corner yor-studio__corner--br"/>
       </div>
       <div className="yor-studio__actions" aria-label="Interactive room controls">
-        <button ref={consoleButton} type="button" onClick={() => activateObject("monitor")} aria-expanded={consoleOpen} aria-controls="yor-room-console-title"><span aria-hidden="true">⌘</span> OPEN WORKSTATION</button>
+        <button ref={consoleButton} type="button" onClick={() => activateObject("monitor")} aria-expanded={consoleOpen} aria-controls="yor-room-console"><span aria-hidden="true">⌘</span> OPEN WORKSTATION</button>
         <button type="button" onClick={() => activateObject("blinds")} aria-pressed={!blindsOpen}><span aria-hidden="true">◪</span> BLINDS {blindsOpen ? "OPEN" : "CLOSED"}</button>
         <button type="button" onClick={() => activateObject("painting")}><span aria-hidden="true">✳</span> TILT ART</button>
         <button type="button" onClick={() => activateObject("avatar")}><span aria-hidden="true">↗</span> GREET CREATOR</button>
