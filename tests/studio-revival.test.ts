@@ -115,7 +115,7 @@ test("the workstation launcher is evidence-first and dismissible from keyboard",
 test("actual GLB fills the opening cinematic stage instead of an editorial side card", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
   const css = readFileSync("src/styles/studio-revival.css","utf8");
-  assert.match(scene,/work: \{ eye: \[-0\.68,1\.60,1\.18\]/);
+  assert.match(scene,/work: \{ eye: \[-0\.82,1\.72,1\.50\]/);
   assert.match(scene,/gl\.toneMappingExposure=\.95/);
   assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
   assert.match(scene,/function StudioHexLights/);
@@ -137,7 +137,7 @@ test("studio prioritizes the reference-backed wide camera and pastel daylight ov
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const css = readFileSync("src/styles/studio-revival.css", "utf8");
-  assert.match(scene, /look: \[0\.04,1\.18,-1\.23\]/);
+  assert.match(scene, /look: \[0\.04,1\.30,-1\.23\]/);
   assert.match(scene, /ambientLight intensity=\{\.49\}/);
   assert.match(scene, /THREE\.AdditiveBlending/);
   assert.match(room, /data-photo-mode=\{String\(photoMode\)\}/);
@@ -177,4 +177,13 @@ test("reference dressing uses modeled RGB fans, gamepads and trailing vines, not
   assert.match(scene, /<StudioReferenceDressing lightsOn=\{lightsOn\}/);
   assert.match(scene, /\[-\.57,2\.38,"#dfaeff"\]/);
   assert.match(css, /Second-stage art pass:/);
+});
+
+test("reference composition keeps the whole workstation visible without covering desktop content", () => {
+  const scene=readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  const css=readFileSync("src/styles/studio-revival.css","utf8");
+  assert.match(scene, /targetFov = portrait \? 64 : 55/);
+  assert.match(scene, /portraitDeskEye = useMemo\(\(\) => new THREE.Vector3\(-\.42,1\.65,1\.85\)/);
+  assert.match(css, /Room-first editorial strip/);
+  assert.match(css, /grid-column:1;grid-row:3;margin-top:0/);
 });
