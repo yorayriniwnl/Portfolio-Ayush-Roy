@@ -2,6 +2,7 @@ import Link from "next/link";
 import { profile } from "@/content/profile";
 import { recruiterProjects } from "@/content/project-registry";
 import { EditorialSkills, EditorialWork } from "./EditorialInteractive";
+import { StudioHero } from "./StudioHero";
 
 const portfolioCards = recruiterProjects.map((project) => ({
   slug: project.slug,
@@ -59,23 +60,7 @@ function EditorialPortrait() {
 export function EditorialHome() {
   return (
     <main id="main" className="editorial-home">
-      <section className="editorial-hero editorial-wrap" aria-labelledby="editorial-title" data-experience-section="identity">
-        <div className="editorial-hero__ghost" aria-hidden="true">AYUSH</div>
-        <div className="editorial-hero__topline"><span>PORTFOLIO / 2026</span><span className="editorial-availability"><span /> OPEN TO SOFTWARE ENGINEERING ROLES</span></div>
-        <div className="editorial-hero__layout">
-          <div className="editorial-hero__copy">
-            <p className="editorial-overline">HELLO, I&apos;M AYUSH ROY. I MAKE THINGS WORK.</p>
-            <h1 id="editorial-title" data-essential-copy>Full Stack<br /><em>Developer.</em></h1>
-            <p className="editorial-hero__lede" data-essential-copy>Backend-first thinking. Frontend with feeling. I build ambitious software and turn complicated ideas into things people enjoy using.</p>
-            <div className="editorial-hero__actions">
-              <a className="editorial-pill editorial-pill--dark" href="#projects">Explore my work <span aria-hidden="true">↗</span></a>
-              <Link className="editorial-text-link" href="/resume">View résumé <span aria-hidden="true">↗</span></Link>
-            </div>
-          </div>
-          <EditorialPortrait />
-        </div>
-        <div className="editorial-hero__footer"><span>BASED IN BHUBANESWAR, INDIA</span><a href="#about">SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a><span>© YOR / AYUSH ROY</span></div>
-      </section>
+      <StudioHero />
 
       <section id="about" className="editorial-about editorial-section editorial-wrap" aria-labelledby="editorial-about-title" data-experience-section="about">
         <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 01 / GET TO KNOW ME</div>
