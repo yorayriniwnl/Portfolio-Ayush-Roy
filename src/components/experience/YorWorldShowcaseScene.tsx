@@ -1,11 +1,13 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef } from "react";
-import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StudioTarget } from "./StudioScene";
+import { StudioWalkCamera } from "./StudioWalkCamera";
+import type { WalkPoint, WalkDirection } from "./StudioWalk";
 
 export type StudioObjectAction = "monitor" | "painting" | "blinds" | "lights" | "avatar" | "door" | "skills";
 function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): StudioObjectAction | null {
@@ -26,55 +28,24 @@ function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): Studi
   return null;
 }
 
-/* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
- * from the connected Yor-World production assets. No CSS 3D substitution. */
-const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
-  work: { eye: [1.15,1.78,1.36], look: [0,1.1,-.83] },
-  about: { eye: [1.12,1.5,.82], look: [.3,.88,-.36] },
-  lab: { eye: [.6,1.65,.68], look: [1.92,1.5,-.4] },
-  contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
-};
-
-function WorldCamera({ selected, introSequence }: { selected: StudioTarget; introSequence: number }) {
-  const target = useRef(new THREE.Vector3(...CAMERA.work.look));
-  const entryTime = useRef<number | null>(null);
-  const { camera } = useThree();
-  const doorEye = useMemo(() => new THREE.Vector3(...CAMERA.contact.eye), []);
-  const doorLook = useMemo(() => new THREE.Vector3(...CAMERA.contact.look), []);
-  const deskEye = useMemo(() => new THREE.Vector3(...CAMERA.work.eye), []);
-  const deskLook = useMemo(() => new THREE.Vector3(...CAMERA.work.look), []);
-  useEffect(() => { entryTime.current = introSequence > 0 ? 0 : null; }, [introSequence]);
-  useFrame((_, delta) => {
-    if (entryTime.current !== null) {
-      const elapsed = entryTime.current + Math.min(delta,.06);
-      entryTime.current = elapsed;
-      const progress = THREE.MathUtils.clamp((elapsed - .75) / 3.7, 0, 1);
-      const eased = progress * progress * (3 - 2 * progress);
-      camera.position.copy(doorEye).lerp(deskEye,eased);
-      target.current.copy(doorLook).lerp(deskLook,eased);
-      camera.lookAt(target.current);
-      if (elapsed >= 5) entryTime.current = null;
-      return;
-    }
-    const weight = 1 - Math.exp(-2.4 * Math.min(delta,.05));
-    const config = CAMERA[selected];
-    camera.position.lerp(new THREE.Vector3(...config.eye),weight);
-    target.current.lerp(new THREE.Vector3(...config.look),weight);
-    camera.lookAt(target.current);
-  });
-  return null;
-}
-
-function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selected, lightsOn, blindsOpen, paintingBeat, introSequence, onReady }: {
+/* Original YOR WORLD GLBs are preserved; camera direction and safe walkmesh
+ * live in StudioWalkCamera, not in the imported model hierarchy. */
+function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, onWalkTo, onWalkStep, selected, lightsOn, blindsOpen, paintingBeat, introSequence, roaming, paused, walkTarget, touchDirection, onReady }: {
   onSelect: (target:StudioTarget)=>void;
   onToggleLights:()=>void;
   onInteract:(action:StudioObjectAction)=>void;
   onHover:(action:StudioObjectAction | null)=>void;
+  onWalkTo:(point:WalkPoint)=>void;
+  onWalkStep:(point:WalkPoint)=>void;
   selected:StudioTarget;
   lightsOn:boolean;
   blindsOpen:boolean;
   paintingBeat:number;
   introSequence:number;
+  roaming:boolean;
+  paused:boolean;
+  walkTarget:(WalkPoint & {id:number}) | null;
+  touchDirection:WalkDirection | null;
   onReady:()=>void;
 }) {
   const [world, resident, fixture] = useLoader(GLTFLoader, [
@@ -202,13 +173,21 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
   },[lightsOn,lightNodes]);
 
   const choose = (event:ThreeEvent<MouseEvent>) => {
+    if (event.delta > 7) return;
     const target = identifyRoomObject(event.object,group);
-    if (!target) return;
+    if (!target) {
+      const point=new THREE.Vector3();
+      if(event.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),point)) {
+        (event.nativeEvent.target as HTMLElement)?.focus?.({preventScroll:true});
+        onWalkTo({x:point.x,z:point.z});
+      }
+      return;
+    }
     event.stopPropagation();
     if (target === "lights") onToggleLights();
-    else if (target === "avatar") onSelect("about");
-    else if (target === "door") onSelect("contact");
-    else if (target === "skills") onSelect("lab");
+    else if (target === "avatar") { if(roaming) onInteract("avatar"); else onSelect("about"); }
+    else if (target === "door") { if(roaming) onInteract("door"); else onSelect("contact"); }
+    else if (target === "skills") { if(roaming) onInteract("skills"); else onSelect("lab"); }
     else onInteract(target);
   };
   const hover = (event:ThreeEvent<PointerEvent>) => {
@@ -222,7 +201,20 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
       <ambientLight intensity={.24} color="#f9f6ff"/>
       <hemisphereLight args={["#eceaff","#9ca8c9",.3]}/>
       <directionalLight position={[4,7,5]} intensity={.4} color="#f9f5ff"/>
-      <WorldCamera selected={selected} introSequence={introSequence}/>
+      <StudioWalkCamera selected={selected} introSequence={introSequence}
+        roaming={roaming} paused={paused} walkTarget={walkTarget}
+        touchDirection={touchDirection} onWalkStep={onWalkStep}/>
+      {/* Invisible ground hit surface. Room meshes remain clickable above it. */}
+      <mesh rotation={[-Math.PI/2,0,0]} position={[0,.008,0]}
+        onClick={(event:ThreeEvent<MouseEvent>) => {
+          if(event.delta>7)return;
+          event.stopPropagation();
+          (event.nativeEvent.target as HTMLElement)?.focus?.({preventScroll:true});
+          onWalkTo({x:event.point.x,z:event.point.z});
+        }}>
+        <planeGeometry args={[3.9,3.35]}/>
+        <meshBasicMaterial transparent opacity={0} depthWrite={false}/>
+      </mesh>
       <primitive object={group} onClick={choose}
         onPointerOver={hover}
         onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>
@@ -230,28 +222,36 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
   );
 }
 
-export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleLights, selected, lightsOn, blindsOpen, paintingBeat, introSequence, onReady }: {
+export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleLights, onWalkTo, onWalkStep, selected, lightsOn, blindsOpen, paintingBeat, introSequence, roaming, paused, walkTarget, touchDirection, onReady }: {
   onSelect:(target:StudioTarget)=>void;
   onToggleLights:()=>void;
   onInteract:(action:StudioObjectAction)=>void;
   onHover:(action:StudioObjectAction | null)=>void;
+  onWalkTo:(point:WalkPoint)=>void;
+  onWalkStep:(point:WalkPoint)=>void;
   selected:StudioTarget;
   lightsOn:boolean;
   blindsOpen:boolean;
   paintingBeat:number;
   introSequence:number;
+  roaming:boolean;
+  paused:boolean;
+  walkTarget:(WalkPoint & {id:number}) | null;
+  touchDirection:WalkDirection | null;
   onReady:()=>void;
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
     <Canvas camera={{position:[1.15,1.78,1.36],fov:54,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
-      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.85; }}
+      onCreated={({gl})=>{ gl.domElement.tabIndex=0; gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.85; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
       <Suspense fallback={null}>
         <AuthenticYorRoom onSelect={onSelect} onInteract={onInteract} onHover={onHover} onToggleLights={onToggleLights}
+          onWalkTo={onWalkTo} onWalkStep={onWalkStep}
           selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen}
-          paintingBeat={paintingBeat} introSequence={introSequence} onReady={onReady}/>
+          paintingBeat={paintingBeat} introSequence={introSequence}
+          roaming={roaming} paused={paused} walkTarget={walkTarget} touchDirection={touchDirection} onReady={onReady}/>
       </Suspense>
     </Canvas>
   );

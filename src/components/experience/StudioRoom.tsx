@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type { StudioTarget } from "./StudioScene";
 import type { StudioObjectAction } from "./YorWorldShowcaseScene";
+import { isWalkable, type WalkPoint, type WalkDirection } from "./StudioWalk";
 import { recruiterProjects } from "@/content/project-registry";
 
 const Scene = dynamic(
@@ -56,14 +57,40 @@ export function StudioRoom() {
   const [secretFound, setSecretFound] = useState(false);
   const [consoleOpen, setConsoleOpen] = useState(false);
   const [hoveredObject, setHoveredObject] = useState<StudioObjectAction | null>(null);
+  const [roaming, setRoaming] = useState(false);
+  const [touchDirection, setTouchDirection] = useState<WalkDirection | null>(null);
+  const [walkTarget, setWalkTarget] = useState<(WalkPoint & { id:number }) | null>(null);
+  const walkId = useRef(0);
   const [introSequence, setIntroSequence] = useState(0);
   const [roomReady, setRoomReady] = useState(false);
   const [roomFailed, setRoomFailed] = useState(false);
   const announceReady = useCallback(() => setRoomReady(true), []);
   const reportFailed = useCallback(() => setRoomFailed(true), []);
   const toggleLights = useCallback(() => setLightsOn((value)=>!value), []);
-  const selectTarget = useCallback((target: StudioTarget) => { setSelected(target); setIntroSequence(0); setConsoleOpen(false); }, []);
-  const playIntro = useCallback(() => { setSelected("work"); setConsoleOpen(false); setIntroSequence((value) => value + 1); }, []);
+  const selectTarget = useCallback((target: StudioTarget) => {
+    setSelected(target); setIntroSequence(0); setConsoleOpen(false);
+    setRoaming(false); setWalkTarget(null); setTouchDirection(null);
+  }, []);
+  const playIntro = useCallback(() => {
+    setSelected("work"); setConsoleOpen(false); setRoaming(false); setWalkTarget(null); setTouchDirection(null);
+    setIntroSequence((value) => value + 1);
+  }, []);
+  const toggleRoam = useCallback(() => {
+    setRoaming(current => !current);setWalkTarget(null);setTouchDirection(null);setIntroSequence(0);
+  },[]);
+  const walkToPoint = useCallback((point:WalkPoint) => {
+    setIntroSequence(0);setConsoleOpen(false);setRoaming(true);
+    const id=++walkId.current;
+    if(root.current)root.current.dataset.walkTargetId=String(id);
+    setWalkTarget({...point,id});
+  },[]);
+  const reportWalk = useCallback((position:WalkPoint) => {
+    if (root.current) {
+      root.current.dataset.walkX=position.x.toFixed(3);
+      root.current.dataset.walkZ=position.z.toFixed(3);
+      root.current.dataset.walkable=String(isWalkable(position.x,position.z));
+    }
+  },[]);
   const closeConsole = useCallback(() => { setConsoleOpen(false); window.requestAnimationFrame(() => consoleButton.current?.focus()); }, []);
   const activateObject = useCallback((object: StudioObjectAction) => {
     if (object === "lights") setLightsOn(current => !current);
@@ -80,10 +107,10 @@ export function StudioRoom() {
       setIntroSequence(0);
       setConsoleOpen(true);
     }
-    if (object === "avatar") selectTarget("about");
-    if (object === "door") selectTarget("contact");
-    if (object === "skills") selectTarget("lab");
-  }, [selectTarget]);
+    if (object === "avatar") { setSelected("about"); if (!roaming) selectTarget("about"); }
+    if (object === "door") { setSelected("contact"); if (!roaming) selectTarget("contact"); }
+    if (object === "skills") { setSelected("lab"); if (!roaming) selectTarget("lab"); }
+  }, [selectTarget, roaming]);
   useEffect(() => {
     if (!consoleOpen) return;
     const frame = window.requestAnimationFrame(() => consoleCloseButton.current?.focus());
@@ -93,6 +120,16 @@ export function StudioRoom() {
     window.addEventListener("keydown", onKey);
     return () => { window.cancelAnimationFrame(frame); window.removeEventListener("keydown", onKey); };
   }, [consoleOpen, closeConsole]);
+
+  useEffect(() => {
+    if(!roaming || consoleOpen) return;
+    const onEscape=(event:KeyboardEvent)=>{
+      if(event.key!=="Escape" || !document.activeElement?.closest(".yor-studio"))return;
+      event.preventDefault();setRoaming(false);setWalkTarget(null);setTouchDirection(null);
+    };
+    window.addEventListener("keydown",onEscape);
+    return ()=>window.removeEventListener("keydown",onEscape);
+  },[roaming,consoleOpen]);
 
   useEffect(() => {
     const handleStudioLink = () => { if (window.location.hash === "#studio") playIntro(); };
@@ -143,7 +180,7 @@ export function StudioRoom() {
 
   const selectedItem = destinations[selected];
   return (
-    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)} data-intro-sequence={introSequence} data-blinds-open={String(blindsOpen)} data-painting-beat={paintingBeat} data-console-open={String(consoleOpen)} data-secret-found={String(secretFound)}>
+    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)} data-intro-sequence={introSequence} data-blinds-open={String(blindsOpen)} data-painting-beat={paintingBeat} data-console-open={String(consoleOpen)} data-secret-found={String(secretFound)} data-roaming={String(roaming)}>
       <div className="yor-studio__topline">
         <span><i className="yor-studio__pulse"/> ROOM ONLINE / STUDIO_001</span>
         <div className="yor-studio__utilities">
@@ -154,7 +191,7 @@ export function StudioRoom() {
           <button type="button" onClick={playIntro} aria-label="Replay doorway entrance animation">↺ REPLAY ENTRY</button>
         </div>
       </div>
-      <div className="yor-studio__viewport">
+      <div className="yor-studio__viewport" data-walkable-room aria-label="3D studio viewport. Use Walk Room, then WASD and mouse drag, or click the floor to travel.">
         <div className="yor-studio__fallback" aria-hidden="true">
           <div className="yor-studio__fallback-light"/>
           <div className="yor-studio__fallback-window"/>
@@ -163,7 +200,7 @@ export function StudioRoom() {
           <div className="yor-studio__fallback-drawer"/>
           <div className="yor-studio__fallback-lamp"/>
         </div>
-        {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} onReady={announceReady}/></StudioErrorBoundary>}
+        {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} onWalkTo={walkToPoint} onWalkStep={reportWalk} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} roaming={roaming} paused={consoleOpen} walkTarget={walkTarget} touchDirection={touchDirection} onReady={announceReady}/></StudioErrorBoundary>}
         {hoveredObject && !consoleOpen && <div className="yor-studio__hover-label" aria-hidden="true">
           {hoveredObject === "monitor" ? "OPEN PROJECT LAUNCHER" : hoveredObject === "painting" ? "TILT WALL ART" :
             hoveredObject === "blinds" ? "TOGGLE WINDOW BLINDS" : hoveredObject === "lights" ? "TOGGLE STUDIO LIGHTS" :
@@ -180,12 +217,33 @@ export function StudioRoom() {
           </div>
           <div className="yor-studio__console-foot"><span>06 SYSTEMS / DIRECT ACCESS</span><Link href="/projects">ALL PROJECTS ↗</Link></div>
         </section>}
+        {roaming && !consoleOpen && <div className="yor-studio__touch-pad" aria-label="Touch controls for walking through the room">
+          {(["forward","left","back","right"] as const).map(direction=>
+            <button key={direction} type="button" aria-label={`Walk ${direction}`}
+              className={`yor-studio__touch-${direction}`} aria-pressed={touchDirection===direction}
+              onPointerDown={event=>{setTouchDirection(direction);try{event.currentTarget.setPointerCapture(event.pointerId);}catch{/* Unsupported synthetic pointer capture still permits movement. */}}}
+              onPointerUp={()=>setTouchDirection(null)}
+              onPointerCancel={()=>setTouchDirection(null)}
+              onMouseDown={()=>setTouchDirection(direction)}
+              onMouseUp={()=>setTouchDirection(null)}
+              onLostPointerCapture={()=>setTouchDirection(null)}>
+              {direction==="forward"?"↑":direction==="left"?"←":direction==="back"?"↓":"→"}
+            </button>
+          )}
+        </div>}
         <div className="yor-studio__hud" aria-hidden="true">
-          <span>REAL 3D / WEBGL</span><span>CLICK OBJECTS · CHANGE CAMERA ANGLES ↗</span>
+          <span>{roaming ? "FREE ROAM / FIRST PERSON" : "REAL 3D / WEBGL"}</span>
+          <span>{roaming ? "WASD MOVE · DRAG LOOK · CLICK FLOOR TO WALK" : "CLICK FLOOR TO WALK · INTERACT WITH OBJECTS ↗"}</span>
         </div>
         <div className="yor-studio__corner yor-studio__corner--tl"/><div className="yor-studio__corner yor-studio__corner--br"/>
       </div>
       <div className="yor-studio__actions" aria-label="Interactive room controls">
+        <button type="button" className="yor-studio__walk-toggle"
+          aria-pressed={roaming} onClick={toggleRoam}
+          disabled={!roomReady || !allowed || roomFailed}
+          aria-label={roaming?"Exit free roam and return to cinematic camera":"Walk freely around the 3D room using WASD or touch"}>
+          <span aria-hidden="true">⌖</span> {roaming?"EXIT WALK MODE":"WALK THE ROOM"}
+        </button>
         <button ref={consoleButton} type="button" onClick={() => activateObject("monitor")} aria-expanded={consoleOpen} aria-controls="yor-room-console"><span aria-hidden="true">⌘</span> OPEN WORKSTATION</button>
         <button type="button" onClick={() => activateObject("blinds")} aria-pressed={!blindsOpen}><span aria-hidden="true">◪</span> BLINDS {blindsOpen ? "OPEN" : "CLOSED"}</button>
         <button type="button" onClick={() => activateObject("painting")}><span aria-hidden="true">✳</span> TILT ART</button>
@@ -206,7 +264,7 @@ export function StudioRoom() {
           <Link href={selectedItem.href} aria-label={selectedItem.cta}>{selectedItem.cta} <span aria-hidden="true">↗</span></Link>
         </div>
       </div>
-      <p className="yor-studio__access-note">Explore the workstation launcher, physical blinds, art and avatar. Click room objects or use these accessible buttons. Every project remains readable without 3D.</p>
+      <p className="yor-studio__access-note">Click anywhere on the floor to walk there. Use Walk the Room and <b>W / A / S / D</b> to move, drag your mouse or finger to look, and <b>Shift</b> to move faster. <b>Escape</b> exits walk mode. On mobile, use the directional pad. Room objects and all project links remain interactive.</p>
     </div>
   );
 }
