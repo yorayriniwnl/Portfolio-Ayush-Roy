@@ -40,29 +40,41 @@ const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,
 function WorldCamera({ selected, introSequence }: { selected: StudioTarget; introSequence: number }) {
   const target = useRef(new THREE.Vector3(...CAMERA.work.look));
   const entryTime = useRef<number | null>(null);
-  const { camera } = useThree();
+  const { camera, size } = useThree();
+  const portrait = size.width < 800;
   const doorEye = useMemo(() => new THREE.Vector3(...CAMERA.contact.eye), []);
   const doorLook = useMemo(() => new THREE.Vector3(...CAMERA.contact.look), []);
   // Move toward the reference-facing station so the PC is visible to the right of the chair.
   const deskEye = useMemo(() => new THREE.Vector3(...CAMERA.work.eye), []);
   const deskLook = useMemo(() => new THREE.Vector3(...CAMERA.work.look), []);
+  const portraitDeskEye = useMemo(() => new THREE.Vector3(-.36,1.62,1.6), []);
+  const portraitDeskLook = useMemo(() => new THREE.Vector3(.22,1.23,-1.18), []);
   useEffect(() => { entryTime.current = introSequence > 0 ? 0 : null; }, [introSequence]);
   useFrame((_, delta) => {
+    // Increase portrait horizontal coverage without moving the actual models.
+    // Wide camera crops the chair on 390px phones; a wider portrait lens does not.
+    if (camera instanceof THREE.PerspectiveCamera) {
+      const targetFov = portrait ? 58 : 48;
+      if (camera.fov !== targetFov) {
+        camera.fov = targetFov;
+        camera.updateProjectionMatrix();
+      }
+    }
     if (entryTime.current !== null) {
       const elapsed = entryTime.current + Math.min(delta,.06);
       entryTime.current = elapsed;
       const progress = THREE.MathUtils.clamp((elapsed - .75) / 3.7, 0, 1);
       const eased = progress * progress * (3 - 2 * progress);
-      camera.position.copy(doorEye).lerp(deskEye,eased);
-      target.current.copy(doorLook).lerp(deskLook,eased);
+      camera.position.copy(doorEye).lerp(portrait ? portraitDeskEye : deskEye,eased);
+      target.current.copy(doorLook).lerp(portrait ? portraitDeskLook : deskLook,eased);
       camera.lookAt(target.current);
       if (elapsed >= 5) entryTime.current = null;
       return;
     }
     const weight = 1 - Math.exp(-2.4 * Math.min(delta,.05));
     const config = CAMERA[selected];
-    camera.position.lerp(new THREE.Vector3(...config.eye),weight);
-    target.current.lerp(new THREE.Vector3(...config.look),weight);
+    camera.position.lerp(portrait && selected === "work" ? portraitDeskEye : new THREE.Vector3(...config.eye),weight);
+    target.current.lerp(portrait && selected === "work" ? portraitDeskLook : new THREE.Vector3(...config.look),weight);
     camera.lookAt(target.current);
   });
   return null;
