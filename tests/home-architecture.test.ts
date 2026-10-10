@@ -2,73 +2,43 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-test("homepage keeps static content on the server and uses the persistent machine scene", () => {
+test("homepage is server-rendered and delegates only interactions to small client islands", () => {
   const home = readFileSync("src/components/Home.tsx", "utf8");
-  const runtime = readFileSync("src/experience/ExperienceRuntime.tsx", "utf8");
-  const world = readFileSync("src/experience/MachineWorld.tsx", "utf8");
-  const core = readFileSync("src/experience/MachineCore.tsx", "utf8");
-
-  assert.doesNotMatch(home, /^\s*["']use client["']/m);
-  assert.doesNotMatch(home, /HeroSceneIsland|HeroScene|<Canvas/);
-  assert.match(home, /MachineScrollBinding/);
-  assert.match(home, /MachineHero/);
-  assert.match(home, /HomeProjectWorlds/);
-  assert.match(home, /HomeAbout/);
-  assert.match(home, /HomeContact/);
-  assert.match(world, /state\.progress/);
-  assert.match(world, /activeCamera\.position\.z/);
-  assert.match(core, /const opening = .*state\.progress/);
-  assert.match(runtime, /ExperienceSceneLayer/);
+  const narrative = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
+  const interactive = readFileSync("src/components/experience/EditorialInteractive.tsx", "utf8");
+  const css = readFileSync("src/styles/editorial.css", "utf8");
+  assert.doesNotMatch(home, /^\\s*["']use client["']/m);
+  assert.doesNotMatch(narrative, /^\\s*["']use client["']/m);
+  assert.match(home, /EditorialHome/);
+  assert.match(narrative, /<main id="main" className="editorial-home"/);
+  assert.ok(narrative.includes("<EditorialSkills />"));
+  assert.ok(narrative.includes("<EditorialWork projects={portfolioCards} />"));
+  assert.match(interactive, /"use client"/);
+  assert.match(interactive, /aria-pressed/);
+  assert.match(interactive, /aria-roledescription="carousel"/);
+  assert.match(css, /prefers-reduced-motion: reduce/);
 });
 
-test("home narrative keeps the approved identity, essential actions, and section markers in DOM components", () => {
-  const hero = readFileSync("src/components/experience/MachineHero.tsx", "utf8");
-  const projects = readFileSync("src/components/experience/HomeProjectWorlds.tsx", "utf8");
-  const about = readFileSync("src/components/experience/HomeAbout.tsx", "utf8");
-  const contact = readFileSync("src/components/experience/HomeContact.tsx", "utf8");
-  const preview = readFileSync("src/components/experience/ProjectPreviewLink.tsx", "utf8");
-  const binding = readFileSync("src/components/experience/MachineScrollBinding.tsx", "utf8");
-  const provider = readFileSync("src/experience/ExperienceProvider.tsx", "utf8");
-  const styles = readFileSync("src/styles/machine.css", "utf8");
-
-  assert.match(hero, /YOR/);
-  assert.match(hero, /I build things/);
-  assert.match(hero, /that feel alive/);
-  assert.match(hero, /<StudioRoom\s*\/>/);
-  assert.match(hero, /FULL STACK/);
-  assert.match(hero, /INTERACTIVE 3D/);
-  assert.match(hero, /See what I/);
-  assert.match(hero, /résumé/);
-  assert.match(hero, /GitHub/);
-  assert.equal((hero.match(/className="machine-action(?:\s|")/g) ?? []).length, 3);
-  assert.match(hero, /AYUSH ROY \/ SOFTWARE ENGINEER/);
-  const studioRoom = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
-  const studioScene = readFileSync("src/components/experience/StudioScene.tsx", "utf8");
-  assert.match(studioRoom, /prefers-reduced-motion/);
-  assert.match(studioRoom, /aria-pressed=\{selected === target\}/);
-  assert.match(studioRoom, /<Scene onSelect=\{setSelected\}/);
-  assert.match(studioScene, /function Avatar/);
-  assert.match(studioScene, /function StudioMonitor/);
-  assert.match(studioScene, /function StudioEnvironment/);
-  assert.match(projects, /data-experience-section=["']projects["']/);
-  assert.match(about, /data-experience-section=["']about["']/);
-  assert.match(about, /<dt>CURRENT<\/dt>/);
-  assert.match(about, /profile\.role/);
-  assert.match(about, /<dt>ENGINEERING FOCUS<\/dt>/);
-  assert.match(contact, /data-experience-section=["']contact["']/);
-  assert.match(contact, /THAT SHOULDN(?:&apos;|')T/);
-  assert.match(contact, /BUILD<\/span>\{" "\}\s*<span>SOMETHING/);
-  assert.match(preview, /onPointerEnter/);
-  assert.match(preview, /onFocus/);
-  assert.match(preview, /onTouchStart/);
-  assert.match(preview, /useExperienceProject/);
-  assert.doesNotMatch(preview, /useExperience\(/);
-  assert.match(provider, /useExperienceProject/);
-  assert.match(binding, /state\.progress/);
-  assert.match(binding, /data-machine-section=\{state\.section\}/);
-  assert.match(binding, /machine-wordmark-left/);
-  assert.match(styles, /@media\s*\(max-width:\s*430px\)/);
-  assert.match(styles, /machine-hero__wordmark/);
+test("reference-inspired narrative preserves semantic sections, working URLs and evidence boundaries", () => {
+  const narrative = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
+  const interactive = readFileSync("src/components/experience/EditorialInteractive.tsx", "utf8");
+  const registry = readFileSync("src/content/project-registry.ts", "utf8");
+  for (const id of ["about", "experience", "moments", "contact"]) {
+    assert.ok(narrative.includes(`id="${id}"`), `missing section ${id}`);
+  }
+  for (const id of ["skills", "projects"]) {
+    assert.ok(interactive.includes(`id="${id}"`), `missing interactive section ${id}`);
+  }
+  assert.match(narrative, /Full Stack/);
+  assert.match(narrative, /Developer/);
+  assert.match(narrative, /data-essential-copy/);
+  assert.match(narrative, /href="#projects"/);
+  assert.ok(narrative.includes('href="/resume"'));
+  assert.ok(interactive.includes("project.outcome"));
+  assert.ok(interactive.includes("project.purpose"));
+  assert.ok(interactive.includes("project.source"));
+  assert.ok(interactive.includes("project.live"));
+  assert.match(registry, /recruiterProjects/);
 });
 
 test("unfinished game and video concepts stay off the recruiter homepage and remain in the lab", () => {

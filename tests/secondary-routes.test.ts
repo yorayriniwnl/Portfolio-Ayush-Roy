@@ -59,12 +59,12 @@ test("Lab keeps experiments separated from recruiter projects and the shared can
   assert.equal(createExperienceState("/lab").surface, "inactive");
 });
 
-test("navigation has five named destinations and predictable mobile keyboard behavior", () => {
+test("navigation exposes all editorial sections and predictable mobile keyboard behavior", () => {
   const nav = readFileSync("src/components/SiteNav.tsx", "utf8");
   const navCss = readFileSync("src/components/SiteNav.module.css", "utf8");
   const layout = readFileSync("src/app/layout.tsx", "utf8");
 
-  assert.match(nav, /const links = \[\s*\["Work", "\/projects"\],\s*\["About", "\/#about"\],\s*\["Lab", "\/lab"\],\s*\["Resume", "\/resume"\]/);
+  for (const name of ["About", "Skills", "Work", "Experience", "Lab", "Resume", "Contact"]) assert.ok(nav.includes(`["${name}",`));
   assert.match(nav, /aria-label="Ayush Roy home"/);
   assert.match(nav, /usePathname/);
   assert.match(nav, /aria-current=/);
@@ -73,8 +73,8 @@ test("navigation has five named destinations and predictable mobile keyboard beh
   assert.match(nav, /firstLinkRef\.current\?\.focus\(\)/);
   assert.match(nav, /menuRef\.current\?\.focus\(\)/);
   assert.match(nav, /onClick=\{\(\) => setOpen\(false\)\}/);
-  assert.doesNotMatch(nav, /Contact/);
-  assert.match(navCss, /@media \(max-width: 850px\)/);
+  assert.match(nav, /Contact/);
+  assert.match(navCss, /@media \(max-width: 1180px\)/);
   assert.match(navCss, /\.mobile\[data-open="true"\]/);
   assert.match(navCss, /:focus-visible/);
   assert.match(layout, /className="machine-skip-link" href="#main"/);
