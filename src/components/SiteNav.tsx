@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import styles from "./SiteNav.module.css";
 
-const links = [["About", "/#about"], ["Skills", "/#skills"], ["Work", "/#projects"], ["Experience", "/#experience"], ["Lab", "/lab"], ["Resume", "/resume"], ["Contact", "/#contact"]] as const;
+const links = [["About", "/#about"], ["Skills", "/#skills"], ["Work", "/projects"], ["Experience", "/#experience"], ["Lab", "/lab"], ["Resume", "/resume"], ["Contact", "/#contact"]] as const;
 
 function isCurrentPage(href: (typeof links)[number][1], pathname: string) {
-  if (href === "/#projects") return pathname === "/projects" || pathname.startsWith("/projects/");
+  if (href === "/projects") return pathname === "/projects" || pathname.startsWith("/projects/");
   return href.startsWith("/#") ? false : href === pathname;
 }
 
