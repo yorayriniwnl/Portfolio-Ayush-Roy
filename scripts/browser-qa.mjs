@@ -460,6 +460,9 @@ try {
      document.querySelectorAll('.yor-studio__console-project').length === 6`,
     { timeoutMs:3000, description:"interactive workstation launcher displays six real projects" });
   assert(consoleOpened.value, "Workstation launcher failed to reveal six case studies");
+  await waitForCondition(cdp,
+    `document.activeElement?.getAttribute('aria-label') === 'Close workstation launcher'`,
+    { timeoutMs:2500, description:"dialog focus settles after React effect and animation frame" });
   const launcher = await cdp.evaluate(`(() => ({
     links:[...document.querySelectorAll('.yor-studio__console-project')].map(node=>node.getAttribute('href')),
     focus: document.activeElement?.getAttribute('aria-label'),
