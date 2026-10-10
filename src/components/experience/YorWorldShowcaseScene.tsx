@@ -50,12 +50,15 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
   const portraitDeskEye = useMemo(() => new THREE.Vector3(-.36,1.62,1.6), []);
   const portraitDeskLook = useMemo(() => new THREE.Vector3(.22,1.23,-1.18), []);
   useEffect(() => { entryTime.current = introSequence > 0 ? 0 : null; }, [introSequence]);
+  // Mutable Three.js cameras live outside React state, as does the scene rig below.
+  // eslint-disable-next-line react-hooks/immutability
   useFrame((_, delta) => {
     // Increase portrait horizontal coverage without moving the actual models.
     // Wide camera crops the chair on 390px phones; a wider portrait lens does not.
     if (camera instanceof THREE.PerspectiveCamera) {
       const targetFov = portrait ? 58 : 48;
       if (camera.fov !== targetFov) {
+        // eslint-disable-next-line react-hooks/immutability
         camera.fov = targetFov;
         camera.updateProjectionMatrix();
       }
