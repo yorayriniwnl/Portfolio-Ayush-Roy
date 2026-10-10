@@ -447,8 +447,17 @@ try {
   assert(homeGpu.studioCanvases === 1 && homeGpu.projectCanvases === 0 && homeGpu.sceneLayers === 0,
     `Homepage has missing or duplicate GPU layers: ${JSON.stringify(homeGpu)}`);
   assert(homeGpu.controls === 4, "Studio camera presets are incomplete");
+  const genuineRoom = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
+    { timeoutMs: 28_000, description: "authentic Yor-World GLB workstation ready" });
+  assert(genuineRoom.value, "Authentic GLB room never finished loading");
   await capture(cdp, outputDir, "desktop-hero");
-  await clickAtSelector('.yor-studio__locations button:nth-child(2)');
+  await cdp.evaluate(`(() => {
+    const avatar = document.querySelector('.yor-studio__locations button:nth-child(2)');
+    avatar?.scrollIntoView({ block:'center', behavior:'instant' });
+    avatar?.click();
+    return true;
+  })()`);
   await waitForCondition(cdp,
     `document.querySelector('.yor-studio__locations button:nth-child(2)')?.getAttribute('aria-pressed') === 'true'`,
     { timeoutMs: 2500, description: "avatar camera preset activates after React update" });
