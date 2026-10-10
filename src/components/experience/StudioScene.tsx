@@ -127,9 +127,11 @@ function PcTower() {
   );
 }
 
-function Lamp({ lightsOn }: { lightsOn: boolean }) {
+function Lamp({ lightsOn, onToggle }: { lightsOn: boolean; onToggle: () => void }) {
   return (
-    <group>
+    <group onClick={onToggle}
+      onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+      onPointerOut={() => { document.body.style.cursor = ""; }}>
       <Box position={[-2.37, -.88, -.52]} args={[.5, .06, .5]} color="#3c414a" metalness={.7} />
       <Rod a={[-2.37,-.84,-.52]} b={[-2.42,.11,-.69]} r={.045} color="#99938c"/>
       <Rod a={[-2.42,.11,-.69]} b={[-1.77,.73,-.52]} r={.04} color="#a59b86"/>
@@ -187,7 +189,32 @@ function Avatar({ onSelect }: { onSelect: () => void }) {
   );
 }
 
-function StudioEnvironment({ onSelect, lightsOn }: { onSelect: (target: StudioTarget) => void; lightsOn: boolean }) {
+function StudioDoor({ onSelect, open }: { onSelect: () => void; open: boolean }) {
+  const hinge = useRef<THREE.Group>(null);
+  useFrame((_, delta) => {
+    if (hinge.current) hinge.current.rotation.y = THREE.MathUtils.damp(
+      hinge.current.rotation.y, open ? -1.03 : 0, 2.5, delta
+    );
+  });
+  return (
+    <group position={[-4.55,.1,-2.22]}>
+      <Box position={[.65,-.14,0]} args={[1.32,2.94,.12]} color="#929dbb"/>
+      <group ref={hinge} position={[.08,0,.12]} onClick={onSelect}
+        onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+        onPointerOut={() => { document.body.style.cursor = ""; }}>
+        <Box position={[.57,-.14,0]} args={[1.12,2.69,.08]} color="#f3f2ff"/>
+        <Box position={[.57,.16,.047]} args={[.89,1.73,.009]} color="#e1e0f0"/>
+        <Box position={[1.00,-.28,.12]} args={[.075,.13,.06]} color="#e5a3f4" emissive="#bd7ce1" intensity={.5}/>
+      </group>
+    </group>
+  );
+}
+function StudioEnvironment({ onSelect, onToggleLights, lightsOn, selected }: {
+  onSelect: (target: StudioTarget) => void;
+  onToggleLights: () => void;
+  lightsOn: boolean;
+  selected: StudioTarget;
+}) {
   const root = useRef<THREE.Group>(null);
   useFrame((state, delta) => {
     if (!root.current) return;
@@ -234,13 +261,7 @@ function StudioEnvironment({ onSelect, lightsOn }: { onSelect: (target: StudioTa
       ))}
       <pointLight position={[-.3,1.65,-1.7]} color="#ecb0f9" intensity={lightsOn ? 12 : .5} distance={5}/>
       {/* Door, wall art and shelving all belong to the same room. */}
-      <group position={[-3.9,.1,-2.30]} onClick={() => onSelect("contact")}
-        onPointerOver={() => {document.body.style.cursor = "pointer";}}
-        onPointerOut={() => {document.body.style.cursor = "";}}>
-        <Box position={[0,-.14,0]} args={[1.18,2.82,.11]} color="#ffffff"/>
-        <Box position={[0,-.14,.08]} args={[.97,2.55,.024]} color="#c4c5d5"/>
-        <Box position={[.35,-.28,.11]} args={[.075,.13,.055]} color={brass} emissive={brass} intensity={.6}/>
-      </group>
+      <StudioDoor open={selected === "contact"} onSelect={() => onSelect("contact")}/>
       <group position={[-2.32,1.16,-2.35]} onClick={() => onSelect("lab")}
         onPointerOver={() => {document.body.style.cursor = "pointer";}}
         onPointerOut={() => {document.body.style.cursor = "";}}>
@@ -258,7 +279,7 @@ function StudioEnvironment({ onSelect, lightsOn }: { onSelect: (target: StudioTa
       <StudioMonitor onClick={() => onSelect("work")}/>
       <StudioMonitor secondary onClick={() => onSelect("work")}/>
       <PcTower/>
-      <Lamp lightsOn={lightsOn}/>
+      <Lamp lightsOn={lightsOn} onToggle={onToggleLights}/>
       <Avatar onSelect={() => onSelect("about")}/>
       <Box position={[-2.75,-.19,1.25]} args={[.54,1.4,.54]} color="#e8e4da" />
       <mesh position={[-2.75,.65,1.25]} castShadow>
@@ -291,8 +312,9 @@ function CameraDirector({ selected }: { selected: StudioTarget }) {
   });
   return null;
 }
-export function StudioScene({ onSelect, selected = "work", lightsOn = true }: {
+export function StudioScene({ onSelect, onToggleLights, selected = "work", lightsOn = true }: {
   onSelect: (target: StudioTarget) => void;
+  onToggleLights: () => void;
   selected?: StudioTarget;
   lightsOn?: boolean;
 }) {
@@ -302,7 +324,7 @@ export function StudioScene({ onSelect, selected = "work", lightsOn = true }: {
       dpr={[1,1.5]} shadows gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
       aria-label="Interactive 3D studio with clickable computer, avatar, painting and door">
       <CameraDirector selected={selected}/>
-      <StudioEnvironment onSelect={onSelect} lightsOn={lightsOn}/>
+      <StudioEnvironment onSelect={onSelect} onToggleLights={onToggleLights} lightsOn={lightsOn} selected={selected}/>
     </Canvas>
   );
 }
