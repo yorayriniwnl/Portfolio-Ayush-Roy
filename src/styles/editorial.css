@@ -114,9 +114,14 @@
 .editorial-projects__controls button:hover { background: #282933; color: white; }
 .editorial-projects__controls > span { font: 680 12px var(--font-mono),monospace; }
 .editorial-projects__controls > span > span { color: #9a9991; }
-.editorial-projects__dots { display: flex; justify-content: center; gap: 9px; margin-top: 24px; }
-.editorial-projects__dots button { width: 11px; height: 11px; border-radius: 50%; border: 0; background: #babcb0; cursor: pointer; }
-.editorial-projects__dots button.is-active { background: #242633; width: 30px; border-radius: 999px; }
+.editorial-projects__dots { display: flex; justify-content: center; flex-wrap: wrap; gap: 3px; margin-top: 16px; }
+/* The visual dots remain discreet; their actual touch targets are 44px. */
+.editorial-projects__dots button { position: relative; width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: transparent; cursor: pointer; border-radius: 999px; }
+.editorial-projects__dots button::after { content: ""; display: block; width: 11px; height: 11px; border-radius: 999px; background: #a9aa9f; transition: width .2s ease, background .2s ease; }
+.editorial-projects__dots button.is-active::after { background: #252633; width: 27px; }
+.editorial-projects__dots button:hover::after { background: #57556a; }
+.editorial-projects__dots button:focus-visible { outline: 3px solid #756dba; outline-offset: 0; }
+.editorial-projects__stage { touch-action: pan-y; }
 @keyframes editorial-in { from { opacity:.2; transform: translateY(7px); } to { opacity:1; transform:translateY(0); } }
 
 .editorial-experience { background: #fffefa; }
@@ -236,4 +241,35 @@ body:has(.editorial-home) header nav a:last-child:hover { background: #dfe2b7; }
 }
 @media (prefers-reduced-motion: reduce) {
   .editorial-home *, .editorial-home *::before, .editorial-home *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Reference-inspired, progressive polish. No JavaScript is required to display content. */
+@media (prefers-reduced-motion: no-preference) {
+  .editorial-portrait svg { animation: editorial-portrait-float 8s ease-in-out infinite; transform-origin: 50% 100%; }
+  .editorial-portrait__halo { animation: editorial-halo-breathe 9s ease-in-out infinite; }
+  .editorial-home :is(.editorial-pill, .editorial-text-link, .editorial-projects__heading > a, .editorial-contact__footer a) { transition: transform .22s ease, color .22s ease, background .22s ease; }
+  .editorial-home :is(.editorial-pill, .editorial-text-link, .editorial-projects__heading > a):hover { transform: translateY(-2px); }
+}
+@keyframes editorial-portrait-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes editorial-halo-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .75; }
+}
+/* Scroll-driven reveals are a progressive enhancement and never hide copy in
+   engines without view timelines or for visitors who prefer reduced motion. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .editorial-home :is(.editorial-about__grid, .editorial-skills__heading, .editorial-projects__heading, .editorial-experience__timeline, .editorial-moments__grid) {
+      animation: editorial-rise-view linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 28%;
+    }
+  }
+}
+@keyframes editorial-rise-view {
+  from { opacity: .82; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }

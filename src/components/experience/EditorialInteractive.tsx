@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import type { CSSProperties, KeyboardEvent } from "react";
+import { useRef, useState } from "react";
+import type { CSSProperties, KeyboardEvent, TouchEvent } from "react";
 
 type SkillGroup = "Languages" | "Frontend" | "Backend" | "Data" | "Tooling";
 type Skill = { symbol: string; name: string; group: SkillGroup; description: string };
@@ -92,6 +92,7 @@ export type EditorialProject = {
 export function EditorialWork({ projects }: { projects: EditorialProject[] }) {
   const [index, setIndex] = useState(0);
   const count = projects.length;
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const project = projects[index];
   if (!project || count === 0) return null;
   const move = (delta: number) => setIndex((current) => (current + delta + count) % count);
@@ -100,13 +101,28 @@ export function EditorialWork({ projects }: { projects: EditorialProject[] }) {
     if (event.key === "ArrowRight") { event.preventDefault(); move(1); }
     if (event.key === "ArrowLeft") { event.preventDefault(); move(-1); }
   };
+  const onSwipeStart = (event: TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches.item(0);
+    if (touch) swipeStart.current = { x: touch.clientX, y: touch.clientY };
+  };
+  const onSwipeEnd = (event: TouchEvent<HTMLDivElement>) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    const touch = event.changedTouches.item(0);
+    if (!start || !touch) return;
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    // Only a deliberate horizontal swipe turns the carousel. Vertical page
+    // scrolling, taps and button gestures retain their normal behavior.
+    if (Math.abs(dx) >= 65 && Math.abs(dx) > Math.abs(dy) * 1.35) move(dx < 0 ? 1 : -1);
+  };
   const artStyle = { backgroundImage: `url("${project.art}")` } as CSSProperties;
 
   return (
     <section id="projects" className="editorial-projects editorial-section editorial-wrap" aria-labelledby="editorial-projects-title" data-experience-section="projects">
       <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 03 / SELECTED PROJECTS</div>
       <div className="editorial-projects__heading"><h2 id="editorial-projects-title" data-essential-copy>Things I&apos;ve <em>built.</em></h2><Link href="/projects">View all case studies ↗</Link></div>
-      <div className="editorial-projects__stage" tabIndex={0} onKeyDown={onKeyDown}
+      <div className="editorial-projects__stage" tabIndex={0} onKeyDown={onKeyDown} onTouchStart={onSwipeStart} onTouchEnd={onSwipeEnd} onTouchCancel={() => { swipeStart.current = null; }}
         role="region" aria-roledescription="carousel" aria-label="Selected engineering projects">
         <div className="editorial-projects__rail" aria-hidden="true"><span>SELECTED WORK</span><span>{String(index + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}</span></div>
         <div className="editorial-projects__story" key={project.slug}>

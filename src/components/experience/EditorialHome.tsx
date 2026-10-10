@@ -84,7 +84,7 @@ export function EditorialHome() {
           <div className="editorial-about__body">
             <p>I&apos;m a software engineer who enjoys the interesting part of building: making tricky systems understandable, useful and a little delightful.</p>
             <p>From evidence-first assessment tools and real-time social platforms to energy dashboards, I like getting into the details without losing sight of the people who use the product.</p>
-            <div className="editorial-about__actions"><a href="mailto:ayushroy.dev@gmail.com" className="editorial-pill editorial-pill--dark">Let&apos;s talk <span aria-hidden="true">↗</span></a><Link href="/projects">View all case studies →</Link></div>
+            <div className="editorial-about__actions"><a href={`mailto:${profile.email}` } className="editorial-pill editorial-pill--dark">Let&apos;s talk <span aria-hidden="true">↗</span></a><Link href="/projects">View all case studies →</Link></div>
           </div>
           <div className="editorial-about__note"><span>MY APPROACH</span><strong>Curious by default.<br/>Rigorous by design.</strong><span>BUILD / TEST / REFINE / REPEAT</span></div>
         </div>
