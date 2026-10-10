@@ -65,6 +65,49 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
   return null;
 }
 
+/** Seven modeled wall-light replacements in the original authored fixture
+ * positions. Basic shaded faces keep their individual pink/violet colors visible
+ * instead of tone-mapping the upstream 5.7x emissive panels into white blocks. */
+const HEX_LIGHTS = [
+  [0,1.82,"#d17cec"],[-.21,1.94124,"#8c82f7"],[-.21,1.69876,"#e7a0ef"],
+  [0,2.06248,"#bb85fb"],[0,1.57752,"#ca77e8"],[.21,1.94124,"#ef9ee6"],
+  [.21,1.69876,"#8c82f7"],
+] as const;
+function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:()=>void }) {
+  const geometry = useMemo(() => {
+    const outline = new THREE.Shape();
+    for(let i=0;i<6;i++) {
+      const angle=Math.PI/2 + i*Math.PI/3;
+      const x=Math.cos(angle)*.115, y=Math.sin(angle)*.115;
+      if(i===0) outline.moveTo(x,y); else outline.lineTo(x,y);
+    }
+    outline.closePath();
+    const face = new THREE.Shape();
+    for(let i=0;i<6;i++) {
+      const angle=Math.PI/2 + i*Math.PI/3;
+      const x=Math.cos(angle)*.096, y=Math.sin(angle)*.096;
+      if(i===0) face.moveTo(x,y); else face.lineTo(x,y);
+    }
+    face.closePath();
+    return {rim:new THREE.ShapeGeometry(outline), core:new THREE.ShapeGeometry(face)};
+  }, []);
+  useEffect(() => () => { geometry.rim.dispose(); geometry.core.dispose(); }, [geometry]);
+  return (
+    <group position={[0,0,-1.708]} onClick={e=>{e.stopPropagation();onExplore();}}>
+      {HEX_LIGHTS.map(([x,y,color],i) =>
+        <group key={i} position={[x,y,0]}>
+          <mesh geometry={geometry.rim}>
+            <meshBasicMaterial color={lightsOn ? "#f7e3ff" : "#696178"} toneMapped={false}/>
+          </mesh>
+          <mesh geometry={geometry.core} position={[0,0,.008]}>
+            <meshBasicMaterial color={lightsOn ? color : "#322b4b"} toneMapped={false}/>
+          </mesh>
+        </group>
+      )}
+    </group>
+  );
+}
+
 function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selected, lightsOn, blindsOpen, paintingBeat, introSequence, onReady }: {
   onSelect: (target:StudioTarget)=>void;
   onToggleLights:()=>void;
@@ -82,7 +125,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     "/models/yor-world-resident.glb",
     "/models/yor-world-fixture.glb",
   ]);
-  const { group, avatarMixer, chairMixer, actions, door, lightNodes, hexMaterials, painting, blinds, signature } = useMemo(() => {
+  const { group, avatarMixer, chairMixer, actions, door, lightNodes, painting, blinds, signature } = useMemo(() => {
     const model = new THREE.Group();
     model.name = "authentic-yor-world";
     const room = world.scene;
@@ -104,17 +147,12 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
         lightNodes.push({node:light,intensity:light.intensity});
       }
     });
-    // Yor-World's authored glTF hex materials ship with emissive strength 5.3–5.7.
-    // That clips all seven fixtures into a white rectangle under ACES tone mapping.
-    // Preserve the original geometry and alternating pink/violet materials; only
-    // rebalance their emissive output as a room light, not a white-screen overlay.
-    const hexMaterials = new Set<THREE.MeshStandardMaterial>();
-    for (let i = 1; i <= 7; i++) {
-      room.getObjectByName(`hex_panel_${i}`)?.traverse(node => {
-        if (!(node instanceof THREE.Mesh)) return;
-        const materials = Array.isArray(node.material) ? node.material : [node.material];
-        for (const material of materials) if (material instanceof THREE.MeshStandardMaterial) hexMaterials.add(material);
-      });
+    // GLB hex faces have a 5.3–5.7x export emissive strength and read as
+    // blank white rectangles. Replace only their visible faces with the
+    // explicitly modeled hex fixtures above at the same seven coordinates.
+    for (let i=1; i<=7; i++) {
+      const oldFixture = room.getObjectByName(`hex_panel_${i}`);
+      if (oldFixture) oldFixture.visible=false;
     }
     const door = room.getObjectByName("door-hinge") || null;
     const painting = room.getObjectByName("painting-pivot") || null;
@@ -123,7 +161,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
       .map(node => ({node, base: node.rotation.z}));
     const signature = room.getObjectByName("hidden-yor-mark") || null;
     if (signature) signature.visible = false;
-    return {group:model,avatarMixer:am,chairMixer:cm,actions:anims,door,lightNodes,hexMaterials:[...hexMaterials],painting,blinds,signature};
+    return {group:model,avatarMixer:am,chairMixer:cm,actions:anims,door,lightNodes,painting,blinds,signature};
   },[world,resident,fixture]);
 
   const entryTime = useRef<number | null>(null);
@@ -138,11 +176,11 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
 
   // Three.js scene objects are inherently mutable. Keep that mutation behind
   // a ref so React memoized values stay read-only in effects and frame hooks.
-  const mutable = useRef<{ door: THREE.Object3D | null; lights: Array<{ node:THREE.Light; intensity:number }>; painting: THREE.Object3D | null; paintingBase:number; blinds: Array<{node:THREE.Object3D;base:number}>; signature:THREE.Object3D | null; hexMaterials:Array<THREE.MeshStandardMaterial> } | null>(null);
+  const mutable = useRef<{ door: THREE.Object3D | null; lights: Array<{ node:THREE.Light; intensity:number }>; painting: THREE.Object3D | null; paintingBase:number; blinds: Array<{node:THREE.Object3D;base:number}>; signature:THREE.Object3D | null } | null>(null);
   useEffect(() => {
-    mutable.current = { door, lights: lightNodes, painting, paintingBase:painting?.rotation.x ?? 0, blinds, signature, hexMaterials };
+    mutable.current = { door, lights: lightNodes, painting, paintingBase:painting?.rotation.x ?? 0, blinds, signature };
     return () => { mutable.current = null; };
-  }, [door, lightNodes, painting, blinds, signature, hexMaterials]);
+  }, [door, lightNodes, painting, blinds, signature]);
 
   useEffect(() => {
     actions.get("coding_idle")?.reset().play();
@@ -211,11 +249,6 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
       // Imported GPU lights must be mutated imperatively to dim without remount.
       // eslint-disable-next-line react-hooks/immutability
       node.intensity = intensity * (lightsOn ? .00092 : .00012);
-    for (const material of mutable.current?.hexMaterials ?? []) {
-      // This material belongs to the external GLB scene and is intentionally mutable.
-      // eslint-disable-next-line react-hooks/immutability
-      material.emissiveIntensity = lightsOn ? .48 : .035;
-    }
   },[lightsOn,lightNodes]);
 
   const choose = (event:ThreeEvent<MouseEvent>) => {
@@ -245,6 +278,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
       <pointLight position={[-1.4,.72,-.65]} color="#50daff" intensity={lightsOn ? 2.4 : .2} distance={3.7} decay={2}/>
       <pointLight position={[1.35,1.98,.06]} color="#ffb5df" intensity={lightsOn ? 1.8 : .14} distance={3.4} decay={2}/>
       <WorldCamera selected={selected} introSequence={introSequence}/>
+      <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
       <primitive object={group} onClick={choose}
         onPointerOver={hover}
         onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>
