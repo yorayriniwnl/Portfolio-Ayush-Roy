@@ -453,6 +453,22 @@ try {
   assert(genuineRoom.value, "Authentic GLB room never finished loading");
   await capture(cdp, outputDir, "desktop-hero");
 
+  activeScenario = "distraction-free full-scene room and Escape restoration";
+  await cdp.evaluate(`document.querySelector('.yor-studio__photo-toggle')?.click(); true`);
+  const focusMode = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.photoMode === 'true' &&
+     document.querySelector('.yor-studio__photo-toggle')?.getAttribute('aria-pressed') === 'true'`,
+    { timeoutMs:2500, description:"full-scene reference mode activated" });
+  assert(focusMode.value, "Full-scene mode did not enable");
+  await cdp.evaluate(`document.querySelector('.yor-studio__viewport')?.scrollIntoView({block:'center',behavior:'instant'});true`);
+  await delay(180);
+  await capture(cdp, outputDir, "desktop-full-scene");
+  await pressKey("Escape", "Escape", 27);
+  await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.photoMode === 'false'`,
+    { timeoutMs:2500, description:"Escape dismisses full-scene reference mode" });
+  report.interaction.fullScene = { activated:true, escapeRestores:true, screenshot:true };
+
   activeScenario = "3D workstation object interaction controls";
   await cdp.evaluate(`document.querySelector('.yor-studio__actions button:first-child')?.click(); true`);
   const consoleOpened = await waitForCondition(cdp,
