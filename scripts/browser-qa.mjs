@@ -452,6 +452,10 @@ try {
     { timeoutMs: 28_000, description: "authentic Yor-World GLB workstation ready" });
   assert(genuineRoom.value, "Authentic GLB room never finished loading");
   await capture(cdp, outputDir, "desktop-hero");
+  await cdp.evaluate(`document.querySelector('button[aria-label="Replay doorway entrance animation"]')?.click(); true`);
+  await waitForCondition(cdp, `Number(document.querySelector('.yor-studio')?.dataset.introSequence) >= 1`,
+    { timeoutMs:2500, description: "cinematic doorway replay begins" });
+  report.interaction.studioCinematic = { replayStarts: true };
   await cdp.evaluate(`(() => {
     const avatar = document.querySelector('.yor-studio__locations button:nth-child(2)');
     avatar?.scrollIntoView({ block:'center', behavior:'instant' });
@@ -461,6 +465,11 @@ try {
   await waitForCondition(cdp,
     `document.querySelector('.yor-studio__locations button:nth-child(2)')?.getAttribute('aria-pressed') === 'true'`,
     { timeoutMs: 2500, description: "avatar camera preset activates after React update" });
+  const introCanceled = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.introSequence === '0'`,
+    { timeoutMs:2500, description: "camera preset skips cinematic entry" });
+  assert(introCanceled.value, "Selecting another camera did not cancel the intro");
+  report.interaction.studioCinematic.skipByCameraPreset = true;
   await clickAtSelector('.yor-studio__locations button:nth-child(1)');
   const boardReady = await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-skills__matrix'))`, { description: "interactive technology keyboard" });
   report.rendering.home = { ...homeGpu, skillsReady: Boolean(boardReady.value), restoredInteractiveStudio: true };
