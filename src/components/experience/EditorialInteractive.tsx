@@ -105,7 +105,7 @@ export function EditorialWork({ projects }: { projects: EditorialProject[] }) {
   return (
     <section id="projects" className="editorial-projects editorial-section editorial-wrap" aria-labelledby="editorial-projects-title" data-experience-section="projects">
       <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 03 / SELECTED PROJECTS</div>
-      <div className="editorial-projects__heading"><h2 id="editorial-projects-title" data-essential-copy>Things I've <em>built.</em></h2><Link href="/projects">View all case studies ↗</Link></div>
+      <div className="editorial-projects__heading"><h2 id="editorial-projects-title" data-essential-copy>Things I&apos;ve <em>built.</em></h2><Link href="/projects">View all case studies ↗</Link></div>
       <div className="editorial-projects__stage" tabIndex={0} onKeyDown={onKeyDown}
         role="region" aria-roledescription="carousel" aria-label="Selected engineering projects">
         <div className="editorial-projects__rail" aria-hidden="true"><span>SELECTED WORK</span><span>{String(index + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}</span></div>
