@@ -5,7 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StudioTarget } from "./StudioScene";
 import {
-  WALK_EYE_HEIGHT, isWalkable, nearestWalkable, slideWalk, walkRoute,
+  WALK_EYE_HEIGHT, nearestWalkable, slideWalk, walkRoute,
   type WalkPoint, type WalkDirection,
 } from "./StudioWalk";
 
@@ -48,7 +48,6 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
     if (!roaming) {
       pressed.current.clear();
       route.current=[];
-      canvas.style.touchAction="";
       return;
     }
     const direction = camera.getWorldDirection(new THREE.Vector3());
@@ -57,8 +56,6 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
     const start=nearestWalkable(camera.position.x,camera.position.z);
     // This mutable camera belongs to Three.js; navigation is never React layout state.
     camera.position.set(start.x,WALK_EYE_HEIGHT,start.z);
-    canvas.tabIndex=0;
-    canvas.style.touchAction="none";
     const acceptable=(event:KeyboardEvent) => {
       const el=document.activeElement;
       const tag=(event.target as HTMLElement | null)?.tagName?.toLowerCase();
@@ -103,7 +100,6 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
     window.addEventListener("pointercancel",endDrag);
     return ()=>{
       release();
-      canvas.style.touchAction="";
       window.removeEventListener("keydown",down);
       window.removeEventListener("keyup",up);
       window.removeEventListener("blur",release);
@@ -161,10 +157,7 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
       if(reportClock.current>.17) {
         reportClock.current=0;
         onWalkStep({x:next.x,z:next.z});
-        gl.domElement.dataset.walkX=next.x.toFixed(3);
-        gl.domElement.dataset.walkZ=next.z.toFixed(3);
-        gl.domElement.dataset.walkable=String(isWalkable(next.x,next.z));
-        gl.domElement.dataset.walkYaw=yaw.current.toFixed(3);
+
       }
       return;
     }
