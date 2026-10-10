@@ -452,6 +452,55 @@ try {
     { timeoutMs: 28_000, description: "authentic Yor-World GLB workstation ready" });
   assert(genuineRoom.value, "Authentic GLB room never finished loading");
   await capture(cdp, outputDir, "desktop-hero");
+
+  activeScenario = "3D workstation object interaction controls";
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:first-child')?.click(); true`);
+  const consoleOpened = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true' &&
+     document.querySelectorAll('.yor-studio__console-project').length === 6`,
+    { timeoutMs:3000, description:"interactive workstation launcher displays six real projects" });
+  assert(consoleOpened.value, "Workstation launcher failed to reveal six case studies");
+  await waitForCondition(cdp,
+    `document.activeElement?.getAttribute('aria-label') === 'Close workstation launcher'`,
+    { timeoutMs:2500, description:"dialog focus settles after React effect and animation frame" });
+  const launcher = await cdp.evaluate(`(() => ({
+    links:[...document.querySelectorAll('.yor-studio__console-project')].map(node=>node.getAttribute('href')),
+    focus: document.activeElement?.getAttribute('aria-label'),
+    dialog: document.querySelector('.yor-studio__console')?.getAttribute('role')
+  }))()`);
+  assert(launcher.dialog === "dialog" && launcher.focus === "Close workstation launcher",
+    "Launcher must be an accessible dialog with initial keyboard focus on Close");
+  assert(QA_PROJECT_SLUGS.every(slug=>launcher.links.includes(`/projects/${slug}`)),
+    "Launcher must expose every canonical project route");
+  report.interaction.studioObjects = { launcherProjects:launcher.links.length, keyboardFocus:true };
+  await cdp.evaluate(`document.querySelector('.yor-studio__viewport')?.scrollIntoView({block:'center',behavior:'instant'});true`);
+  await delay(180);
+  await capture(cdp, outputDir, "desktop-workstation-launcher");
+  await pressKey("Escape", "Escape", 27);
+  await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.consoleOpen === 'false' &&
+     document.activeElement === document.querySelector('.yor-studio__actions button:first-child')`,
+    { timeoutMs:3000, description:"Escape closes workstation launcher and restores focus" });
+  report.interaction.studioObjects.escapeRestoresFocus=true;
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(2)')?.click(); true`);
+  await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.blindsOpen === 'false' &&
+    document.querySelector('.yor-studio__actions button:nth-child(2)')?.getAttribute('aria-pressed') === 'true'`,
+    { timeoutMs:2500, description:"room blinds close through accessible button" });
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(3)')?.click(); true`);
+  await waitForCondition(cdp,
+    `Number(document.querySelector('.yor-studio')?.dataset.paintingBeat) === 1 &&
+     document.querySelector('.yor-studio')?.dataset.secretFound === 'true'`,
+    { timeoutMs:2500, description:"painting tilt reveals hidden YOR detail" });
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(2)')?.click(); true`);
+  await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.blindsOpen === 'true'`,
+    { timeoutMs:2500, description:"room blinds reopen" });
+  report.interaction.studioObjects.blindsToggle=true;
+  report.interaction.studioObjects.paintingDiscovery=true;
+  await cdp.evaluate(`document.querySelector('.yor-studio__locations button:first-child')?.click();true`);
+
+  activeScenario = "cinematic doorway replay";
   await cdp.evaluate(`document.querySelector('button[aria-label="Replay doorway entrance animation"]')?.click(); true`);
   await waitForCondition(cdp, `Number(document.querySelector('.yor-studio')?.dataset.introSequence) >= 1`,
     { timeoutMs:2500, description: "cinematic doorway replay begins" });
@@ -526,6 +575,22 @@ try {
     `Mobile first screen needs visible loaded 3D room: ${JSON.stringify(mobileStage)}`);
   report.rendering.mobileHome = mobileStage;
   await capture(cdp, outputDir, "mobile-hero");
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:first-child')?.click(); true`);
+  await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true'`,
+    { timeoutMs:2500, description:"mobile workstation launcher opens" });
+  const mobileLauncher = await cdp.evaluate(`(() => ({
+    cards: document.querySelectorAll('.yor-studio__console-project').length,
+    rect: document.querySelector('.yor-studio__console')?.getBoundingClientRect().toJSON(),
+    scrollWidth: document.documentElement.scrollWidth,
+    viewport: innerWidth
+  }))()`);
+  assert(mobileLauncher.cards === 6 && mobileLauncher.scrollWidth <= mobileLauncher.viewport + 1 &&
+    mobileLauncher.rect && mobileLauncher.rect.width <= mobileLauncher.viewport,
+    `Mobile launcher clipped content or lost projects: ${JSON.stringify(mobileLauncher)}`);
+  await cdp.evaluate(`document.querySelector('button[aria-label="Close workstation launcher"]')?.click(); true`);
+  await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'false'`,
+    { timeoutMs:2500,description:"mobile launcher closes" });
+  report.interaction.studioObjects.mobileLauncherAccessible=true;
   await navigate(cdp, baseUrl + "/projects");
   await positionProjectWorldForCapture();
   await capture(cdp, outputDir, "mobile-project-world");

@@ -245,3 +245,103 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
 @media (max-width:375px) {
   .yor-world-hero__studio .yor-studio__topline { flex-wrap:wrap; }
 }
+
+/* Physical-object interaction dock. The controls are real HTML counterparts
+   to clickable meshes, not decorative labels or hidden hit targets. */
+.yor-world-hero__studio .yor-studio__actions {
+  display:flex; align-items:stretch; flex-wrap:wrap; gap:8px;
+  padding:13px 0 2px; border-bottom:1px solid rgba(225,216,255,.12);
+}
+.yor-world-hero__studio .yor-studio__actions button {
+  min-height:44px; display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  padding:10px 14px; background:rgba(29,34,62,.86); color:#e9e8fc;
+  border:1px solid rgba(193,191,237,.3); border-radius:9px;
+  font:700 9px/1.25 var(--font-mono),monospace; letter-spacing:.045em;
+  cursor:pointer; transition:background .18s ease,border-color .18s ease,transform .18s ease;
+}
+.yor-world-hero__studio .yor-studio__actions button:first-child {
+  background:linear-gradient(135deg,#e6b9fe,#c0c8ff); color:#17152d; border-color:#e2cbfc;
+}
+.yor-world-hero__studio .yor-studio__actions button span {font-size:18px; line-height:1; font-weight:400;}
+.yor-world-hero__studio .yor-studio__actions button:hover { transform:translateY(-2px); border-color:#d7aaf6; background:#373459; }
+.yor-world-hero__studio .yor-studio__actions button:first-child:hover {background:#f1d8ff;color:#1a1933;}
+.yor-world-hero__studio .yor-studio__actions button[aria-pressed="true"] {border-color:#95dfef; color:#a6f0fc;}
+.yor-world-hero__studio .yor-studio__secret {
+  display:inline-flex; align-items:center; color:#b8f8dc; padding:9px 10px;
+  font:700 9px var(--font-mono),monospace; letter-spacing:.06em;
+}
+.yor-world-hero__studio .yor-studio__hover-label {
+  position:absolute; left:21px; top:18px; z-index:6;
+  pointer-events:none; padding:9px 12px;
+  background:rgba(13,17,40,.85); color:#f0d4ff;
+  border:1px solid rgba(230,182,255,.6); border-radius:7px;
+  font:700 9px/1.25 var(--font-mono),monospace; letter-spacing:.1em;
+  box-shadow:0 12px 35px rgba(0,0,0,.23);
+}
+.yor-world-hero__studio .yor-studio__console {
+  position:absolute; inset:clamp(12px,4%,34px); z-index:9; overflow-y:auto;
+  display:flex; flex-direction:column; padding:clamp(19px,3vw,37px);
+  color:#f5f4ff; background:linear-gradient(145deg,rgba(13,19,38,.97),rgba(30,26,57,.97));
+  border:1px solid rgba(207,177,255,.53); border-radius:15px;
+  box-shadow:0 12px 90px rgba(9,8,24,.72),inset 0 0 70px rgba(174,128,230,.055);
+  backdrop-filter:blur(20px);
+}
+.yor-world-hero__studio .yor-studio__console-top,
+.yor-world-hero__studio .yor-studio__console-foot {
+  display:flex; align-items:center; justify-content:space-between; gap:15px; flex-wrap:wrap;
+  font:750 10px/1.3 var(--font-mono),monospace; letter-spacing:.13em; color:#a9aff0;
+}
+.yor-world-hero__studio .yor-studio__console-top button {
+  min-height:44px; padding:10px 17px; border-radius:30px; cursor:pointer;
+  border:1px solid rgba(213,207,248,.35); background:rgba(222,210,250,.08);
+  color:#efe5ff; font:750 10px/1.2 var(--font-mono),monospace;
+}
+.yor-world-hero__studio .yor-studio__console h2 {
+  margin:clamp(12px,2vw,26px) 0 3px;
+  color:#fff; font-size:clamp(32px,4.3vw,62px); line-height:1.05;
+  font-weight:760; letter-spacing:-.055em; font-family:var(--font-display),Arial,sans-serif;
+}
+.yor-world-hero__studio .yor-studio__console h2 span {color:#e0a8fc;}
+.yor-world-hero__studio .yor-studio__console p {max-width:55ch;margin:8px 0 19px;color:#bbc4e4;font-size:13px;line-height:1.55;}
+.yor-world-hero__studio .yor-studio__console-projects {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px; flex:1;
+}
+.yor-world-hero__studio .yor-studio__console-project {
+  display:grid;grid-template-columns:24px 1fr 18px;align-items:center;gap:9px;
+  min-height:67px;padding:12px 13px;color:#f5ecff;
+  background:rgba(176,166,231,.075);border:1px solid rgba(196,194,229,.19);
+  border-radius:8px;transition:background .2s ease,transform .2s ease,border-color .2s ease;
+}
+.yor-world-hero__studio .yor-studio__console-project:hover {
+  background:rgba(192,156,235,.17);border-color:#d5a5f1;transform:translateY(-2px);
+}
+.yor-world-hero__studio .yor-studio__console-project>span:first-child {
+  color:#cda4ee;font:700 10px var(--font-mono),monospace;
+}
+.yor-world-hero__studio .yor-studio__console-project>span:nth-child(2){min-width:0;}
+.yor-world-hero__studio .yor-studio__console-project b {
+  display:block;font:720 clamp(12px,1.1vw,15px)/1.35 var(--font-display),Arial,sans-serif;
+}
+.yor-world-hero__studio .yor-studio__console-project small {
+  display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;
+  color:#a8adcf;font:650 9px/1.3 var(--font-mono),monospace;letter-spacing:.02em;
+}
+.yor-world-hero__studio .yor-studio__console-project>span:last-child {color:#eabafb;font-size:17px;}
+.yor-world-hero__studio .yor-studio__console-foot {
+  padding-top:16px;margin-top:18px;border-top:1px solid rgba(219,194,251,.22);font-size:9px;
+}
+.yor-world-hero__studio .yor-studio__console-foot a {color:#f2d1ff;border-bottom:1px solid #c99de7;padding-bottom:3px;}
+@media (max-width:650px) {
+  .yor-world-hero__studio .yor-studio__actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}
+  .yor-world-hero__studio .yor-studio__actions button {padding:8px 9px;font-size:9px;min-height:44px;}
+  .yor-world-hero__studio .yor-studio__secret {grid-column:1/-1;min-height:30px;}
+  .yor-world-hero__studio .yor-studio__hover-label {display:none;}
+  .yor-world-hero__studio .yor-studio__console {inset:8px;padding:16px;border-radius:9px;}
+  .yor-world-hero__studio .yor-studio__console h2 {font-size:31px;margin-top:10px;}
+  .yor-world-hero__studio .yor-studio__console p {font-size:11px;margin-bottom:11px;}
+  .yor-world-hero__studio .yor-studio__console-projects {grid-template-columns:1fr;gap:5px;}
+  .yor-world-hero__studio .yor-studio__console-project {min-height:48px;padding:7px 10px;gap:7px;}
+  .yor-world-hero__studio .yor-studio__console-project b {font-size:12px;}
+  .yor-world-hero__studio .yor-studio__console-project small {font-size:8px;margin-top:1px;}
+  .yor-world-hero__studio .yor-studio__console-foot {margin-top:10px;padding-top:8px;}
+}
