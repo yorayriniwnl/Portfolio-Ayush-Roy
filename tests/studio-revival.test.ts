@@ -116,7 +116,7 @@ test("actual GLB fills the opening cinematic stage instead of an editorial side 
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
   const css = readFileSync("src/styles/studio-revival.css","utf8");
   assert.match(scene,/work: \{ eye: \[-0\.68,1\.60,1\.18\]/);
-  assert.match(scene,/gl\.toneMappingExposure=1\.05/);
+  assert.match(scene,/gl\.toneMappingExposure=\.95/);
   assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
   assert.match(scene,/function StudioHexLights/);
   assert.match(scene,/new THREE.ShapeGeometry/);
@@ -161,4 +161,20 @@ test("high-detail authored gaming props replace low-poly blockout groups without
   assert.match(css,/Compact mobile introduction preceding the 3D room/);
   assert.match(css,/grid-column:1;grid-row:3/);
   assert.ok(statSync("public/models/yor-world-workstation-details.glb").size > 700_000);
+});
+
+test("reference dressing uses modeled RGB fans, gamepads and trailing vines, not flat image overlays", () => {
+  const detail = readFileSync("src/components/experience/StudioReferenceDressing.tsx", "utf8");
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  assert.match(detail, /function GlowingFan/);
+  assert.match(detail, /function Controller/);
+  assert.match(detail, /function HangingVine/);
+  assert.match(detail, /CatmullRomCurve3/);
+  assert.match(detail, /torusGeometry/);
+  assert.match(detail, /onOpenComputer/);
+  assert.match(detail, /onExplore/);
+  assert.match(scene, /<StudioReferenceDressing lightsOn=\{lightsOn\}/);
+  assert.match(scene, /\[-\.57,2\.38,"#dfaeff"\]/);
+  assert.match(css, /Second-stage art pass:/);
 });
