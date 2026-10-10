@@ -11,8 +11,8 @@ test("homepage is server-rendered and delegates only interactions to small clien
   assert.doesNotMatch(narrative, /^\\s*["']use client["']/m);
   assert.match(home, /EditorialHome/);
   assert.match(narrative, /<main id="main" className="editorial-home"/);
-  assert.match(narrative, /<EditorialSkills \\/>/);
-  assert.match(narrative, /<EditorialWork projects=\\{portfolioCards\\} \\/>/);
+  assert.ok(narrative.includes("<EditorialSkills />"));
+  assert.ok(narrative.includes("<EditorialWork projects={portfolioCards} />"));
   assert.match(interactive, /"use client"/);
   assert.match(interactive, /aria-pressed/);
   assert.match(interactive, /aria-roledescription="carousel"/);
@@ -33,11 +33,11 @@ test("reference-inspired narrative preserves semantic sections, working URLs and
   assert.match(narrative, /Developer/);
   assert.match(narrative, /data-essential-copy/);
   assert.match(narrative, /href="#projects"/);
-  assert.match(narrative, /href="\\/resume"/);
-  assert.match(interactive, /project\\.outcome/);
-  assert.match(interactive, /project\\.purpose/);
-  assert.match(interactive, /project\\.source/);
-  assert.match(interactive, /project\\.live/);
+  assert.ok(narrative.includes('href="/resume"'));
+  assert.ok(interactive.includes("project.outcome"));
+  assert.ok(interactive.includes("project.purpose"));
+  assert.ok(interactive.includes("project.source"));
+  assert.ok(interactive.includes("project.live"));
   assert.match(registry, /recruiterProjects/);
 });
 
