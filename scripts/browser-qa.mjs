@@ -499,6 +499,23 @@ try {
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "mobile editorial homepage" });
   assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas').length === 0`), "Mobile homepage mounted redundant 3D");
+  const mobileRoomReady = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
+    { timeoutMs: 28_000, description: "authentic Yor-World 3D room ready on mobile" });
+  assert(mobileRoomReady.value, "Mobile 3D room failed to load imported assets");
+  await delay(220); // Give WebGL a painted frame after model completion.
+  const mobileStage = await cdp.evaluate(`(() => {
+    const viewport = document.querySelector('.yor-studio__viewport');
+    const rect = viewport?.getBoundingClientRect();
+    return rect ? { top: rect.top, bottom: rect.bottom, height: rect.height,
+      loaded: document.querySelector('.yor-studio')?.dataset.sceneReady,
+      canvases: viewport.querySelectorAll('canvas').length,
+      visiblePixels: Math.max(0, Math.min(rect.bottom, innerHeight) - Math.max(rect.top, 0)) } : null;
+  })()`);
+  assert(mobileStage && mobileStage.top < 570 && mobileStage.visiblePixels >= 240 &&
+    mobileStage.canvases === 1 && mobileStage.loaded === "true",
+    `Mobile first screen needs visible loaded 3D room: ${JSON.stringify(mobileStage)}`);
+  report.rendering.mobileHome = mobileStage;
   await capture(cdp, outputDir, "mobile-hero");
   await navigate(cdp, baseUrl + "/projects");
   await positionProjectWorldForCapture();
