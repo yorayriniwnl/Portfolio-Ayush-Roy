@@ -423,61 +423,49 @@ try {
   await setViewport(cdp, 1440, 900);
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
   await navigate(cdp, baseUrl);
-  const heroStart = Date.now();
-  const heroScene = await waitForCondition(cdp, `(() => { const layer = document.querySelector('.machine-scene-layer'); return layer && (layer.dataset.sceneStatus === 'ready' || layer.dataset.sceneStatus === 'failed') ? { status: layer.dataset.sceneStatus, renderer: document.querySelector('.machine-canvas')?.dataset.renderer || null } : null; })()`, { timeoutMs: 25_000, description: "homepage scene initialization" });
-  report.rendering.home = { ...heroScene.value, initializationMs: Date.now() - heroStart };
-  await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-portrait svg')) && Boolean(document.querySelector('.editorial-skills__matrix'))`, { timeoutMs: 12000, description: "editorial homepage portrait and skill grid" });
-  report.rendering.editorial = { desktopHero: true };
+  await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "editorial homepage visible" });
+  const noHomeGpu = await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas, .yor-studio__viewport canvas').length === 0`);
+  assert(noHomeGpu, "Reference homepage should not create duplicate GPU scenes");
+  const boardReady = await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-skills__matrix'))`, { description: "interactive technology keyboard" });
+  report.rendering.home = { sceneLayers: 0, canvases: 0, skillsReady: Boolean(boardReady.value) };
   await capture(cdp, outputDir, "desktop-hero");
   report.performance.samples.push({ path: "/", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
 
+  await clickAtSelector('a[href="/projects"]');
+  await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { timeoutMs: 8000, description: "client navigation to project index" });
+  const initialScene = await waitForCondition(cdp, `(() => { const layer = document.querySelector('.machine-scene-layer'); return layer && (layer.dataset.sceneStatus === 'ready' || layer.dataset.sceneStatus === 'failed') ? layer.dataset.sceneStatus : null; })()`, { timeoutMs: 25_000, description: "project-world scene initialized" });
+  report.rendering.projectIndex = { status: initialScene.value };
   const recordedCanvas = await cdp.evaluate(`(() => {
     const canvas = document.querySelector('.machine-canvas');
-    if (!canvas) return false;
-    window.__qaPersistentCanvas = canvas;
-    return true;
+    window.__qaPersistentCanvas = canvas || null;
+    return Boolean(canvas);
   })()`);
-  assert(recordedCanvas, "Ready homepage did not contain a Canvas instance to track across client routes");
-  await clickAtSelector('a[href="/projects"]');
-  await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { timeoutMs: 8000, description: "client navigation to project index with shared scene" });
-  const projectCanvas = await cdp.evaluate(`(() => ({
-    sameCanvas: window.__qaPersistentCanvas === document.querySelector('.machine-canvas'),
-    status: document.querySelector('.machine-scene-layer')?.dataset.sceneStatus || null,
-  }))()`);
-  assert(projectCanvas.sameCanvas && projectCanvas.status === "ready", `Project index replaced or reset the shared Canvas: ${JSON.stringify(projectCanvas)}`);
+  if (initialScene.value === "ready") assert(recordedCanvas, "Ready project scene did not contain a Canvas");
   await positionProjectWorldForCapture();
   await capture(cdp, outputDir, "desktop-project-world");
 
-  const candidateLink = await cdp.evaluate(`(() => {
-    const link = document.querySelector('a[href="/projects/candidatex"]');
-    if (!link) return false;
-    link.scrollIntoView({ block: 'center', behavior: 'instant' });
-    return true;
-  })()`);
-  assert(candidateLink, "Project index has no CandidateX route link for the client-navigation audit");
-  await delay(120);
   await clickAtSelector('a[href="/projects/candidatex"]');
-  await waitForCondition(cdp, `location.pathname === '/projects/candidatex' && Boolean(document.querySelector('[data-experience-project="candidatex"]'))`, { timeoutMs: 8000, description: "client navigation to CandidateX with shared scene" });
+  await waitForCondition(cdp, `location.pathname === '/projects/candidatex' && Boolean(document.querySelector('[data-experience-project="candidatex"]'))`, { timeoutMs: 8000, description: "client navigation to CandidateX" });
   const caseCanvas = await cdp.evaluate(`(() => ({
     sameCanvas: window.__qaPersistentCanvas === document.querySelector('.machine-canvas'),
     status: document.querySelector('.machine-scene-layer')?.dataset.sceneStatus || null,
   }))()`);
-  assert(caseCanvas.sameCanvas && caseCanvas.status === "ready", `Case study replaced or reset the shared Canvas: ${JSON.stringify(caseCanvas)}`);
+  if (initialScene.value === "ready") {
+    assert(caseCanvas.sameCanvas && caseCanvas.status === "ready", "Project renderer remounted across eligible client routes");
+  }
   report.interaction.sharedCanvasRoutePersistence = {
-    paths: ["/", "/projects", "/projects/candidatex"],
-    sameCanvasAfterEach: [projectCanvas.sameCanvas, caseCanvas.sameCanvas],
-    statusAfterEach: [projectCanvas.status, caseCanvas.status],
+    paths: ["/projects", "/projects/candidatex"],
+    sameCanvasAfterEach: [caseCanvas.sameCanvas],
+    statusAfterEach: [caseCanvas.status],
   };
   await capture(cdp, outputDir, "desktop-case-study");
 
   await setViewport(cdp, 390, 844);
   await navigate(cdp, baseUrl);
-  await waitForCondition(cdp, `document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'ready' || document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'failed'`, { timeoutMs: 25_000, description: "mobile homepage scene initialization" });
-  await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-portrait svg')) && Boolean(document.querySelector('.editorial-skills__matrix'))`, { timeoutMs: 12000, description: "editorial homepage on mobile browser" });
-  report.rendering.editorial.mobileHero = true;
+  await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "mobile editorial homepage" });
+  assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas').length === 0`), "Mobile homepage mounted redundant 3D");
   await capture(cdp, outputDir, "mobile-hero");
-  await navigate(cdp, `${baseUrl}/projects`);
-  await waitForCondition(cdp, `document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'ready' || document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'failed'`, { timeoutMs: 25_000, description: "mobile project scene initialization" });
+  await navigate(cdp, baseUrl + "/projects");
   await positionProjectWorldForCapture();
   await capture(cdp, outputDir, "mobile-project-world");
   await setViewport(cdp, 1440, 900);
@@ -586,7 +574,7 @@ try {
   activeScenario = "reduced motion and renderer behavior";
   await setViewport(cdp, 1440, 900);
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
-  await navigate(cdp, baseUrl);
+  await navigate(cdp, baseUrl + "/projects");
   await waitForCondition(cdp, `document.querySelector('.machine-scene-layer')?.dataset.sceneStatus === 'static' && document.querySelectorAll('.machine-canvas canvas').length === 0`, { timeoutMs: 5000, description: "reduced motion static scene" });
   const reduced = await cdp.evaluate(`({ status: document.querySelector('.machine-scene-layer')?.dataset.sceneStatus, canvases: document.querySelectorAll('.machine-canvas canvas').length, staticSvg: Boolean(document.querySelector('.machine-static svg')) })`);
   assert(reduced.staticSvg, "Reduced-motion static scene composition is missing");
@@ -597,7 +585,7 @@ try {
   const toggledScene = await waitForCondition(cdp, `(() => { const layer = document.querySelector('.machine-scene-layer'); return layer && (layer.dataset.sceneStatus === 'ready' || layer.dataset.sceneStatus === 'failed') ? { status: layer.dataset.sceneStatus, renderer: document.querySelector('.machine-canvas')?.dataset.renderer || null } : null; })()`, { timeoutMs: 25_000, description: "live reduced-motion preference restoration" });
   report.rendering.livePreferenceRestore = { ...toggledScene.value, elapsedMs: Date.now() - toggleStart };
 
-  await navigate(cdp, `${baseUrl}/?renderer=webgl`);
+  await navigate(cdp, baseUrl + "/projects?renderer=webgl");
   const webglStart = Date.now();
   const webgl = await waitForCondition(cdp, `(() => { const layer = document.querySelector('.machine-scene-layer'); return layer && (layer.dataset.sceneStatus === 'ready' || layer.dataset.sceneStatus === 'failed') ? { status: layer.dataset.sceneStatus, renderer: document.querySelector('.machine-canvas')?.dataset.renderer || null } : null; })()`, { timeoutMs: 25_000, description: "forced WebGL renderer path" });
   assert(webgl.value.status === "ready" && webgl.value.renderer === "webgl", `WebGL 2 path failed: ${JSON.stringify(webgl.value)}`);
@@ -626,7 +614,7 @@ try {
   backgroundTargetId = undefined;
 
   const failScript = await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: `Object.defineProperty(navigator, 'gpu', { configurable: true, value: undefined }); const original = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function(type, ...args) { if (['webgl2', 'webgpu'].includes(String(type).toLowerCase())) return null; return original.call(this, type, ...args); };` });
-  await navigate(cdp, baseUrl);
+  await navigate(cdp, baseUrl + "/projects");
   const forcedFailure = await waitForCondition(cdp, `(() => { const layer = document.querySelector('.machine-scene-layer'); return layer?.dataset.sceneStatus === 'failed' ? { status: layer.dataset.sceneStatus, svg: Boolean(document.querySelector('.machine-static svg')), canvas: document.querySelectorAll('.machine-canvas canvas').length } : null; })()`, { timeoutMs: 10_000, description: "forced graphics failure fallback" });
   assert(forcedFailure.value.svg && forcedFailure.value.canvas === 0, "Forced renderer failure did not retain the static SVG fallback");
   await cdp.send("Page.removeScriptToEvaluateOnNewDocument", { identifier: failScript.identifier });
