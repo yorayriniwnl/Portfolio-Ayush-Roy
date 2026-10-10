@@ -205,3 +205,8 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   .yor-world-hero__studio .yor-studio__bottomline { grid-template-columns:1fr; }
   .yor-world-hero__below { grid-column:1/-1; }
 }
+
+/* Keep the static HTML composition visible during GLB network/load work;
+   reveal the actual shaded scene only after all production modules mount. */
+.yor-studio[data-scene-ready="true"] .yor-studio__fallback {opacity:0; pointer-events:none;}
+.yor-studio[data-scene-failed="true"] .yor-studio__fallback {opacity:1;}
