@@ -24,6 +24,7 @@ test("homepage is server-rendered and delegates only interactions to small clien
 
 test("reference-inspired narrative preserves semantic sections, working URLs and evidence boundaries", () => {
   const narrative = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
+  const hero = readFileSync("src/components/experience/StudioHero.tsx", "utf8");
   const interactive = readFileSync("src/components/experience/EditorialInteractive.tsx", "utf8");
   const registry = readFileSync("src/content/project-registry.ts", "utf8");
   for (const id of ["about", "experience", "moments", "contact"]) {
