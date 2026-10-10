@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import styles from "./CustomCursor.module.css";
 
 const INTERACTIVE_SELECTOR =
@@ -9,12 +10,14 @@ const TEXT_CONTROL_SELECTOR =
   'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, [contenteditable]:not([contenteditable="false"])';
 
 export function CustomCursor() {
+  const pathname = usePathname();
   const cursorRef = useRef<HTMLDivElement>(null);
   const arrowRef = useRef<HTMLSpanElement>(null);
   const gauntletRef = useRef<HTMLSpanElement>(null);
   const glowRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    if (pathname === "/") return;
     const cursor = cursorRef.current;
     const arrow = arrowRef.current;
     const gauntlet = gauntletRef.current;
@@ -153,8 +156,9 @@ export function CustomCursor() {
       reducedMotion.removeEventListener("change", handlePreferenceChange);
       hideCursor();
     };
-  }, []);
+  }, [pathname]);
 
+  if (pathname === "/") return null;
   return (
     <div ref={cursorRef} className={styles.cursor} aria-hidden="true" data-custom-cursor-layer data-visible="false" data-hovered="false" data-pressed="false">
       <span ref={glowRef} className={styles.glow} />
