@@ -456,11 +456,11 @@ try {
   activeScenario = "first-person room walking with WASD and click-to-move";
   await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.click();true`);
   await waitForCondition(cdp,
-    `document.querySelector('.yor-studio')?.dataset.roaming === 'true' && !!document.querySelector('.yor-studio__viewport canvas')?.dataset.walkable`,
+    `document.querySelector('.yor-studio')?.dataset.roaming === 'true' && !!document.querySelector('.yor-studio')?.dataset.walkable`,
     {timeoutMs:3000,description:"walk mode engages in authentic 3D room"});
   const walkBefore=await cdp.evaluate(`(() => {
-    const canvas=document.querySelector('.yor-studio__viewport canvas');
-    return {x:Number(canvas.dataset.walkX),z:Number(canvas.dataset.walkZ)};
+    const room=document.querySelector('.yor-studio');
+    return {x:Number(room.dataset.walkX),z:Number(room.dataset.walkZ)};
   })()`);
   await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.focus();true`);
   await cdp.send("Input.dispatchKeyEvent",{type:"keyDown",key:"w",code:"KeyW",windowsVirtualKeyCode:87,nativeVirtualKeyCode:87});
@@ -468,9 +468,9 @@ try {
   await cdp.send("Input.dispatchKeyEvent",{type:"keyUp",key:"w",code:"KeyW",windowsVirtualKeyCode:87,nativeVirtualKeyCode:87});
   await delay(140);
   const walkAfter=await cdp.evaluate(`(() => {
-    const canvas=document.querySelector('.yor-studio__viewport canvas');
-    return {x:Number(canvas.dataset.walkX),z:Number(canvas.dataset.walkZ),
-      walkable:canvas.dataset.walkable,mode:document.querySelector('.yor-studio')?.dataset.roaming};
+    const room=document.querySelector('.yor-studio');
+    return {x:Number(room.dataset.walkX),z:Number(room.dataset.walkZ),
+      walkable:room.dataset.walkable,mode:room.dataset.roaming};
   })()`);
   assert(walkAfter.mode==="true" && walkAfter.walkable==="true" &&
     Math.hypot(walkAfter.x-walkBefore.x,walkAfter.z-walkBefore.z)>.15,
@@ -645,7 +645,7 @@ try {
     {timeoutMs:2500,description:"mobile walk mode starts"});
   await delay(250);
   const mobileWalkStart=await cdp.evaluate(`(() => {
-    const c=document.querySelector('.yor-studio__viewport canvas');
+    const c=document.querySelector('.yor-studio');
     return {x:Number(c.dataset.walkX),z:Number(c.dataset.walkZ)};
   })()`);
   const pad=await cdp.evaluate(`(() => {
@@ -657,7 +657,7 @@ try {
   await cdp.send("Input.dispatchMouseEvent",{type:"mouseReleased",x:pad.x,y:pad.y,button:"left",clickCount:1});
   await delay(120);
   const mobileWalkEnd=await cdp.evaluate(`(() => {
-    const c=document.querySelector('.yor-studio__viewport canvas');
+    const c=document.querySelector('.yor-studio');
     return {x:Number(c.dataset.walkX),z:Number(c.dataset.walkZ),walkable:c.dataset.walkable};
   })()`);
   assert(Math.hypot(mobileWalkEnd.x-mobileWalkStart.x,mobileWalkEnd.z-mobileWalkStart.z)>.12 &&
