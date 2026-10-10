@@ -118,8 +118,11 @@ test("actual GLB fills the opening cinematic stage instead of an editorial side 
   assert.match(scene,/work: \{ eye: \[1\.30,1\.67,1\.28\]/);
   assert.match(scene,/gl\.toneMappingExposure=\.72/);
   assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
-  assert.match(scene,/material\.emissiveIntensity = lightsOn \? \.48 : \.035/);
-  assert.match(scene,/getObjectByName\(\`hex_panel_\$\{i\}\`\)/);
+  assert.match(scene,/function StudioHexLights/);
+  assert.match(scene,/new THREE.ShapeGeometry/);
+  assert.match(scene,/oldFixture.visible=false/);
+  assert.match(scene,/<StudioHexLights lightsOn=\{lightsOn\}/);
+  assert.match(scene,/HEX_LIGHTS.map/);
   assert.match(scene,/<pointLight position=\{\[0,2\.05,-1\.5\]\}/);
   assert.match(css,/Full-room art direction:/);
   assert.match(css,/\.yor-world-hero__intro \{[\s\S]*?grid-column:1;grid-row:2;align-self:center/);
