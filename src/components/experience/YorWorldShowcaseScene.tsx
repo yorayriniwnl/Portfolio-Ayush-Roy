@@ -67,6 +67,14 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, onRead
     return {group:model,avatarMixer:am,chairMixer:cm,actions:anims,door,lightNodes};
   },[world,resident,fixture]);
 
+  // Three.js scene objects are inherently mutable. Keep that mutation behind
+  // a ref so React memoized values stay read-only in effects and frame hooks.
+  const mutable = useRef<{ door: THREE.Object3D | null; lights: Array<{ node:THREE.Light; intensity:number }> } | null>(null);
+  useEffect(() => {
+    mutable.current = { door, lights: lightNodes };
+    return () => { mutable.current = null; };
+  }, [door, lightNodes]);
+
   useEffect(() => {
     actions.get("coding_idle")?.reset().play();
     const chairIdle = fixture.animations.find(clip=>clip.name==="coding_idle");
@@ -90,11 +98,12 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, onRead
   useFrame((_,delta) => {
     avatarMixer.update(Math.min(delta,.06));
     chairMixer.update(Math.min(delta,.06));
-    if (door) door.rotation.y = THREE.MathUtils.damp(door.rotation.y, selected==="contact" ? -1.05 : 0,2.8,Math.min(delta,.06));
+    const pivot = mutable.current?.door;
+    if (pivot) pivot.rotation.y = THREE.MathUtils.damp(pivot.rotation.y, selected==="contact" ? -1.05 : 0,2.8,Math.min(delta,.06));
   });
 
   useEffect(() => {
-    for (const {node,intensity} of lightNodes)
+    for (const {node,intensity} of mutable.current?.lights ?? [])
       node.intensity = lightsOn ? intensity : intensity*.18;
   },[lightsOn,lightNodes]);
 
