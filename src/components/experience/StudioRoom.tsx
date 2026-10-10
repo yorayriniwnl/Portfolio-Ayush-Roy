@@ -221,9 +221,11 @@ export function StudioRoom() {
           {(["forward","left","back","right"] as const).map(direction=>
             <button key={direction} type="button" aria-label={`Walk ${direction}`}
               className={`yor-studio__touch-${direction}`} aria-pressed={touchDirection===direction}
-              onPointerDown={event=>{event.preventDefault();event.currentTarget.setPointerCapture(event.pointerId);setTouchDirection(direction);}}
+              onPointerDown={event=>{setTouchDirection(direction);try{event.currentTarget.setPointerCapture(event.pointerId);}catch{/* Unsupported synthetic pointer capture still permits movement. */}}}
               onPointerUp={()=>setTouchDirection(null)}
               onPointerCancel={()=>setTouchDirection(null)}
+              onMouseDown={()=>setTouchDirection(direction)}
+              onMouseUp={()=>setTouchDirection(null)}
               onLostPointerCapture={()=>setTouchDirection(null)}>
               {direction==="forward"?"↑":direction==="left"?"←":direction==="back"?"↓":"→"}
             </button>
