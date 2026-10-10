@@ -187,3 +187,14 @@ test("reference composition keeps the whole workstation visible without covering
   assert.match(css, /Room-first editorial strip/);
   assert.match(css, /grid-column:1;grid-row:3;margin-top:0/);
 });
+
+test("the reference workstation includes lightweight modeled desk and floor accessories", () => {
+  const details=readFileSync("src/components/experience/StudioDeskProps.tsx","utf8");
+  const scene=readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  for(const feature of ["DeskConsole","ClockAndController","StandingFloorPlant","Planter"]) {
+    assert.match(details,new RegExp("function " + feature + "\\("));
+  }
+  assert.match(scene, /<StudioDeskProps onOpen=\{\(\) => onInteract\("monitor"\)\}\/>/);
+  assert.match(details, /position=\{\[-1\.02,\.751,-\.99\]\}/);
+  assert.match(details, /scale=\{\[\.055,\.04,\.043\]\}/);
+});
