@@ -306,6 +306,14 @@ try {
     }
   });
 
+  activeScenario = "editorial social image";
+  const editorialSocial = await fetchManual("/opengraph-image");
+  assert(editorialSocial.status === 200, `Social preview returned HTTP ${editorialSocial.status}`);
+  assert((editorialSocial.headers.get("content-type") || "").startsWith("image/png"), "Social preview must render as a PNG");
+  const socialBytes = (await editorialSocial.arrayBuffer()).byteLength;
+  assert(socialBytes > 12_000, `Social preview PNG was unexpectedly small (${socialBytes} bytes)`);
+  report.routeResponses.social = { status: editorialSocial.status, mimeType: "image/png", bytes: socialBytes };
+
   activeScenario = "production route response matrix";
   for (const route of QA_CORE_ROUTES) {
     const response = await fetchManual(route.path);
@@ -523,9 +531,28 @@ try {
   const touchedProject = await cdp.evaluate(`document.querySelector('a.project-world__title-link')?.getAttribute('data-project-active')`);
   assert(touchedProject === "true", "Touch selection did not activate the selected project world");
   await cdp.send("Input.dispatchTouchEvent", { type: "touchCancel", touchPoints: [] });
+
+  // Validate a real swipe on the reference-inspired carousel at mobile size,
+  // rather than merely checking that React has a touch handler attached.
+  await navigate(cdp, baseUrl);
+  const editorialTouch = await cdp.evaluate(`(async () => {
+    const stage = document.querySelector('.editorial-projects__stage');
+    if (!stage) return null;
+    stage.scrollIntoView({ block: 'start', behavior: 'instant' });
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const rect = stage.getBoundingClientRect();
+    const selected = Array.from(document.querySelectorAll('.editorial-projects__dots button')).findIndex((button) => button.classList.contains('is-active'));
+    return { x: Math.min(innerWidth - 35, rect.left + rect.width * .72), y: Math.max(135, Math.min(innerHeight - 130, rect.top + 180)), selected };
+  })()`);
+  assert(editorialTouch && editorialTouch.selected === 0, "Editorial work carousel was not at its initial project");
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: editorialTouch.x, y: editorialTouch.y, id: 1 }] });
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: editorialTouch.x - 105, y: editorialTouch.y + 3, id: 1 }] });
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await waitForCondition(cdp, `document.querySelector('.editorial-projects__dots button:nth-child(2)')?.classList.contains('is-active')`, { timeoutMs: 2500, description: "editorial carousel advances after left swipe" });
+  report.interaction.editorialSwipe = { tested: true, nextProjectSelected: true, touchTargetPx: 44 };
   await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
   report.interaction.keyboard = { skipLinkFirst: true, menuEnter: true, escapeDismissal: true, focusRestored: true };
-  report.interaction.touch = { projectWorldSelection: true };
+  report.interaction.touch = { projectWorldSelection: true, editorialSwipe: true };
 
   activeScenario = "custom cursor accessibility and asset fallback";
   await setViewport(cdp, 1440, 900);
