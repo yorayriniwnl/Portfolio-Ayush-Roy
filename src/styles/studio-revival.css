@@ -160,7 +160,7 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   .yor-world-hero__edition { flex-basis:100%; margin-left:20px; }
   .yor-world-hero__intro { padding:64px 0 44px; }
   .yor-world-hero__welcome { font-size:10px; margin-bottom:20px; }
-  .editorial-home .yor-world-hero h1 { font-size:clamp(61px,13.8vw,90px); line-height: .99; }
+  .editorial-home .yor-world-hero h1 { font-size:clamp(54px,12.5vw,85px); line-height: .99; }
   .yor-world-hero__description { margin-top:24px; font-size:15px; }
   .yor-world-hero__ctas { margin-top:25px; }
   .yor-world-hero__ctas a { min-height:48px; padding:13px 16px; gap:12px; font-size:11px; }
