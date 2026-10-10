@@ -15,10 +15,8 @@ const FAN_LIGHTS = [
 ] as const;
 
 const TRAILS = [
-  { x: -.92, y: 1.96, count: 7, phase: -.12 },
-  { x: -.72, y: 1.92, count: 9, phase: .38 },
-  { x: .72, y: 1.92, count: 7, phase: -.34 },
-  { x: .92, y: 1.99, count: 8, phase: .25 },
+  { x: -.84, y: 1.96, count: 8, phase: -.12 },
+  { x: .80, y: 1.99, count: 8, phase: .25 },
 ] as const;
 
 function GlowingFan({ y, color, enabled }: { y:number; color:string; enabled:boolean }) {
@@ -138,8 +136,6 @@ export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore }:
       <group onClick={event => {event.stopPropagation();onOpenComputer();}}>
         {FAN_LIGHTS.map(({y,color}) =>
           <GlowingFan key={y} y={y} color={color} enabled={lightsOn}/>)}
-        <pointLight position={[1.06,1,-.85]} color="#c278ff"
-          intensity={lightsOn?1.25:0} distance={1.4} decay={2}/>
       </group>
 
       {/* A pair of raised white gamepads with genuine depth, in front of
