@@ -66,10 +66,6 @@ function Controller({ y, color }: { y:number; color:string }) {
       </mesh>
       {[-1,1].map(side => (
         <group key={side}>
-          <mesh position={[side*.108,-.052,.004]} rotation={[0,0,side*.27]}>
-            <sphereGeometry args={[1,12,10]}/>
-            <meshStandardMaterial color="#f8f6ff" roughness={.38}/>
-          </mesh>
           <mesh position={[side*.108,-.052,.004]} scale={[.047,.084,.027]} rotation={[0,0,side*.27]}>
             <sphereGeometry args={[1,12,10]}/>
             <meshStandardMaterial color="#f8f6ff" roughness={.38}/>
