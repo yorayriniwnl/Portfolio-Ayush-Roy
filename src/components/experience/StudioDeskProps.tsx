@@ -83,10 +83,6 @@ function StandingFloorPlant() {
             <cylinderGeometry args={[.006,.008,height,5]}/>
             <meshStandardMaterial color="#4c725a" roughness={.83}/>
           </mesh>
-          <mesh position={[x,.24+height,z]} rotation={[.15,a,.5]}>
-            <sphereGeometry args={[1,10,8]}/>
-            <meshStandardMaterial color={i%2===0?"#327754":"#4c9065"} roughness={.64}/>
-          </mesh>
           <mesh position={[x,.24+height,z]} scale={[.13,.075,.024]} rotation={[0,a,.4]}>
             <sphereGeometry args={[1,10,8]}/>
             <meshStandardMaterial color={i%2===0?"#327754":"#4c9065"}
@@ -127,7 +123,7 @@ function ClockAndController({ onOpen }: { onOpen:()=>void }) {
           <meshStandardMaterial color="#f6efff" roughness={.32}/>
         </mesh>
         {[-1,1].map(side=>(
-          <mesh key={side} position={[side*.09,.073,0]} rotation={[0,0,side*.3]}>
+          <mesh key={side} position={[side*.09,.073,0]} scale={[.055,.04,.043]} rotation={[0,0,side*.3]}>
             <sphereGeometry args={[1,10,8]}/>
             <meshStandardMaterial color="#efeaff" roughness={.35}/>
           </mesh>
