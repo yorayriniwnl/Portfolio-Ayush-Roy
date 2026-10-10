@@ -170,7 +170,7 @@ export function StudioRoom() {
             hoveredObject === "avatar" ? "GREET THE CREATOR" : hoveredObject === "door" ? "OPEN THE DOOR" : "EXPLORE THE LAB"}
         </div>}
         {consoleOpen && <section className="yor-studio__console" id="yor-room-console" role="dialog" aria-labelledby="yor-room-console-title" aria-describedby="yor-room-console-desc">
-          <div className="yor-studio__console-top"><span>YOR.OS / PROJECT LAUNCHER</span><button ref={consoleCloseButton} type="button" onClick={closeConsole} aria-label="Close workstation launcher">✕ CLOSE</button></div>
+          <div className="yor-studio__console-top"><span>YOR.OS / PROJECT LAUNCHER</span><button ref={consoleCloseButton} autoFocus type="button" onClick={closeConsole} aria-label="Close workstation launcher">✕ CLOSE</button></div>
           <h2 id="yor-room-console-title">Select a world<span>.</span></h2>
           <p id="yor-room-console-desc">Real projects, real engineering decisions. Open a case study to explore the evidence.</p>
           <div className="yor-studio__console-projects">

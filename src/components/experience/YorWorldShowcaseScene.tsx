@@ -29,7 +29,7 @@ function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): Studi
 /* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
  * from the connected Yor-World production assets. No CSS 3D substitution. */
 const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
-  work: { eye: [1.15,1.78,1.36], look: [0,1.1,-.83] },
+  work: { eye: [1.30,1.67,1.28], look: [0,1.23,-.92] },
   about: { eye: [1.12,1.5,.82], look: [.3,.88,-.36] },
   lab: { eye: [.6,1.65,.68], look: [1.92,1.5,-.4] },
   contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
@@ -63,6 +63,49 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
     camera.lookAt(target.current);
   });
   return null;
+}
+
+/** Seven modeled wall-light replacements in the original authored fixture
+ * positions. Basic shaded faces keep their individual pink/violet colors visible
+ * instead of tone-mapping the upstream 5.7x emissive panels into white blocks. */
+const HEX_LIGHTS = [
+  [0,1.82,"#d17cec"],[-.21,1.94124,"#8c82f7"],[-.21,1.69876,"#e7a0ef"],
+  [0,2.06248,"#bb85fb"],[0,1.57752,"#ca77e8"],[.21,1.94124,"#ef9ee6"],
+  [.21,1.69876,"#8c82f7"],
+] as const;
+function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:()=>void }) {
+  const geometry = useMemo(() => {
+    const outline = new THREE.Shape();
+    for(let i=0;i<6;i++) {
+      const angle=Math.PI/2 + i*Math.PI/3;
+      const x=Math.cos(angle)*.115, y=Math.sin(angle)*.115;
+      if(i===0) outline.moveTo(x,y); else outline.lineTo(x,y);
+    }
+    outline.closePath();
+    const face = new THREE.Shape();
+    for(let i=0;i<6;i++) {
+      const angle=Math.PI/2 + i*Math.PI/3;
+      const x=Math.cos(angle)*.096, y=Math.sin(angle)*.096;
+      if(i===0) face.moveTo(x,y); else face.lineTo(x,y);
+    }
+    face.closePath();
+    return {rim:new THREE.ShapeGeometry(outline), core:new THREE.ShapeGeometry(face)};
+  }, []);
+  useEffect(() => () => { geometry.rim.dispose(); geometry.core.dispose(); }, [geometry]);
+  return (
+    <group position={[0,0,-1.708]} onClick={e=>{e.stopPropagation();onExplore();}}>
+      {HEX_LIGHTS.map(([x,y,color],i) =>
+        <group key={i} position={[x,y,0]}>
+          <mesh geometry={geometry.rim}>
+            <meshBasicMaterial color={lightsOn ? "#f7e3ff" : "#696178"} toneMapped={false}/>
+          </mesh>
+          <mesh geometry={geometry.core} position={[0,0,.008]}>
+            <meshBasicMaterial color={lightsOn ? color : "#322b4b"} toneMapped={false}/>
+          </mesh>
+        </group>
+      )}
+    </group>
+  );
 }
 
 function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selected, lightsOn, blindsOpen, paintingBeat, introSequence, onReady }: {
@@ -104,6 +147,13 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
         lightNodes.push({node:light,intensity:light.intensity});
       }
     });
+    // GLB hex faces have a 5.3–5.7x export emissive strength and read as
+    // blank white rectangles. Replace only their visible faces with the
+    // explicitly modeled hex fixtures above at the same seven coordinates.
+    for (let i=1; i<=7; i++) {
+      const oldFixture = room.getObjectByName(`hex_panel_${i}`);
+      if (oldFixture) oldFixture.visible=false;
+    }
     const door = room.getObjectByName("door-hinge") || null;
     const painting = room.getObjectByName("painting-pivot") || null;
     const blinds = Array.from({ length: 12 },(_,index) => room.getObjectByName(`blind_slat_${index+1}`))
@@ -198,7 +248,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     for (const {node,intensity} of mutable.current?.lights ?? [])
       // Imported GPU lights must be mutated imperatively to dim without remount.
       // eslint-disable-next-line react-hooks/immutability
-      node.intensity = intensity * (lightsOn ? .0025 : .00022);
+      node.intensity = intensity * (lightsOn ? .00092 : .00012);
   },[lightsOn,lightNodes]);
 
   const choose = (event:ThreeEvent<MouseEvent>) => {
@@ -218,11 +268,17 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
   };
   return (
     <>
-      <color attach="background" args={["#bbbcd8"]}/>
-      <ambientLight intensity={.24} color="#f9f6ff"/>
-      <hemisphereLight args={["#eceaff","#9ca8c9",.3]}/>
-      <directionalLight position={[4,7,5]} intensity={.4} color="#f9f5ff"/>
+      <color attach="background" args={["#8b8eaf"]}/>
+      <ambientLight intensity={.16} color="#dde6ff"/>
+      <hemisphereLight args={["#edeaff","#555b87",.33]}/>
+      <directionalLight position={[4,7,5]} intensity={.3} color="#faf4ff"/>
+      {/* Concerted violet/cyan practicals bring the authored RGB workstation to
+          life without the overexposed white patch caused by the original lights. */}
+      <pointLight position={[0,2.05,-1.5]} color="#c881ff" intensity={lightsOn ? 1.8 : .14} distance={3.1} decay={2}/>
+      <pointLight position={[-1.4,.72,-.65]} color="#50daff" intensity={lightsOn ? 2.4 : .2} distance={3.7} decay={2}/>
+      <pointLight position={[1.35,1.98,.06]} color="#ffb5df" intensity={lightsOn ? 1.8 : .14} distance={3.4} decay={2}/>
       <WorldCamera selected={selected} introSequence={introSequence}/>
+      <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
       <primitive object={group} onClick={choose}
         onPointerOver={hover}
         onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>
@@ -244,9 +300,9 @@ export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleL
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
-    <Canvas camera={{position:[1.15,1.78,1.36],fov:54,near:.08,far:30}}
+    <Canvas camera={{position:[1.30,1.67,1.28],fov:48,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
-      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.85; }}
+      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.72; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
       <Suspense fallback={null}>
         <AuthenticYorRoom onSelect={onSelect} onInteract={onInteract} onHover={onHover} onToggleLights={onToggleLights}
