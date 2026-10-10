@@ -176,6 +176,8 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     if (props) {
       for (const blind of props.blinds) {
         const angle = blind.base + (blindsOpen ? 0 : Math.PI / 2);
+        // Imported GLB transform is intentionally animated imperatively in the frame loop.
+        // eslint-disable-next-line react-hooks/immutability
         blind.node.rotation.z = THREE.MathUtils.damp(blind.node.rotation.z, angle, 5, step);
       }
       if (props.painting) {
@@ -189,7 +191,6 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     const pivot = props?.door;
     const doorwayOpening = entryTime.current !== null && entryTime.current < 1.8;
     // The external Three.js scene owns this mutable transform, not React state.
-    // eslint-disable-next-line react-hooks/immutability
     if (pivot) pivot.rotation.y = THREE.MathUtils.damp(pivot.rotation.y, selected==="contact" || doorwayOpening ? -1.05 : 0,2.8,step);
   });
 
