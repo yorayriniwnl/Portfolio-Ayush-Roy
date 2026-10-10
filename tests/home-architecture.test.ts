@@ -6,11 +6,14 @@ test("homepage is server-rendered and delegates only interactions to small clien
   const home = readFileSync("src/components/Home.tsx", "utf8");
   const narrative = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
   const interactive = readFileSync("src/components/experience/EditorialInteractive.tsx", "utf8");
+  const hero = readFileSync("src/components/experience/StudioHero.tsx", "utf8");
   const css = readFileSync("src/styles/editorial.css", "utf8");
   assert.doesNotMatch(home, /^\\s*["']use client["']/m);
   assert.doesNotMatch(narrative, /^\\s*["']use client["']/m);
   assert.match(home, /EditorialHome/);
   assert.match(narrative, /<main id="main" className="editorial-home"/);
+  assert.ok(narrative.includes("<StudioHero />"));
+  assert.match(hero, /<StudioRoom \/>/);
   assert.ok(narrative.includes("<EditorialSkills />"));
   assert.ok(narrative.includes("<EditorialWork projects={portfolioCards} />"));
   assert.match(interactive, /"use client"/);
@@ -29,11 +32,11 @@ test("reference-inspired narrative preserves semantic sections, working URLs and
   for (const id of ["skills", "projects"]) {
     assert.ok(interactive.includes(`id="${id}"`), `missing interactive section ${id}`);
   }
-  assert.match(narrative, /Full Stack/);
-  assert.match(narrative, /Developer/);
+  assert.match(hero, /Not another/);
+  assert.match(hero, /portfolio\./);
   assert.match(narrative, /data-essential-copy/);
-  assert.match(narrative, /href="#projects"/);
-  assert.ok(narrative.includes('href="/resume"'));
+  assert.match(hero, /href="#projects"/);
+  assert.ok(hero.includes('href="/resume"'));
   assert.ok(interactive.includes("project.outcome"));
   assert.ok(interactive.includes("project.purpose"));
   assert.ok(interactive.includes("project.source"));
