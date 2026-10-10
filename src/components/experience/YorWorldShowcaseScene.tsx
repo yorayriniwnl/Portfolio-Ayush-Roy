@@ -10,10 +10,10 @@ import type { StudioTarget } from "./StudioScene";
 /* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
  * from the connected Yor-World production assets. No CSS 3D substitution. */
 const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
-  work: { eye: [3.45,2.75,4.4], look: [0,1.0,-.4] },
-  about: { eye: [1.95,1.85,2.75], look: [.3,.99,-.36] },
-  lab: { eye: [-2.3,2.2,2.55], look: [0,1.83,-1.75] },
-  contact: { eye: [-2.7,1.75,3.0], look: [-1.22,1.2,1.77] },
+  work: { eye: [1.15,1.78,1.36], look: [0,1.1,-.83] },
+  about: { eye: [1.12,1.5,.82], look: [.3,.88,-.36] },
+  lab: { eye: [.6,1.65,.68], look: [1.92,1.5,-.4] },
+  contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
 };
 
 function WorldCamera({ selected }: { selected: StudioTarget }) {
@@ -150,7 +150,7 @@ export function YorWorldShowcaseScene({ onSelect, onToggleLights, selected, ligh
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
-    <Canvas camera={{position:[3.45,2.75,4.4],fov:39,near:.08,far:30}}
+    <Canvas camera={{position:[1.15,1.78,1.36],fov:54,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
       <Suspense fallback={null}>
