@@ -18,7 +18,7 @@ const destinations: Record<StudioTarget, { number: string; title: string; label:
   },
   about: {
     number: "02", title: "The human behind it", label: "MEET THE BUILDER",
-    description: "The avatar might turn to say hello. Meet the engineer behind the projects.",
+    description: "Tap the seated developer to trigger a greeting, then discover the person behind the projects.",
     href: "/#about", cta: "ABOUT AYUSH",
   },
   lab: {
@@ -39,6 +39,7 @@ export function StudioRoom() {
   const [visible, setVisible] = useState(false);
   const [allowed, setAllowed] = useState(true);
   const [graphicsAvailable, setGraphicsAvailable] = useState(false);
+  const [lightsOn, setLightsOn] = useState(true);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -84,8 +85,14 @@ export function StudioRoom() {
   return (
     <div className="yor-studio" ref={root}>
       <div className="yor-studio__topline">
-        <span><i className="yor-studio__pulse"/> A LITTLE CORNER OF MY UNIVERSE</span>
-        <span>YOR / ROOM_001</span>
+        <span><i className="yor-studio__pulse"/> ROOM ONLINE / STUDIO_001</span>
+        <div className="yor-studio__utilities">
+          <button type="button" onClick={() => setLightsOn((current) => !current)}
+            aria-pressed={lightsOn} aria-label={lightsOn ? "Dim studio lights" : "Turn on studio lights"}>
+            {lightsOn ? "✳ LIGHTS ON" : "☾ LIGHTS DIM"}
+          </button>
+          <button type="button" onClick={() => setSelected("work")}>↺ RESET CAMERA</button>
+        </div>
       </div>
       <div className="yor-studio__viewport">
         <div className="yor-studio__fallback" aria-hidden="true">
@@ -96,9 +103,9 @@ export function StudioRoom() {
           <div className="yor-studio__fallback-drawer"/>
           <div className="yor-studio__fallback-lamp"/>
         </div>
-        {allowed && visible && graphicsAvailable && <Scene onSelect={setSelected}/>}
+        {allowed && visible && graphicsAvailable && <Scene onSelect={setSelected} selected={selected} lightsOn={lightsOn}/>}
         <div className="yor-studio__hud" aria-hidden="true">
-          <span>INTERACTIVE WORKSPACE</span><span>EXPLORE THE OBJECTS ↗</span>
+          <span>REAL 3D / WEBGL</span><span>CLICK OBJECTS · CHANGE CAMERA ANGLES ↗</span>
         </div>
         <div className="yor-studio__corner yor-studio__corner--tl"/><div className="yor-studio__corner yor-studio__corner--br"/>
       </div>
@@ -116,7 +123,7 @@ export function StudioRoom() {
           <Link href={selectedItem.href} aria-label={selectedItem.cta}>{selectedItem.cta} <span aria-hidden="true">↗</span></Link>
         </div>
       </div>
-      <p className="yor-studio__access-note">Explore with your mouse or use the buttons. A reduced-motion, no-3D view is available automatically.</p>
+      <p className="yor-studio__access-note">Click the computer, avatar, artwork or door. Use the four camera presets if you prefer a keyboard or touch interface. The full portfolio remains accessible without 3D.</p>
     </div>
   );
 }
