@@ -29,7 +29,7 @@ function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): Studi
 /* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
  * from the connected Yor-World production assets. No CSS 3D substitution. */
 const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
-  work: { eye: [1.30,1.67,1.28], look: [0,1.23,-.92] },
+  work: { eye: [-1.90,1.70,1.45], look: [0.12,1.15,-1.15] },
   about: { eye: [1.12,1.5,.82], look: [.3,.88,-.36] },
   lab: { eye: [.6,1.65,.68], look: [1.92,1.5,-.4] },
   contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
@@ -41,6 +41,7 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
   const { camera } = useThree();
   const doorEye = useMemo(() => new THREE.Vector3(...CAMERA.contact.eye), []);
   const doorLook = useMemo(() => new THREE.Vector3(...CAMERA.contact.look), []);
+  // This is the corrected uncropped home framing from the authored Yor-World W1 camera evidence.
   const deskEye = useMemo(() => new THREE.Vector3(...CAMERA.work.eye), []);
   const deskLook = useMemo(() => new THREE.Vector3(...CAMERA.work.look), []);
   useEffect(() => { entryTime.current = introSequence > 0 ? 0 : null; }, [introSequence]);
@@ -96,6 +97,11 @@ function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:
     <group position={[0,0,-1.708]} onClick={e=>{e.stopPropagation();onExplore();}}>
       {HEX_LIGHTS.map(([x,y,color],i) =>
         <group key={i} position={[x,y,0]}>
+          <mesh position={[0,0,-.003]}>
+            <circleGeometry args={[.147,32]}/>
+            <meshBasicMaterial color={color} transparent opacity={lightsOn ? .22 : .025}
+              blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}/>
+          </mesh>
           <mesh geometry={geometry.rim}>
             <meshBasicMaterial color={lightsOn ? "#f7e3ff" : "#696178"} toneMapped={false}/>
           </mesh>
@@ -268,10 +274,10 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
   };
   return (
     <>
-      <color attach="background" args={["#8b8eaf"]}/>
-      <ambientLight intensity={.16} color="#dde6ff"/>
-      <hemisphereLight args={["#edeaff","#555b87",.33]}/>
-      <directionalLight position={[4,7,5]} intensity={.3} color="#faf4ff"/>
+      <color attach="background" args={["#b5bad7"]}/>
+      <ambientLight intensity={.76} color="#f1efff"/>
+      <hemisphereLight args={["#fff2ff","#778ab7",.7]}/>
+      <directionalLight position={[4,7,5]} intensity={.82} color="#fff8ff"/>
       {/* Concerted violet/cyan practicals bring the authored RGB workstation to
           life without the overexposed white patch caused by the original lights. */}
       <pointLight position={[0,2.05,-1.5]} color="#c881ff" intensity={lightsOn ? 1.8 : .14} distance={3.1} decay={2}/>
@@ -300,9 +306,9 @@ export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleL
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
-    <Canvas camera={{position:[1.30,1.67,1.28],fov:48,near:.08,far:30}}
+    <Canvas camera={{position:[-1.90,1.70,1.45],fov:48,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
-      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.72; }}
+      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=1.05; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
       <Suspense fallback={null}>
         <AuthenticYorRoom onSelect={onSelect} onInteract={onInteract} onHover={onHover} onToggleLights={onToggleLights}
