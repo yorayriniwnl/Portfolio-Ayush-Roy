@@ -448,8 +448,9 @@ try {
     `Homepage has missing or duplicate GPU layers: ${JSON.stringify(homeGpu)}`);
   assert(homeGpu.controls === 4, "Studio camera presets are incomplete");
   await clickAtSelector('.yor-studio__locations button:nth-child(2)');
-  assert(await cdp.evaluate(`document.querySelector('.yor-studio__locations button:nth-child(2)')?.getAttribute('aria-pressed') === 'true'`),
-    "Avatar camera preset did not activate");
+  await waitForCondition(cdp,
+    `document.querySelector('.yor-studio__locations button:nth-child(2)')?.getAttribute('aria-pressed') === 'true'`,
+    { timeoutMs: 2500, description: "avatar camera preset activates after React update" });
   await clickAtSelector('.yor-studio__locations button:nth-child(1)');
   const boardReady = await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-skills__matrix'))`, { description: "interactive technology keyboard" });
   report.rendering.home = { ...homeGpu, skillsReady: Boolean(boardReady.value), restoredInteractiveStudio: true };
