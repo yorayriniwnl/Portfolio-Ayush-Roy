@@ -56,6 +56,7 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
     const start=nearestWalkable(camera.position.x,camera.position.z);
     // This mutable camera belongs to Three.js; navigation is never React layout state.
     camera.position.set(start.x,WALK_EYE_HEIGHT,start.z);
+    onWalkStep(start);
     const acceptable=(event:KeyboardEvent) => {
       const el=document.activeElement;
       const tag=(event.target as HTMLElement | null)?.tagName?.toLowerCase();
@@ -109,14 +110,14 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
       window.removeEventListener("pointerup",endDrag);
       window.removeEventListener("pointercancel",endDrag);
     };
-  },[camera,gl,roaming,paused]);
+  },[camera,gl,roaming,paused,onWalkStep]);
 
   useEffect(()=>{
     if(roaming && walkTarget)route.current=walkRoute({x:camera.position.x,z:camera.position.z},walkTarget);
   },[camera,roaming,walkTarget]);
 
   useFrame((_,delta)=>{
-    const step=Math.min(delta,.05);
+    const step=Math.min(delta,.085);
     if(roaming){
       if(paused)return;
       const keys=pressed.current;
@@ -153,7 +154,7 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
       camera.lookAt(next.x-Math.sin(yaw.current)*cp,
                     WALK_EYE_HEIGHT+Math.sin(pitch.current),
                     next.z-Math.cos(yaw.current)*cp);
-      reportClock.current+=step;
+      reportClock.current+=delta;
       if(reportClock.current>.17) {
         reportClock.current=0;
         onWalkStep({x:next.x,z:next.z});
