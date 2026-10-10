@@ -105,7 +105,7 @@ export function StudioRoom() {
 
   const selectedItem = destinations[selected];
   return (
-    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)}>
+    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)} data-intro-sequence={introSequence}>
       <div className="yor-studio__topline">
         <span><i className="yor-studio__pulse"/> ROOM ONLINE / STUDIO_001</span>
         <div className="yor-studio__utilities">
