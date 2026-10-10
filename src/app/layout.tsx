@@ -25,10 +25,10 @@ export const metadata: Metadata = {
     siteName: "YOR / Ayush Roy",
     images: [
       {
-        url: "/media/hero-studio.svg",
-        width: 1600,
-        height: 1100,
-        alt: "YOR crimson field hub artwork",
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Ayush Roy Full Stack Developer editorial portfolio",
       },
     ],
   },
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ayush Roy · Product & Full-Stack Engineer",
     description: profile.positioning,
-    images: ["/media/hero-studio.svg"],
+    images: ["/opengraph-image"],
   },
   robots: { index: true, follow: true },
 };
