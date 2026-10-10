@@ -185,9 +185,9 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, onWal
     }
     event.stopPropagation();
     if (target === "lights") onToggleLights();
-    else if (target === "avatar") roaming ? onInteract("avatar") : onSelect("about");
-    else if (target === "door") roaming ? onInteract("door") : onSelect("contact");
-    else if (target === "skills") roaming ? onInteract("skills") : onSelect("lab");
+    else if (target === "avatar") { if(roaming) onInteract("avatar"); else onSelect("about"); }
+    else if (target === "door") { if(roaming) onInteract("door"); else onSelect("contact"); }
+    else if (target === "skills") { if(roaming) onInteract("skills"); else onSelect("lab"); }
     else onInteract(target);
   };
   const hover = (event:ThreeEvent<PointerEvent>) => {
