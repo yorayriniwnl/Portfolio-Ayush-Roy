@@ -164,6 +164,7 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
         gl.domElement.dataset.walkX=next.x.toFixed(3);
         gl.domElement.dataset.walkZ=next.z.toFixed(3);
         gl.domElement.dataset.walkable=String(isWalkable(next.x,next.z));
+        gl.domElement.dataset.walkYaw=yaw.current.toFixed(3);
       }
       return;
     }
