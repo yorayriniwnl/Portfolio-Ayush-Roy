@@ -16,10 +16,27 @@ const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,
   contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
 };
 
-function WorldCamera({ selected }: { selected: StudioTarget }) {
+function WorldCamera({ selected, introSequence }: { selected: StudioTarget; introSequence: number }) {
   const target = useRef(new THREE.Vector3(...CAMERA.work.look));
+  const entryTime = useRef<number | null>(null);
   const { camera } = useThree();
+  const doorEye = useMemo(() => new THREE.Vector3(...CAMERA.contact.eye), []);
+  const doorLook = useMemo(() => new THREE.Vector3(...CAMERA.contact.look), []);
+  const deskEye = useMemo(() => new THREE.Vector3(...CAMERA.work.eye), []);
+  const deskLook = useMemo(() => new THREE.Vector3(...CAMERA.work.look), []);
+  useEffect(() => { entryTime.current = introSequence > 0 ? 0 : null; }, [introSequence]);
   useFrame((_, delta) => {
+    if (entryTime.current !== null) {
+      const elapsed = entryTime.current + Math.min(delta,.06);
+      entryTime.current = elapsed;
+      const progress = THREE.MathUtils.clamp((elapsed - .75) / 3.7, 0, 1);
+      const eased = progress * progress * (3 - 2 * progress);
+      camera.position.copy(doorEye).lerp(deskEye,eased);
+      target.current.copy(doorLook).lerp(deskLook,eased);
+      camera.lookAt(target.current);
+      if (elapsed >= 5) entryTime.current = null;
+      return;
+    }
     const weight = 1 - Math.exp(-2.4 * Math.min(delta,.05));
     const config = CAMERA[selected];
     camera.position.lerp(new THREE.Vector3(...config.eye),weight);
@@ -29,11 +46,12 @@ function WorldCamera({ selected }: { selected: StudioTarget }) {
   return null;
 }
 
-function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, onReady }: {
+function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, introSequence, onReady }: {
   onSelect: (target:StudioTarget)=>void;
   onToggleLights:()=>void;
   selected:StudioTarget;
   lightsOn:boolean;
+  introSequence:number;
   onReady:()=>void;
 }) {
   const [world, resident, fixture] = useLoader(GLTFLoader, [
@@ -67,6 +85,13 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, onRead
     return {group:model,avatarMixer:am,chairMixer:cm,actions:anims,door,lightNodes};
   },[world,resident,fixture]);
 
+  const entryTime = useRef<number | null>(null);
+  const entryGreeted = useRef(false);
+  useEffect(() => {
+    entryTime.current = introSequence > 0 ? 0 : null;
+    entryGreeted.current = false;
+  }, [introSequence]);
+
   // Three.js scene objects are inherently mutable. Keep that mutation behind
   // a ref so React memoized values stay read-only in effects and frame hooks.
   const mutable = useRef<{ door: THREE.Object3D | null; lights: Array<{ node:THREE.Light; intensity:number }> } | null>(null);
@@ -96,12 +121,30 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, onRead
   },[selected,actions]);
 
   useFrame((_,delta) => {
-    avatarMixer.update(Math.min(delta,.06));
-    chairMixer.update(Math.min(delta,.06));
+    const step = Math.min(delta,.06);
+    avatarMixer.update(step);
+    chairMixer.update(step);
+    if (entryTime.current !== null) {
+      entryTime.current += step;
+      // Greeting is a real animation from the user's authored GLB rig.
+      if (entryTime.current > 2.75 && !entryGreeted.current) {
+        entryGreeted.current = true;
+        const greeting = actions.get("turn_to_visitor");
+        greeting?.reset();
+        greeting?.setLoop(THREE.LoopOnce,1);
+        if (greeting) greeting.clampWhenFinished = false;
+        greeting?.fadeIn(.35).play();
+      }
+      if (entryTime.current > 5.1) {
+        actions.get("turn_to_visitor")?.fadeOut(.65);
+        entryTime.current = null;
+      }
+    }
     const pivot = mutable.current?.door;
+    const doorwayOpening = entryTime.current !== null && entryTime.current < 1.8;
     // The external Three.js scene owns this mutable transform, not React state.
     // eslint-disable-next-line react-hooks/immutability
-    if (pivot) pivot.rotation.y = THREE.MathUtils.damp(pivot.rotation.y, selected==="contact" ? -1.05 : 0,2.8,Math.min(delta,.06));
+    if (pivot) pivot.rotation.y = THREE.MathUtils.damp(pivot.rotation.y, selected==="contact" || doorwayOpening ? -1.05 : 0,2.8,step);
   });
 
   useEffect(() => {
@@ -133,7 +176,7 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, onRead
       <ambientLight intensity={.24} color="#f9f6ff"/>
       <hemisphereLight args={["#eceaff","#9ca8c9",.3]}/>
       <directionalLight position={[4,7,5]} intensity={.4} color="#f9f5ff"/>
-      <WorldCamera selected={selected}/>
+      <WorldCamera selected={selected} introSequence={introSequence}/>
       <primitive object={group} onClick={choose}
         onPointerOver={(e:ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor="pointer"; }}
         onPointerOut={() => { document.body.style.cursor=""; }}/>
@@ -141,11 +184,12 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, onRead
   );
 }
 
-export function YorWorldShowcaseScene({ onSelect, onToggleLights, selected, lightsOn, onReady }: {
+export function YorWorldShowcaseScene({ onSelect, onToggleLights, selected, lightsOn, introSequence, onReady }: {
   onSelect:(target:StudioTarget)=>void;
   onToggleLights:()=>void;
   selected:StudioTarget;
   lightsOn:boolean;
+  introSequence:number;
   onReady:()=>void;
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
@@ -156,7 +200,7 @@ export function YorWorldShowcaseScene({ onSelect, onToggleLights, selected, ligh
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
       <Suspense fallback={null}>
         <AuthenticYorRoom onSelect={onSelect} onToggleLights={onToggleLights}
-          selected={selected} lightsOn={lightsOn} onReady={onReady}/>
+          selected={selected} lightsOn={lightsOn} introSequence={introSequence} onReady={onReady}/>
       </Suspense>
     </Canvas>
   );
