@@ -57,7 +57,7 @@ export function EditorialSkills() {
         ))}
       </div>
       <div className="editorial-skills__matrix" role="group" aria-label="Interactive technology skills">
-        {shown.map((skill, index) => (
+        {shown.map((skill) => (
           <button type="button" key={skill.name} onClick={() => setSelected(skill)}
             aria-pressed={skill.name === selected.name}
             className={`editorial-element editorial-element--${skill.group.toLowerCase()} ${skill.name === selected.name ? "is-selected" : ""}`}
