@@ -462,7 +462,15 @@ try {
   assert(focusMode.value, "Full-scene mode did not enable");
   await cdp.evaluate(`document.querySelector('.yor-studio__viewport')?.scrollIntoView({block:'center',behavior:'instant'});true`);
   await delay(180);
-  await capture(cdp, outputDir, "desktop-full-scene");
+  // Headless Chrome can miss one GPU screenshot response immediately after
+  // switching the full-scene canvas compositor. Retry only that CDP timeout.
+  try {
+    await capture(cdp, outputDir, "desktop-full-scene");
+  } catch (error) {
+    if (!String(error).includes("Timed out waiting for CDP response Page.captureScreenshot")) throw error;
+    await delay(450);
+    await capture(cdp, outputDir, "desktop-full-scene");
+  }
   await pressKey("Escape", "Escape", 27);
   await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.photoMode === 'false'`,
