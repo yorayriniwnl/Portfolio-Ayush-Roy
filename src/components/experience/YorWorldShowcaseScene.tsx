@@ -150,7 +150,8 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     // door, blinds, painting, monitor hit zones and animated resident rig.
     // Yor-World's B3 sample contains authored fine-grained PC fans, controllers,
     // headset and a richer foliage collection in identical world coordinates.
-    workstationDetail.scene.updateWorldMatrix(true, true);
+    const authoredDressing = workstationDetail.scene.clone(true);
+    authoredDressing.updateWorldMatrix(true, true);
     model.updateWorldMatrix(true, true);
     const visualReplacements = [
       ["helios-pc", "helios-pc"],
@@ -158,7 +159,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
       ["plants", "plants_group"],
     ] as const;
     for (const [legacyName, sourceName] of visualReplacements) {
-      const detail = workstationDetail.scene.getObjectByName(sourceName);
+      const detail = authoredDressing.getObjectByName(sourceName);
       if (!detail) continue;
       room.getObjectByName(legacyName)?.removeFromParent();
       model.attach(detail);
