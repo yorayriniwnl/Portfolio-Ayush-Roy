@@ -11,7 +11,11 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
   assert.match(homepage, /<StudioHero \/>/);
   assert.match(hero, /<StudioRoom \/>/);
   assert.match(room, /<Scene onSelect=\{setSelected\}/);
-  assert.match(scene, /<Canvas camera=/);
+  const authored = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  assert.match(authored, /<Canvas camera=/);
+  assert.match(authored, /yor-world-room\\.glb/);
+  assert.match(authored, /yor-world-resident\\.glb/);
+  assert.match(authored, /yor-world-fixture\\.glb/);
   assert.match(scene, /<StudioEnvironment onSelect=\{onSelect\} onToggleLights=\{onToggleLights\} lightsOn=\{lightsOn\}/);
   assert.match(runtime, /pathname !== "\/" && <ExperienceSceneLayer/);
   assert.doesNotMatch(hero, /Illustrated engineer portrait/);
