@@ -2,13 +2,20 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type { StudioTarget } from "./StudioScene";
 
 const Scene = dynamic(
-  () => import("./StudioScene").then((module) => module.StudioScene),
+  () => import("./YorWorldShowcaseScene").then((module) => module.YorWorldShowcaseScene),
   { ssr: false, loading: () => null },
 );
+
+class StudioErrorBoundary extends Component<{children:ReactNode;onError:()=>void},{failed:boolean}> {
+  state={failed:false};
+  static getDerivedStateFromError(){return {failed:true};}
+  componentDidCatch(){this.props.onError();}
+  render(){return this.state.failed?null:this.props.children;}
+}
 
 const destinations: Record<StudioTarget, { number: string; title: string; label: string; description: string; href: string; cta: string }> = {
   work: {
@@ -40,6 +47,11 @@ export function StudioRoom() {
   const [allowed, setAllowed] = useState(true);
   const [graphicsAvailable, setGraphicsAvailable] = useState(false);
   const [lightsOn, setLightsOn] = useState(true);
+  const [roomReady, setRoomReady] = useState(false);
+  const [roomFailed, setRoomFailed] = useState(false);
+  const announceReady = useCallback(() => setRoomReady(true), []);
+  const reportFailed = useCallback(() => setRoomFailed(true), []);
+  const toggleLights = useCallback(() => setLightsOn((value)=>!value), []);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -83,7 +95,7 @@ export function StudioRoom() {
 
   const selectedItem = destinations[selected];
   return (
-    <div className="yor-studio" ref={root}>
+    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)}>
       <div className="yor-studio__topline">
         <span><i className="yor-studio__pulse"/> ROOM ONLINE / STUDIO_001</span>
         <div className="yor-studio__utilities">
@@ -103,7 +115,7 @@ export function StudioRoom() {
           <div className="yor-studio__fallback-drawer"/>
           <div className="yor-studio__fallback-lamp"/>
         </div>
-        {allowed && visible && graphicsAvailable && <Scene onSelect={setSelected} onToggleLights={() => setLightsOn((value) => !value)} selected={selected} lightsOn={lightsOn}/>}
+        {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={setSelected} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} onReady={announceReady}/></StudioErrorBoundary>}
         <div className="yor-studio__hud" aria-hidden="true">
           <span>REAL 3D / WEBGL</span><span>CLICK OBJECTS · CHANGE CAMERA ANGLES ↗</span>
         </div>
