@@ -47,11 +47,21 @@ export function StudioRoom() {
   const [allowed, setAllowed] = useState(true);
   const [graphicsAvailable, setGraphicsAvailable] = useState(false);
   const [lightsOn, setLightsOn] = useState(true);
+  const [introSequence, setIntroSequence] = useState(0);
   const [roomReady, setRoomReady] = useState(false);
   const [roomFailed, setRoomFailed] = useState(false);
   const announceReady = useCallback(() => setRoomReady(true), []);
   const reportFailed = useCallback(() => setRoomFailed(true), []);
   const toggleLights = useCallback(() => setLightsOn((value)=>!value), []);
+  const selectTarget = useCallback((target: StudioTarget) => { setSelected(target); setIntroSequence(0); }, []);
+  const playIntro = useCallback(() => { setSelected("work"); setIntroSequence((value) => value + 1); }, []);
+
+  useEffect(() => {
+    const handleStudioLink = () => { if (window.location.hash === "#studio") playIntro(); };
+    window.addEventListener("hashchange", handleStudioLink);
+    if (window.location.hash === "#studio") handleStudioLink();
+    return () => window.removeEventListener("hashchange", handleStudioLink);
+  }, [playIntro]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -95,7 +105,7 @@ export function StudioRoom() {
 
   const selectedItem = destinations[selected];
   return (
-    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)}>
+    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)} data-intro-sequence={introSequence}>
       <div className="yor-studio__topline">
         <span><i className="yor-studio__pulse"/> ROOM ONLINE / STUDIO_001</span>
         <div className="yor-studio__utilities">
@@ -103,7 +113,7 @@ export function StudioRoom() {
             aria-pressed={lightsOn} aria-label={lightsOn ? "Dim studio lights" : "Turn on studio lights"}>
             {lightsOn ? "✳ LIGHTS ON" : "☾ LIGHTS DIM"}
           </button>
-          <button type="button" onClick={() => setSelected("work")}>↺ RESET CAMERA</button>
+          <button type="button" onClick={playIntro} aria-label="Replay doorway entrance animation">↺ REPLAY ENTRY</button>
         </div>
       </div>
       <div className="yor-studio__viewport">
@@ -115,7 +125,7 @@ export function StudioRoom() {
           <div className="yor-studio__fallback-drawer"/>
           <div className="yor-studio__fallback-lamp"/>
         </div>
-        {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={setSelected} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} onReady={announceReady}/></StudioErrorBoundary>}
+        {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={selectTarget} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} introSequence={introSequence} onReady={announceReady}/></StudioErrorBoundary>}
         <div className="yor-studio__hud" aria-hidden="true">
           <span>REAL 3D / WEBGL</span><span>CLICK OBJECTS · CHANGE CAMERA ANGLES ↗</span>
         </div>
@@ -124,7 +134,7 @@ export function StudioRoom() {
       <div className="yor-studio__bottomline">
         <div className="yor-studio__locations" aria-label="Explore the studio">
           {(["work","about","lab","contact"] as const).map((target) =>
-            <button key={target} type="button" onClick={() => setSelected(target)}
+            <button key={target} type="button" onClick={() => selectTarget(target)}
               aria-pressed={selected === target} className={selected === target ? "is-active" : ""}>
               <span>{destinations[target].number}</span>{target === "work" ? "DESK" : target === "about" ? "AVATAR" : target === "lab" ? "ART" : "DOOR"}
             </button>
@@ -135,7 +145,7 @@ export function StudioRoom() {
           <Link href={selectedItem.href} aria-label={selectedItem.cta}>{selectedItem.cta} <span aria-hidden="true">↗</span></Link>
         </div>
       </div>
-      <p className="yor-studio__access-note">Click the computer, avatar, artwork or door. Use the four camera presets if you prefer a keyboard or touch interface. The full portfolio remains accessible without 3D.</p>
+      <p className="yor-studio__access-note">Enter through the doorway, or use the four camera presets to skip cinematic movement. Click room objects to explore. The portfolio remains accessible without WebGL.</p>
     </div>
   );
 }

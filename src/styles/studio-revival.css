@@ -235,3 +235,13 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   .editorial-home .yor-world-hero h1 { font-size: 49px; }
   .yor-world-hero__ctas a { font-size: 9px; padding-inline: 10px; }
 }
+
+/* Keep the cinematic entrance replay control available to touch users. */
+@media (max-width:650px) {
+  .yor-studio__utilities button:last-child { display:inline-flex; align-items:center; }
+  .yor-studio__utilities button { font-size:7px; padding-inline:8px; white-space:nowrap; min-height:44px; }
+  .yor-world-hero__studio .yor-studio__topline > span:first-child { letter-spacing:0; }
+}
+@media (max-width:375px) {
+  .yor-world-hero__studio .yor-studio__topline { flex-wrap:wrap; }
+}
