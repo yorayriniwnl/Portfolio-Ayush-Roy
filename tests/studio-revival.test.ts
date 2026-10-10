@@ -111,3 +111,19 @@ test("the workstation launcher is evidence-first and dismissible from keyboard",
   assert.match(css, /yor-studio__console-projects/);
   assert.match(css, /@media \(max-width:650px\)/);
 });
+
+test("actual GLB fills the opening cinematic stage instead of an editorial side card", () => {
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  const css = readFileSync("src/styles/studio-revival.css","utf8");
+  assert.match(scene,/work: \{ eye: \[1\.49,1\.74,1\.92\]/);
+  assert.match(scene,/gl\.toneMappingExposure=\.72/);
+  assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
+  assert.match(scene,/<pointLight position=\{\[0,2\.05,-1\.5\]\}/);
+  assert.match(css,/Full-room art direction:/);
+  assert.match(css,/\.yor-world-hero__intro \{[\s\S]*?grid-column:1;grid-row:2;align-self:center/);
+  assert.match(css,/\.yor-world-hero__studio\.machine-home \{[\s\S]*?grid-column:1;grid-row:2/);
+  assert.match(css,/\.yor-world-hero__studio \.yor-studio__viewport \{[\s\S]*?height:clamp\(615px,76vh,850px\)/);
+  assert.match(css,/\.yor-world-hero__studio\.machine-home:has\(\[data-console-open="true"\]\)/);
+  assert.match(css,/@media \(max-width:800px\)/);
+  assert.match(css,/height:min\(81svh,720px\)/);
+});
