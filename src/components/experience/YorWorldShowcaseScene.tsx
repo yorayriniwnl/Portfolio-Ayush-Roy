@@ -29,7 +29,7 @@ function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): Studi
 /* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
  * from the connected Yor-World production assets. No CSS 3D substitution. */
 const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
-  work: { eye: [1.49,1.74,1.92], look: [0,1.22,-.87] },
+  work: { eye: [1.30,1.67,1.28], look: [0,1.23,-.92] },
   about: { eye: [1.12,1.5,.82], look: [.3,.88,-.36] },
   lab: { eye: [.6,1.65,.68], look: [1.92,1.5,-.4] },
   contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
@@ -249,7 +249,7 @@ export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleL
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
-    <Canvas camera={{position:[1.49,1.74,1.92],fov:48,near:.08,far:30}}
+    <Canvas camera={{position:[1.30,1.67,1.28],fov:48,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
       onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.72; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
