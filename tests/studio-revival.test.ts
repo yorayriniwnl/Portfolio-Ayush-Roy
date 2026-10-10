@@ -12,7 +12,7 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
   assert.match(hero, /<StudioRoom \/>/);
   assert.match(room, /<Scene onSelect=\{setSelected\}/);
   assert.match(scene, /<Canvas camera=/);
-  assert.match(scene, /<StudioEnvironment onSelect=\{onSelect\} lightsOn=\{lightsOn\}/);
+  assert.match(scene, /<StudioEnvironment onSelect=\{onSelect\} onToggleLights=\{onToggleLights\} lightsOn=\{lightsOn\}/);
   assert.match(runtime, /pathname !== "\/" && <ExperienceSceneLayer/);
   assert.doesNotMatch(hero, /Illustrated engineer portrait/);
 });
@@ -31,6 +31,9 @@ test("recovered objects have camera targets and physical interactions", () => {
   assert.match(scene, /onSelect\("work"\)/);
   assert.match(scene, /const \[greeting, setGreeting\] = useState/);
   assert.match(scene, /lightsOn \? 12 : \.5/);
+  assert.match(scene, /function StudioDoor/);
+  assert.match(scene, /hinge.current.rotation.y/);
+  assert.match(scene, /onToggleLights/);
   assert.match(scene, /circleGeometry args=\{\[\.31,6\]\}/);
   assert.match(room, /setLightsOn/);
   assert.match(room, /prefers-reduced-motion: reduce/);
