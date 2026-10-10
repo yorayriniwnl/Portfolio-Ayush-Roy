@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { profile } from "@/content/profile";
 import { StudioRoom } from "./StudioRoom";
 
 /**
