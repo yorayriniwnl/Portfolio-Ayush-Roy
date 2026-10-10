@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type { StudioTarget } from "./StudioScene";
 import type { StudioObjectAction } from "./YorWorldShowcaseScene";
-import type { WalkPoint, WalkDirection } from "./StudioWalk";
+import { isWalkable, type WalkPoint, type WalkDirection } from "./StudioWalk";
 import { recruiterProjects } from "@/content/project-registry";
 
 const Scene = dynamic(
@@ -88,6 +88,7 @@ export function StudioRoom() {
     if (root.current) {
       root.current.dataset.walkX=position.x.toFixed(3);
       root.current.dataset.walkZ=position.z.toFixed(3);
+      root.current.dataset.walkable=String(isWalkable(position.x,position.z));
     }
   },[]);
   const closeConsole = useCallback(() => { setConsoleOpen(false); window.requestAnimationFrame(() => consoleButton.current?.focus()); }, []);
