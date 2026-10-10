@@ -6,17 +6,17 @@ test("editorial homepage remains server-rendered without redundant 3D GPU work",
   const home = readFileSync("src/components/Home.tsx", "utf8");
   const editorial = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
   const runtime = readFileSync("src/experience/ExperienceRuntime.tsx", "utf8");
-  assert.doesNotMatch(home, /^\\s*["']use client["']/m);
+  assert.doesNotMatch(home, /^\s*["']use client["']/m);
   assert.match(home, /EditorialHome/);
   assert.match(editorial, /className="ref-home"/);
   assert.match(editorial, /className="ref-hero-title"/);
   assert.match(editorial, /Full Stack/);
-  assert.match(editorial, /Developer\\./);
-  assert.match(editorial, /recruiterProjects\\.map/);
+  assert.match(editorial, /Developer\./);
+  assert.match(editorial, /recruiterProjects\.map/);
   assert.match(editorial, /id="projects"/);
   assert.match(editorial, /id="about"/);
   assert.match(editorial, /id="contact"/);
-  assert.match(runtime, /pathname !== "\\/" && <ExperienceSceneLayer/);
+  assert.match(runtime, /pathname !== "\/" && <ExperienceSceneLayer/);
   assert.doesNotMatch(editorial, /<Canvas|<StudioRoom/);
 });
 
@@ -26,10 +26,10 @@ test("interactive keyboard has filtering, selection, and accessible pressed stat
   assert.match(board, /"use client"/);
   assert.match(board, /setCategory/);
   assert.match(board, /setSelected/);
-  assert.match(board, /aria-pressed=\\{category === item\\}/);
-  assert.match(board, /aria-pressed=\\{current\\.name === skill\\.name\\}/);
+  assert.match(board, /aria-pressed=\{category === item\}/);
+  assert.match(board, /aria-pressed=\{current\.name === skill\.name\}/);
   assert.match(board, /aria-live="polite"/);
-  assert.match(styles, /@media \\(max-width:600px\\)/);
+  assert.match(styles, /@media \(max-width:600px\)/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
 });
 
