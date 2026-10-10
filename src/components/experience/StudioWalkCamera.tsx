@@ -25,7 +25,7 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
   touchDirection: WalkDirection | null;
   onWalkStep: (position:WalkPoint) => void;
 }) {
-  const { camera, gl } = useThree();
+  const { camera, gl, invalidate } = useThree();
   const target = useRef(new THREE.Vector3(...CAMERA.work.look));
   const entryTime = useRef<number | null>(null);
   const yaw = useRef(0);
@@ -64,10 +64,28 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
       if(el?.closest(".yor-studio__console"))return false;
       return Boolean(el?.closest(".yor-studio"));
     };
+    const impulse=(f:number, strafe:number)=>{
+      const length=Math.hypot(f,strafe);
+      if(!length)return;
+      const delta=.11;
+      const dx=(-Math.sin(yaw.current)*f+Math.cos(yaw.current)*strafe)/length*delta;
+      const dz=(-Math.cos(yaw.current)*f-Math.sin(yaw.current)*strafe)/length*delta;
+      const next=slideWalk({x:camera.position.x,z:camera.position.z},dx,dz);
+      camera.position.set(next.x,WALK_EYE_HEIGHT,next.z);
+      onWalkStep(next);
+      route.current=[];
+      invalidate();
+    };
     const down=(event:KeyboardEvent)=>{
       const key=event.key.toLowerCase();
       if(!["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright","shift"].includes(key)||!acceptable(event))return;
       if(["arrowup","arrowdown","arrowleft","arrowright"].includes(key))event.preventDefault();
+      if(!event.repeat&&!pressed.current.has(key)) {
+        if(key==="w"||key==="arrowup")impulse(1,0);
+        if(key==="s"||key==="arrowdown")impulse(-1,0);
+        if(key==="d"||key==="arrowright")impulse(0,1);
+        if(key==="a"||key==="arrowleft")impulse(0,-1);
+      }
       pressed.current.add(key);
     };
     const up=(event:KeyboardEvent)=>{pressed.current.delete(event.key.toLowerCase());};
@@ -110,7 +128,22 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
       window.removeEventListener("pointerup",endDrag);
       window.removeEventListener("pointercancel",endDrag);
     };
-  },[camera,gl,roaming,paused,onWalkStep]);
+  },[camera,gl,roaming,paused,onWalkStep,invalidate]);
+
+  useEffect(()=>{
+    if(!roaming||paused||!touchDirection)return;
+    // Give a touch press immediate feedback even before the next expensive GPU frame.
+    const f=touchDirection==="forward"?1:touchDirection==="back"?-1:0;
+    const strafe=touchDirection==="right"?1:touchDirection==="left"?-1:0;
+    const delta=.11;
+    const dx=(-Math.sin(yaw.current)*f+Math.cos(yaw.current)*strafe)*delta;
+    const dz=(-Math.cos(yaw.current)*f-Math.sin(yaw.current)*strafe)*delta;
+    const next=slideWalk({x:camera.position.x,z:camera.position.z},dx,dz);
+    camera.position.set(next.x,WALK_EYE_HEIGHT,next.z);
+    route.current=[];
+    onWalkStep(next);
+    invalidate();
+  },[camera,invalidate,roaming,paused,touchDirection,onWalkStep]);
 
   useEffect(()=>{
     if(roaming && walkTarget)route.current=walkRoute({x:camera.position.x,z:camera.position.z},walkTarget);
