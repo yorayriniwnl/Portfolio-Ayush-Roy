@@ -2,73 +2,35 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-test("homepage keeps static content on the server and uses the persistent machine scene", () => {
+test("editorial homepage remains server-rendered without redundant 3D GPU work", () => {
   const home = readFileSync("src/components/Home.tsx", "utf8");
+  const editorial = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
   const runtime = readFileSync("src/experience/ExperienceRuntime.tsx", "utf8");
-  const world = readFileSync("src/experience/MachineWorld.tsx", "utf8");
-  const core = readFileSync("src/experience/MachineCore.tsx", "utf8");
-
-  assert.doesNotMatch(home, /^\s*["']use client["']/m);
-  assert.doesNotMatch(home, /HeroSceneIsland|HeroScene|<Canvas/);
-  assert.match(home, /MachineScrollBinding/);
-  assert.match(home, /MachineHero/);
-  assert.match(home, /HomeProjectWorlds/);
-  assert.match(home, /HomeAbout/);
-  assert.match(home, /HomeContact/);
-  assert.match(world, /state\.progress/);
-  assert.match(world, /activeCamera\.position\.z/);
-  assert.match(core, /const opening = .*state\.progress/);
-  assert.match(runtime, /ExperienceSceneLayer/);
+  assert.doesNotMatch(home, /^\\s*["']use client["']/m);
+  assert.match(home, /EditorialHome/);
+  assert.match(editorial, /className="ref-home"/);
+  assert.match(editorial, /className="ref-hero-title"/);
+  assert.match(editorial, /Full Stack/);
+  assert.match(editorial, /Developer\\./);
+  assert.match(editorial, /recruiterProjects\\.map/);
+  assert.match(editorial, /id="projects"/);
+  assert.match(editorial, /id="about"/);
+  assert.match(editorial, /id="contact"/);
+  assert.match(runtime, /pathname !== "\\/" && <ExperienceSceneLayer/);
+  assert.doesNotMatch(editorial, /<Canvas|<StudioRoom/);
 });
 
-test("home narrative keeps the approved identity, essential actions, and section markers in DOM components", () => {
-  const hero = readFileSync("src/components/experience/MachineHero.tsx", "utf8");
-  const projects = readFileSync("src/components/experience/HomeProjectWorlds.tsx", "utf8");
-  const about = readFileSync("src/components/experience/HomeAbout.tsx", "utf8");
-  const contact = readFileSync("src/components/experience/HomeContact.tsx", "utf8");
-  const preview = readFileSync("src/components/experience/ProjectPreviewLink.tsx", "utf8");
-  const binding = readFileSync("src/components/experience/MachineScrollBinding.tsx", "utf8");
-  const provider = readFileSync("src/experience/ExperienceProvider.tsx", "utf8");
-  const styles = readFileSync("src/styles/machine.css", "utf8");
-
-  assert.match(hero, /YOR/);
-  assert.match(hero, /I build things/);
-  assert.match(hero, /that feel alive/);
-  assert.match(hero, /<StudioRoom\s*\/>/);
-  assert.match(hero, /FULL STACK/);
-  assert.match(hero, /INTERACTIVE 3D/);
-  assert.match(hero, /See what I/);
-  assert.match(hero, /résumé/);
-  assert.match(hero, /GitHub/);
-  assert.equal((hero.match(/className="machine-action(?:\s|")/g) ?? []).length, 3);
-  assert.match(hero, /AYUSH ROY \/ SOFTWARE ENGINEER/);
-  const studioRoom = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
-  const studioScene = readFileSync("src/components/experience/StudioScene.tsx", "utf8");
-  assert.match(studioRoom, /prefers-reduced-motion/);
-  assert.match(studioRoom, /aria-pressed=\{selected === target\}/);
-  assert.match(studioRoom, /<Scene onSelect=\{setSelected\}/);
-  assert.match(studioScene, /function Avatar/);
-  assert.match(studioScene, /function StudioMonitor/);
-  assert.match(studioScene, /function StudioEnvironment/);
-  assert.match(projects, /data-experience-section=["']projects["']/);
-  assert.match(about, /data-experience-section=["']about["']/);
-  assert.match(about, /<dt>CURRENT<\/dt>/);
-  assert.match(about, /profile\.role/);
-  assert.match(about, /<dt>ENGINEERING FOCUS<\/dt>/);
-  assert.match(contact, /data-experience-section=["']contact["']/);
-  assert.match(contact, /THAT SHOULDN(?:&apos;|')T/);
-  assert.match(contact, /BUILD<\/span>\{" "\}\s*<span>SOMETHING/);
-  assert.match(preview, /onPointerEnter/);
-  assert.match(preview, /onFocus/);
-  assert.match(preview, /onTouchStart/);
-  assert.match(preview, /useExperienceProject/);
-  assert.doesNotMatch(preview, /useExperience\(/);
-  assert.match(provider, /useExperienceProject/);
-  assert.match(binding, /state\.progress/);
-  assert.match(binding, /data-machine-section=\{state\.section\}/);
-  assert.match(binding, /machine-wordmark-left/);
-  assert.match(styles, /@media\s*\(max-width:\s*430px\)/);
-  assert.match(styles, /machine-hero__wordmark/);
+test("interactive keyboard has filtering, selection, and accessible pressed states", () => {
+  const board = readFileSync("src/components/experience/SkillBoard.tsx", "utf8");
+  const styles = readFileSync("src/styles/editorial.css", "utf8");
+  assert.match(board, /"use client"/);
+  assert.match(board, /setCategory/);
+  assert.match(board, /setSelected/);
+  assert.match(board, /aria-pressed=\\{category === item\\}/);
+  assert.match(board, /aria-pressed=\\{current\\.name === skill\\.name\\}/);
+  assert.match(board, /aria-live="polite"/);
+  assert.match(styles, /@media \\(max-width:600px\\)/);
+  assert.match(styles, /prefers-reduced-motion:reduce/);
 });
 
 test("unfinished game and video concepts stay off the recruiter homepage and remain in the lab", () => {
