@@ -500,7 +500,7 @@ try {
   await waitForCondition(cdp, `document.querySelector('button[aria-controls="mobile-nav"]')?.getAttribute('aria-expanded') === 'true'`, { timeoutMs: 2500, description: "Enter opens the mobile menu" });
   const menuOpened = await cdp.evaluate(`({ expanded: document.querySelector('button[aria-controls="mobile-nav"]')?.getAttribute('aria-expanded'), focus: document.activeElement?.textContent?.trim() })`);
   assert(menuOpened.expanded === "true", "Keyboard Enter did not open the mobile menu");
-  assert(menuOpened.focus === "Work", `Opening the menu did not focus its first link: ${menuOpened.focus}`);
+  assert(menuOpened.focus === "About", `Opening the menu did not focus its first link: ${menuOpened.focus}`);
   await pressKey("Escape", "Escape", 27);
   await delay(100);
   const menuClosed = await cdp.evaluate(`({ expanded: document.querySelector('button[aria-controls="mobile-nav"]')?.getAttribute('aria-expanded'), focus: document.activeElement?.getAttribute('aria-label') })`);
