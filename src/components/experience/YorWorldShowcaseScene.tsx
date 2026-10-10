@@ -108,7 +108,7 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, onRead
     for (const {node,intensity} of mutable.current?.lights ?? [])
       // Imported GPU lights must be mutated imperatively to dim without remount.
       // eslint-disable-next-line react-hooks/immutability
-      node.intensity = lightsOn ? intensity : intensity*.18;
+      node.intensity = intensity * (lightsOn ? .0025 : .00022);
   },[lightsOn,lightNodes]);
 
   const choose = (event:ThreeEvent<MouseEvent>) => {
@@ -130,9 +130,9 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, onRead
   return (
     <>
       <color attach="background" args={["#bbbcd8"]}/>
-      <ambientLight intensity={.65} color="#f9f6ff"/>
-      <hemisphereLight args={["#eceaff","#9ca8c9",1.15]}/>
-      <directionalLight position={[4,7,5]} intensity={1.6} color="#f9f5ff"/>
+      <ambientLight intensity={.24} color="#f9f6ff"/>
+      <hemisphereLight args={["#eceaff","#9ca8c9",.3]}/>
+      <directionalLight position={[4,7,5]} intensity={.4} color="#f9f5ff"/>
       <WorldCamera selected={selected}/>
       <primitive object={group} onClick={choose}
         onPointerOver={(e:ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor="pointer"; }}
@@ -152,6 +152,7 @@ export function YorWorldShowcaseScene({ onSelect, onToggleLights, selected, ligh
   return (
     <Canvas camera={{position:[1.15,1.78,1.36],fov:54,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
+      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.85; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
       <Suspense fallback={null}>
         <AuthenticYorRoom onSelect={onSelect} onToggleLights={onToggleLights}
