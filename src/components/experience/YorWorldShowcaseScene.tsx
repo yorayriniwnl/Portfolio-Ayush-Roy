@@ -99,11 +99,15 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, onRead
     avatarMixer.update(Math.min(delta,.06));
     chairMixer.update(Math.min(delta,.06));
     const pivot = mutable.current?.door;
+    // The external Three.js scene owns this mutable transform, not React state.
+    // eslint-disable-next-line react-hooks/immutability
     if (pivot) pivot.rotation.y = THREE.MathUtils.damp(pivot.rotation.y, selected==="contact" ? -1.05 : 0,2.8,Math.min(delta,.06));
   });
 
   useEffect(() => {
     for (const {node,intensity} of mutable.current?.lights ?? [])
+      // Imported GPU lights must be mutated imperatively to dim without remount.
+      // eslint-disable-next-line react-hooks/immutability
       node.intensity = lightsOn ? intensity : intensity*.18;
   },[lightsOn,lightNodes]);
 
