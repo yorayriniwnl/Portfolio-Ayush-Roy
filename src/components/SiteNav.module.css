@@ -107,7 +107,7 @@
 .links a:focus-visible,
 .menu:focus-visible,
 .mobile a:focus-visible { outline: 2px solid #f4a77f; outline-offset: 4px; }
-@media (max-width: 850px) {
+@media (max-width: 1180px) {
   .inner { height: 68px; }
   .links { display: none; }
   .menu { display: grid; }
