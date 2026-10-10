@@ -648,18 +648,24 @@ try {
     const c=document.querySelector('.yor-studio');
     return {x:Number(c.dataset.walkX),z:Number(c.dataset.walkZ)};
   })()`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__touch-forward')?.scrollIntoView({block:'center',behavior:'instant'});true`);
   const pad=await cdp.evaluate(`(() => {
-    const r=document.querySelector('.yor-studio__touch-forward').getBoundingClientRect();
-    return {x:r.left+r.width/2,y:r.top+r.height/2};
+    const button=document.querySelector('.yor-studio__touch-forward');
+    const r=button.getBoundingClientRect();
+    const x=r.left+r.width/2,y=r.top+r.height/2;
+    return {x,y,hit:document.elementFromPoint(x,y)?.closest('.yor-studio__touch-forward')===button};
   })()`);
-  await cdp.send("Input.dispatchMouseEvent",{type:"mouseMoved",x:pad.x,y:pad.y});
-  await cdp.send("Input.dispatchMouseEvent",{type:"mousePressed",x:pad.x,y:pad.y,button:"left",clickCount:1});
+  assert(pad.hit,"Mobile touch control is not actually hit-testable within the viewport");
+  await cdp.send("Emulation.setTouchEmulationEnabled",{enabled:true,maxTouchPoints:1});
+  await cdp.send("Input.dispatchTouchEvent",{type:"touchStart",
+    touchPoints:[{x:pad.x,y:pad.y,id:1,radiusX:8,radiusY:8,force:.6}]});
   const held=await waitForCondition(cdp,
     `document.querySelector('.yor-studio__touch-forward')?.getAttribute('aria-pressed') === 'true'`,
-    {timeoutMs:1800,description:"mobile forward button receives pointer hold"});
-  assert(held.value,"Mobile D-pad pointerdown did not register");
-  await delay(1300);
-  await cdp.send("Input.dispatchMouseEvent",{type:"mouseReleased",x:pad.x,y:pad.y,button:"left",clickCount:1});
+    {timeoutMs:1800,description:"real mobile touch-start holds forward control"});
+  assert(held.value,"Mobile D-pad touch-start did not register");
+  await delay(750);
+  await cdp.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+  await cdp.send("Emulation.setTouchEmulationEnabled",{enabled:false,maxTouchPoints:1});
   await delay(120);
   const mobileWalkEnd=await cdp.evaluate(`(() => {
     const c=document.querySelector('.yor-studio');
@@ -669,6 +675,7 @@ try {
     mobileWalkEnd.walkable==="true",
     `Mobile touch-pad did not move camera safely: ${JSON.stringify({mobileWalkStart,mobileWalkEnd})}`);
   report.interaction.studioWalking.mobileDirectionalPad=true;
+  report.interaction.studioWalking.touchInput="native-cdp-touch";
   await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.click();true`);
   await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.roaming === 'false'`,
     {timeoutMs:2500,description:"mobile exit walk mode"});
