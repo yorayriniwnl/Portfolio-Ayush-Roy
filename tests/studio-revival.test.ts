@@ -115,7 +115,7 @@ test("the workstation launcher is evidence-first and dismissible from keyboard",
 test("actual GLB fills the opening cinematic stage instead of an editorial side card", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
   const css = readFileSync("src/styles/studio-revival.css","utf8");
-  assert.match(scene,/work: \{ eye: \[-1\.90,1\.70,1\.45\]/);
+  assert.match(scene,/work: \{ eye: \[-0\.68,1\.60,1\.18\]/);
   assert.match(scene,/gl\.toneMappingExposure=1\.05/);
   assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
   assert.match(scene,/function StudioHexLights/);
@@ -137,7 +137,7 @@ test("studio prioritizes the reference-backed wide camera and pastel daylight ov
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const css = readFileSync("src/styles/studio-revival.css", "utf8");
-  assert.match(scene, /look: \[0\.12,1\.15,-1\.15\]/);
+  assert.match(scene, /look: \[0\.04,1\.18,-1\.23\]/);
   assert.match(scene, /ambientLight intensity=\{\.76\}/);
   assert.match(scene, /THREE\.AdditiveBlending/);
   assert.match(room, /data-photo-mode=\{String\(photoMode\)\}/);
