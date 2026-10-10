@@ -7,6 +7,25 @@ import type { ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StudioTarget } from "./StudioScene";
 
+export type StudioObjectAction = "monitor" | "painting" | "blinds" | "lights" | "avatar" | "door" | "skills";
+function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): StudioObjectAction | null {
+  const names: string[] = [];
+  let node: THREE.Object3D | null = object;
+  while (node && node !== root) {
+    if (node.name) names.push(node.name.toLowerCase());
+    node = node.parent;
+  }
+  const id = names.join(" ");
+  if (/lightbar|taskdownlight|desk.lamp/.test(id)) return "lights";
+  if (/blind_slat|window_frame|window-blind/.test(id)) return "blinds";
+  if (/painting|wall.art|hex_panel/.test(id)) return "painting";
+  if (/door-hinge|door_leaf|door_handle|door_frame/.test(id)) return "door";
+  if (/resident|body-turn|head|chair/.test(id)) return "avatar";
+  if (/pegboard_system|research.books|shelves/.test(id)) return "skills";
+  if (/monitor|keyboard|mouse_body|desk/.test(id)) return "monitor";
+  return null;
+}
+
 /* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
  * from the connected Yor-World production assets. No CSS 3D substitution. */
 const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
@@ -46,11 +65,15 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
   return null;
 }
 
-function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, introSequence, onReady }: {
+function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selected, lightsOn, blindsOpen, paintingBeat, introSequence, onReady }: {
   onSelect: (target:StudioTarget)=>void;
   onToggleLights:()=>void;
+  onInteract:(action:StudioObjectAction)=>void;
+  onHover:(action:StudioObjectAction | null)=>void;
   selected:StudioTarget;
   lightsOn:boolean;
+  blindsOpen:boolean;
+  paintingBeat:number;
   introSequence:number;
   onReady:()=>void;
 }) {
@@ -59,7 +82,7 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, introS
     "/models/yor-world-resident.glb",
     "/models/yor-world-fixture.glb",
   ]);
-  const { group, avatarMixer, chairMixer, actions, door, lightNodes } = useMemo(() => {
+  const { group, avatarMixer, chairMixer, actions, door, lightNodes, painting, blinds, signature } = useMemo(() => {
     const model = new THREE.Group();
     model.name = "authentic-yor-world";
     const room = world.scene;
@@ -82,23 +105,32 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, introS
       }
     });
     const door = room.getObjectByName("door-hinge") || null;
-    return {group:model,avatarMixer:am,chairMixer:cm,actions:anims,door,lightNodes};
+    const painting = room.getObjectByName("painting-pivot") || null;
+    const blinds = Array.from({ length: 12 },(_,index) => room.getObjectByName(`blind_slat_${index+1}`))
+      .filter((node): node is THREE.Object3D => Boolean(node))
+      .map(node => ({node, base: node.rotation.z}));
+    const signature = room.getObjectByName("hidden-yor-mark") || null;
+    if (signature) signature.visible = false;
+    return {group:model,avatarMixer:am,chairMixer:cm,actions:anims,door,lightNodes,painting,blinds,signature};
   },[world,resident,fixture]);
 
   const entryTime = useRef<number | null>(null);
   const entryGreeted = useRef(false);
+  const paintingImpulse = useRef(0);
   useEffect(() => {
     entryTime.current = introSequence > 0 ? 0 : null;
     entryGreeted.current = false;
   }, [introSequence]);
 
+  useEffect(() => { if (paintingBeat > 0) paintingImpulse.current = THREE.MathUtils.degToRad(6); },[paintingBeat]);
+
   // Three.js scene objects are inherently mutable. Keep that mutation behind
   // a ref so React memoized values stay read-only in effects and frame hooks.
-  const mutable = useRef<{ door: THREE.Object3D | null; lights: Array<{ node:THREE.Light; intensity:number }> } | null>(null);
+  const mutable = useRef<{ door: THREE.Object3D | null; lights: Array<{ node:THREE.Light; intensity:number }>; painting: THREE.Object3D | null; paintingBase:number; blinds: Array<{node:THREE.Object3D;base:number}>; signature:THREE.Object3D | null } | null>(null);
   useEffect(() => {
-    mutable.current = { door, lights: lightNodes };
+    mutable.current = { door, lights: lightNodes, painting, paintingBase:painting?.rotation.x ?? 0, blinds, signature };
     return () => { mutable.current = null; };
-  }, [door, lightNodes]);
+  }, [door, lightNodes, painting, blinds, signature]);
 
   useEffect(() => {
     actions.get("coding_idle")?.reset().play();
@@ -140,7 +172,24 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, introS
         entryTime.current = null;
       }
     }
-    const pivot = mutable.current?.door;
+    const props = mutable.current;
+    if (props) {
+      for (const blind of props.blinds) {
+        const angle = blind.base + (blindsOpen ? 0 : Math.PI / 2);
+        // eslint-disable-next-line react-hooks/immutability
+        blind.node.rotation.z = THREE.MathUtils.damp(blind.node.rotation.z, angle, 5, step);
+      }
+      if (props.painting) {
+        const impulse = paintingImpulse.current;
+        // eslint-disable-next-line react-hooks/immutability
+        props.painting.rotation.x = props.paintingBase + impulse;
+        paintingImpulse.current = THREE.MathUtils.damp(impulse, 0, 6, step);
+        if (Math.abs(paintingImpulse.current) < .0002) paintingImpulse.current = 0;
+      }
+      // eslint-disable-next-line react-hooks/immutability
+      if (props.signature) props.signature.visible = paintingBeat > 0;
+    }
+    const pivot = props?.door;
     const doorwayOpening = entryTime.current !== null && entryTime.current < 1.8;
     // The external Three.js scene owns this mutable transform, not React state.
     // eslint-disable-next-line react-hooks/immutability
@@ -155,20 +204,19 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, introS
   },[lightsOn,lightNodes]);
 
   const choose = (event:ThreeEvent<MouseEvent>) => {
-    let current:THREE.Object3D | null=event.object;
-    const names:string[]=[];
-    while(current && current!==group){names.push(current.name.toLowerCase());current=current.parent;}
-    const id=names.join(" ");
-    const target =
-      /lightbar|taskdownlight|desk.lamp/.test(id) ? "lights" :
-      /monitor|keyboard|mouse_body|desk/.test(id) ? "work" :
-      /resident|body-turn|head|chair/.test(id) ? "about" :
-      /painting|hex_panel|pegboard|shelf/.test(id) ? "lab" :
-      /door-hinge|door_leaf|door_handle|door_frame/.test(id) ? "contact" : null;
-    if(!target)return;
+    const target = identifyRoomObject(event.object,group);
+    if (!target) return;
     event.stopPropagation();
-    if(target==="lights")onToggleLights();
-    else onSelect(target);
+    if (target === "lights") onToggleLights();
+    else if (target === "avatar") onSelect("about");
+    else if (target === "door") onSelect("contact");
+    else if (target === "skills") onSelect("lab");
+    else onInteract(target);
+  };
+  const hover = (event:ThreeEvent<PointerEvent>) => {
+    const target = identifyRoomObject(event.object,group);
+    document.body.style.cursor = target ? "pointer" : "";
+    onHover(target);
   };
   return (
     <>
@@ -178,17 +226,21 @@ function AuthenticYorRoom({ onSelect, onToggleLights, selected, lightsOn, introS
       <directionalLight position={[4,7,5]} intensity={.4} color="#f9f5ff"/>
       <WorldCamera selected={selected} introSequence={introSequence}/>
       <primitive object={group} onClick={choose}
-        onPointerOver={(e:ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor="pointer"; }}
-        onPointerOut={() => { document.body.style.cursor=""; }}/>
+        onPointerOver={hover}
+        onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>
     </>
   );
 }
 
-export function YorWorldShowcaseScene({ onSelect, onToggleLights, selected, lightsOn, introSequence, onReady }: {
+export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleLights, selected, lightsOn, blindsOpen, paintingBeat, introSequence, onReady }: {
   onSelect:(target:StudioTarget)=>void;
   onToggleLights:()=>void;
+  onInteract:(action:StudioObjectAction)=>void;
+  onHover:(action:StudioObjectAction | null)=>void;
   selected:StudioTarget;
   lightsOn:boolean;
+  blindsOpen:boolean;
+  paintingBeat:number;
   introSequence:number;
   onReady:()=>void;
 }) {
@@ -199,8 +251,9 @@ export function YorWorldShowcaseScene({ onSelect, onToggleLights, selected, ligh
       onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.85; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
       <Suspense fallback={null}>
-        <AuthenticYorRoom onSelect={onSelect} onToggleLights={onToggleLights}
-          selected={selected} lightsOn={lightsOn} introSequence={introSequence} onReady={onReady}/>
+        <AuthenticYorRoom onSelect={onSelect} onInteract={onInteract} onHover={onHover} onToggleLights={onToggleLights}
+          selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen}
+          paintingBeat={paintingBeat} introSequence={introSequence} onReady={onReady}/>
       </Suspense>
     </Canvas>
   );
