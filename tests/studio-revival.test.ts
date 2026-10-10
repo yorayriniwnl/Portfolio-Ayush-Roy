@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 
 test("actual recovered WebGL workspace powers the homepage, never a static imitation", () => {
   const homepage = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
@@ -69,7 +69,7 @@ test("cinematic doorway entry remains replayable and camera controls can skip it
   assert.match(room, /introSequence=\{introSequence\}/);
   assert.match(authored, /function WorldCamera\(\{ selected, introSequence \}/);
   assert.match(authored, /entryTime\.current = introSequence > 0 \? 0 : null/);
-  assert.match(authored, /camera\.position\.copy\(doorEye\)\.lerp\(deskEye,eased\)/);
+  assert.match(authored, /camera\.position\.copy\(doorEye\)\.lerp\(portrait \? portraitDeskEye : deskEye,eased\)/);
   assert.match(authored, /doorwayOpening/);
   assert.match(authored, /actions\.get\("turn_to_visitor"\)/);
   assert.match(css, /\.yor-studio__utilities button:last-child \{ display:inline-flex/);
@@ -115,8 +115,8 @@ test("the workstation launcher is evidence-first and dismissible from keyboard",
 test("actual GLB fills the opening cinematic stage instead of an editorial side card", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
   const css = readFileSync("src/styles/studio-revival.css","utf8");
-  assert.match(scene,/work: \{ eye: \[1\.30,1\.67,1\.28\]/);
-  assert.match(scene,/gl\.toneMappingExposure=\.72/);
+  assert.match(scene,/work: \{ eye: \[-0\.82,1\.72,1\.50\]/);
+  assert.match(scene,/gl\.toneMappingExposure=\.95/);
   assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
   assert.match(scene,/function StudioHexLights/);
   assert.match(scene,/new THREE.ShapeGeometry/);
@@ -131,4 +131,70 @@ test("actual GLB fills the opening cinematic stage instead of an editorial side 
   assert.match(css,/\.yor-world-hero__studio\.machine-home:has\(\[data-console-open="true"\]\)/);
   assert.match(css,/@media \(max-width:800px\)/);
   assert.match(css,/height:min\(81svh,720px\)/);
+});
+
+test("studio prioritizes the reference-backed wide camera and pastel daylight over the dark hero", () => {
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
+  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  assert.match(scene, /look: \[0\.04,1\.30,-1\.23\]/);
+  assert.match(scene, /ambientLight intensity=\{\.49\}/);
+  assert.match(scene, /THREE\.AdditiveBlending/);
+  assert.match(room, /data-photo-mode=\{String\(photoMode\)\}/);
+  assert.match(room, /Exit distraction-free room view/);
+  assert.match(room, /event\.key === "Escape"\) setPhotoMode\(false\)/);
+  assert.match(css, /Reference-aligned pastel workstation art pass/);
+  assert.match(css, /\.yor-studio\[data-photo-mode="true"\]/);
+  assert.match(css, /\.yor-studio__photo-toggle/);
+});
+
+test("high-detail authored gaming props replace low-poly blockout groups without deleting controls", () => {
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  const css = readFileSync("src/styles/studio-revival.css","utf8");
+  assert.match(scene,/yor-world-workstation-details\.glb/);
+  for(const node of ["helios-pc","controller-pegboard","plants_group"]) {
+    assert.ok(scene.includes('"' + node + '"'), "Missing authored dressing " + node);
+  }
+  assert.match(scene,/authoredDressing = workstationDetail\.scene\.clone\(true\)/);
+  assert.match(scene,/model\.attach\(detail\)/);
+  assert.match(scene,/controller-pegboard/);
+  assert.match(css,/Compact mobile introduction preceding the 3D room/);
+  assert.match(css,/grid-column:1;grid-row:3/);
+  assert.ok(statSync("public/models/yor-world-workstation-details.glb").size > 700_000);
+});
+
+test("reference dressing uses modeled RGB fans, gamepads and trailing vines, not flat image overlays", () => {
+  const detail = readFileSync("src/components/experience/StudioReferenceDressing.tsx", "utf8");
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  assert.match(detail, /function GlowingFan/);
+  assert.match(detail, /function Controller/);
+  assert.match(detail, /function HangingVine/);
+  assert.match(detail, /CatmullRomCurve3/);
+  assert.match(detail, /torusGeometry/);
+  assert.match(detail, /onOpenComputer/);
+  assert.match(detail, /onExplore/);
+  assert.match(scene, /<StudioReferenceDressing lightsOn=\{lightsOn\}/);
+  assert.match(scene, /\[-\.57,2\.38,"#dfaeff"\]/);
+  assert.match(css, /Second-stage art pass:/);
+});
+
+test("reference composition keeps the whole workstation visible without covering desktop content", () => {
+  const scene=readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  const css=readFileSync("src/styles/studio-revival.css","utf8");
+  assert.match(scene, /targetFov = portrait \? 64 : 55/);
+  assert.match(scene, /portraitDeskEye = useMemo\(\(\) => new THREE.Vector3\(-\.42,1\.65,1\.85\)/);
+  assert.match(css, /Room-first editorial strip/);
+  assert.match(css, /grid-column:1;grid-row:3;margin-top:0/);
+});
+
+test("the reference workstation includes lightweight modeled desk and floor accessories", () => {
+  const details=readFileSync("src/components/experience/StudioDeskProps.tsx","utf8");
+  const scene=readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  for(const feature of ["DeskConsole","ClockAndController","StandingFloorPlant","Planter"]) {
+    assert.match(details,new RegExp("function " + feature + "\\("));
+  }
+  assert.match(scene, /<StudioDeskProps onOpen=\{\(\) => onInteract\("monitor"\)\}\/>/);
+  assert.match(details, /position=\{\[-1\.02,\.751,-\.99\]\}/);
+  assert.match(details, /scale=\{\[\.055,\.04,\.043\]\}/);
 });

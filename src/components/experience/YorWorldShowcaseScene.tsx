@@ -6,6 +6,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StudioTarget } from "./StudioScene";
+import { StudioReferenceDressing } from "./StudioReferenceDressing";
+import { StudioDeskProps } from "./StudioDeskProps";
 
 export type StudioObjectAction = "monitor" | "painting" | "blinds" | "lights" | "avatar" | "door" | "skills";
 function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): StudioObjectAction | null {
@@ -21,7 +23,8 @@ function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): Studi
   if (/painting|wall.art|hex_panel/.test(id)) return "painting";
   if (/door-hinge|door_leaf|door_handle|door_frame/.test(id)) return "door";
   if (/resident|body-turn|head|chair/.test(id)) return "avatar";
-  if (/pegboard_system|research.books|shelves/.test(id)) return "skills";
+  if (/pegboard_system|controller-pegboard|research.books|shelves/.test(id)) return "skills";
+  if (/helios-pc|pc_chassis|pc_tempered_glass|pc_fan|headset/.test(id)) return "monitor";
   if (/monitor|keyboard|mouse_body|desk/.test(id)) return "monitor";
   return null;
 }
@@ -29,7 +32,7 @@ function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): Studi
 /* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
  * from the connected Yor-World production assets. No CSS 3D substitution. */
 const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
-  work: { eye: [1.30,1.67,1.28], look: [0,1.23,-.92] },
+  work: { eye: [-0.82,1.72,1.50], look: [0.04,1.30,-1.23] },
   about: { eye: [1.12,1.5,.82], look: [.3,.88,-.36] },
   lab: { eye: [.6,1.65,.68], look: [1.92,1.5,-.4] },
   contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
@@ -38,28 +41,44 @@ const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,
 function WorldCamera({ selected, introSequence }: { selected: StudioTarget; introSequence: number }) {
   const target = useRef(new THREE.Vector3(...CAMERA.work.look));
   const entryTime = useRef<number | null>(null);
-  const { camera } = useThree();
+  const { camera, size } = useThree();
+  const portrait = size.width < 800;
   const doorEye = useMemo(() => new THREE.Vector3(...CAMERA.contact.eye), []);
   const doorLook = useMemo(() => new THREE.Vector3(...CAMERA.contact.look), []);
+  // Move toward the reference-facing station so the PC is visible to the right of the chair.
   const deskEye = useMemo(() => new THREE.Vector3(...CAMERA.work.eye), []);
   const deskLook = useMemo(() => new THREE.Vector3(...CAMERA.work.look), []);
+  const portraitDeskEye = useMemo(() => new THREE.Vector3(-.42,1.65,1.85), []);
+  const portraitDeskLook = useMemo(() => new THREE.Vector3(.20,1.26,-1.18), []);
   useEffect(() => { entryTime.current = introSequence > 0 ? 0 : null; }, [introSequence]);
+  // Mutable Three.js cameras live outside React state, as does the scene rig below.
+  // eslint-disable-next-line react-hooks/immutability
   useFrame((_, delta) => {
+    // Increase portrait horizontal coverage without moving the actual models.
+    // Wide camera crops the chair on 390px phones; a wider portrait lens does not.
+    if (camera instanceof THREE.PerspectiveCamera) {
+      const targetFov = portrait ? 64 : 55;
+      if (camera.fov !== targetFov) {
+        // eslint-disable-next-line react-hooks/immutability
+        camera.fov = targetFov;
+        camera.updateProjectionMatrix();
+      }
+    }
     if (entryTime.current !== null) {
       const elapsed = entryTime.current + Math.min(delta,.06);
       entryTime.current = elapsed;
       const progress = THREE.MathUtils.clamp((elapsed - .75) / 3.7, 0, 1);
       const eased = progress * progress * (3 - 2 * progress);
-      camera.position.copy(doorEye).lerp(deskEye,eased);
-      target.current.copy(doorLook).lerp(deskLook,eased);
+      camera.position.copy(doorEye).lerp(portrait ? portraitDeskEye : deskEye,eased);
+      target.current.copy(doorLook).lerp(portrait ? portraitDeskLook : deskLook,eased);
       camera.lookAt(target.current);
       if (elapsed >= 5) entryTime.current = null;
       return;
     }
     const weight = 1 - Math.exp(-2.4 * Math.min(delta,.05));
     const config = CAMERA[selected];
-    camera.position.lerp(new THREE.Vector3(...config.eye),weight);
-    target.current.lerp(new THREE.Vector3(...config.look),weight);
+    camera.position.lerp(portrait && selected === "work" ? portraitDeskEye : new THREE.Vector3(...config.eye),weight);
+    target.current.lerp(portrait && selected === "work" ? portraitDeskLook : new THREE.Vector3(...config.look),weight);
     camera.lookAt(target.current);
   });
   return null;
@@ -69,23 +88,23 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
  * positions. Basic shaded faces keep their individual pink/violet colors visible
  * instead of tone-mapping the upstream 5.7x emissive panels into white blocks. */
 const HEX_LIGHTS = [
-  [0,1.82,"#d17cec"],[-.21,1.94124,"#8c82f7"],[-.21,1.69876,"#e7a0ef"],
-  [0,2.06248,"#bb85fb"],[0,1.57752,"#ca77e8"],[.21,1.94124,"#ef9ee6"],
-  [.21,1.69876,"#8c82f7"],
+  [-.57,2.38,"#dfaeff"],[-.285,2.38,"#e9bfff"],[0,2.38,"#d7a7fb"],[.285,2.38,"#e4b1f9"],[.57,2.38,"#c7b7ff"],
+  [-.427,2.14,"#caafff"],[-.142,2.14,"#f1b5ee"],[.143,2.14,"#c9abfd"],[.428,2.14,"#f3b3e9"],
+  [-.285,1.90,"#d1b4fe"],[0,1.90,"#edb3f5"],[.285,1.90,"#b0adff"],
 ] as const;
 function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:()=>void }) {
   const geometry = useMemo(() => {
     const outline = new THREE.Shape();
     for(let i=0;i<6;i++) {
       const angle=Math.PI/2 + i*Math.PI/3;
-      const x=Math.cos(angle)*.115, y=Math.sin(angle)*.115;
+      const x=Math.cos(angle)*.153, y=Math.sin(angle)*.153;
       if(i===0) outline.moveTo(x,y); else outline.lineTo(x,y);
     }
     outline.closePath();
     const face = new THREE.Shape();
     for(let i=0;i<6;i++) {
       const angle=Math.PI/2 + i*Math.PI/3;
-      const x=Math.cos(angle)*.096, y=Math.sin(angle)*.096;
+      const x=Math.cos(angle)*.136, y=Math.sin(angle)*.136;
       if(i===0) face.moveTo(x,y); else face.lineTo(x,y);
     }
     face.closePath();
@@ -96,6 +115,11 @@ function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:
     <group position={[0,0,-1.708]} onClick={e=>{e.stopPropagation();onExplore();}}>
       {HEX_LIGHTS.map(([x,y,color],i) =>
         <group key={i} position={[x,y,0]}>
+          <mesh position={[0,0,-.003]}>
+            <circleGeometry args={[.19,32]}/>
+            <meshBasicMaterial color={color} transparent opacity={lightsOn ? .105 : .025}
+              blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}/>
+          </mesh>
           <mesh geometry={geometry.rim}>
             <meshBasicMaterial color={lightsOn ? "#f7e3ff" : "#696178"} toneMapped={false}/>
           </mesh>
@@ -120,10 +144,11 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
   introSequence:number;
   onReady:()=>void;
 }) {
-  const [world, resident, fixture] = useLoader(GLTFLoader, [
+  const [world, resident, fixture, workstationDetail] = useLoader(GLTFLoader, [
     "/models/yor-world-room.glb",
     "/models/yor-world-resident.glb",
     "/models/yor-world-fixture.glb",
+    "/models/yor-world-workstation-details.glb",
   ]);
   const { group, avatarMixer, chairMixer, actions, door, lightNodes, painting, blinds, signature } = useMemo(() => {
     const model = new THREE.Group();
@@ -137,6 +162,26 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     const toRemove = fixture.scene.getObjectByName("fixture-static");
     if (toRemove) toRemove.parent?.remove(toRemove);
     model.add(room,fixture.scene,resident.scene);
+
+    // Replace only the coarse workstation dressing, retaining the production
+    // door, blinds, painting, monitor hit zones and animated resident rig.
+    // Yor-World's B3 sample contains authored fine-grained PC fans, controllers,
+    // headset and a richer foliage collection in identical world coordinates.
+    const authoredDressing = workstationDetail.scene.clone(true);
+    authoredDressing.updateWorldMatrix(true, true);
+    model.updateWorldMatrix(true, true);
+    const visualReplacements = [
+      ["helios-pc", "helios-pc"],
+      ["pegboard_system", "controller-pegboard"],
+      ["plants", "plants_group"],
+    ] as const;
+    for (const [legacyName, sourceName] of visualReplacements) {
+      const detail = authoredDressing.getObjectByName(sourceName);
+      if (!detail) continue;
+      room.getObjectByName(legacyName)?.removeFromParent();
+      model.attach(detail);
+      detail.name = legacyName;
+    }
     const am = new THREE.AnimationMixer(resident.scene);
     const cm = new THREE.AnimationMixer(fixture.scene);
     const anims = new Map(resident.animations.map(clip => [clip.name, am.clipAction(clip)]));
@@ -162,7 +207,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     const signature = room.getObjectByName("hidden-yor-mark") || null;
     if (signature) signature.visible = false;
     return {group:model,avatarMixer:am,chairMixer:cm,actions:anims,door,lightNodes,painting,blinds,signature};
-  },[world,resident,fixture]);
+  },[world,resident,fixture,workstationDetail]);
 
   const entryTime = useRef<number | null>(null);
   const entryGreeted = useRef(false);
@@ -268,17 +313,19 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
   };
   return (
     <>
-      <color attach="background" args={["#8b8eaf"]}/>
-      <ambientLight intensity={.16} color="#dde6ff"/>
-      <hemisphereLight args={["#edeaff","#555b87",.33]}/>
-      <directionalLight position={[4,7,5]} intensity={.3} color="#faf4ff"/>
+      <color attach="background" args={["#b5bad7"]}/>
+      <ambientLight intensity={.49} color="#f1efff"/>
+      <hemisphereLight args={["#fff2ff","#5e729e",.48]}/>
+      <directionalLight position={[4,7,5]} intensity={.62} color="#fff8ff"/>
       {/* Concerted violet/cyan practicals bring the authored RGB workstation to
           life without the overexposed white patch caused by the original lights. */}
-      <pointLight position={[0,2.05,-1.5]} color="#c881ff" intensity={lightsOn ? 1.8 : .14} distance={3.1} decay={2}/>
-      <pointLight position={[-1.4,.72,-.65]} color="#50daff" intensity={lightsOn ? 2.4 : .2} distance={3.7} decay={2}/>
-      <pointLight position={[1.35,1.98,.06]} color="#ffb5df" intensity={lightsOn ? 1.8 : .14} distance={3.4} decay={2}/>
+      <pointLight position={[0,2.05,-1.5]} color="#c881ff" intensity={lightsOn ? 2.2 : .14} distance={3.1} decay={2}/>
+      <pointLight position={[-1.4,.72,-.65]} color="#50daff" intensity={lightsOn ? 3.0 : .2} distance={3.7} decay={2}/>
+      <pointLight position={[1.35,1.98,.06]} color="#ffb5df" intensity={lightsOn ? 2.4 : .14} distance={3.4} decay={2}/>
       <WorldCamera selected={selected} introSequence={introSequence}/>
       <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
+      <StudioReferenceDressing lightsOn={lightsOn} onOpenComputer={() => onInteract("monitor")} onExplore={() => onSelect("lab")}/>
+      <StudioDeskProps onOpen={() => onInteract("monitor")}/>
       <primitive object={group} onClick={choose}
         onPointerOver={hover}
         onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>
@@ -300,9 +347,9 @@ export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleL
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
-    <Canvas camera={{position:[1.30,1.67,1.28],fov:48,near:.08,far:30}}
+    <Canvas camera={{position:[-0.82,1.72,1.50],fov:55,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
-      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.72; }}
+      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.95; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
       <Suspense fallback={null}>
         <AuthenticYorRoom onSelect={onSelect} onInteract={onInteract} onHover={onHover} onToggleLights={onToggleLights}
