@@ -8,8 +8,8 @@ import styles from "./SiteNav.module.css";
 const links = [["About", "/#about"], ["Skills", "/#skills"], ["Work", "/#projects"], ["Experience", "/#experience"], ["Lab", "/lab"], ["Resume", "/resume"], ["Contact", "/#contact"]] as const;
 
 function isCurrentPage(href: (typeof links)[number][1], pathname: string) {
-  if (href === "/projects") return pathname === "/projects" || pathname.startsWith("/projects/");
-  return href === pathname;
+  if (href === "/#projects") return pathname === "/projects" || pathname.startsWith("/projects/");
+  return href.startsWith("/#") ? false : href === pathname;
 }
 
 export function SiteNav() {
