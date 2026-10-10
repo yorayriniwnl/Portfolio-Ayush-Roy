@@ -6,6 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StudioTarget } from "./StudioScene";
+import { StudioReferenceDressing } from "./StudioReferenceDressing";
 
 export type StudioObjectAction = "monitor" | "painting" | "blinds" | "lights" | "avatar" | "door" | "skills";
 function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): StudioObjectAction | null {
@@ -71,23 +72,23 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
  * positions. Basic shaded faces keep their individual pink/violet colors visible
  * instead of tone-mapping the upstream 5.7x emissive panels into white blocks. */
 const HEX_LIGHTS = [
-  [0,1.82,"#d17cec"],[-.21,1.94124,"#8c82f7"],[-.21,1.69876,"#e7a0ef"],
-  [0,2.06248,"#bb85fb"],[0,1.57752,"#ca77e8"],[.21,1.94124,"#ef9ee6"],
-  [.21,1.69876,"#8c82f7"],
+  [-.57,2.38,"#dfaeff"],[-.285,2.38,"#e9bfff"],[0,2.38,"#d7a7fb"],[.285,2.38,"#e4b1f9"],[.57,2.38,"#c7b7ff"],
+  [-.427,2.14,"#caafff"],[-.142,2.14,"#f1b5ee"],[.143,2.14,"#c9abfd"],[.428,2.14,"#f3b3e9"],
+  [-.285,1.90,"#d1b4fe"],[0,1.90,"#edb3f5"],[.285,1.90,"#b0adff"],
 ] as const;
 function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:()=>void }) {
   const geometry = useMemo(() => {
     const outline = new THREE.Shape();
     for(let i=0;i<6;i++) {
       const angle=Math.PI/2 + i*Math.PI/3;
-      const x=Math.cos(angle)*.115, y=Math.sin(angle)*.115;
+      const x=Math.cos(angle)*.153, y=Math.sin(angle)*.153;
       if(i===0) outline.moveTo(x,y); else outline.lineTo(x,y);
     }
     outline.closePath();
     const face = new THREE.Shape();
     for(let i=0;i<6;i++) {
       const angle=Math.PI/2 + i*Math.PI/3;
-      const x=Math.cos(angle)*.096, y=Math.sin(angle)*.096;
+      const x=Math.cos(angle)*.136, y=Math.sin(angle)*.136;
       if(i===0) face.moveTo(x,y); else face.lineTo(x,y);
     }
     face.closePath();
@@ -99,8 +100,8 @@ function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:
       {HEX_LIGHTS.map(([x,y,color],i) =>
         <group key={i} position={[x,y,0]}>
           <mesh position={[0,0,-.003]}>
-            <circleGeometry args={[.147,32]}/>
-            <meshBasicMaterial color={color} transparent opacity={lightsOn ? .22 : .025}
+            <circleGeometry args={[.19,32]}/>
+            <meshBasicMaterial color={color} transparent opacity={lightsOn ? .105 : .025}
               blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}/>
           </mesh>
           <mesh geometry={geometry.rim}>
@@ -297,16 +298,17 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
   return (
     <>
       <color attach="background" args={["#b5bad7"]}/>
-      <ambientLight intensity={.76} color="#f1efff"/>
-      <hemisphereLight args={["#fff2ff","#778ab7",.7]}/>
-      <directionalLight position={[4,7,5]} intensity={.82} color="#fff8ff"/>
+      <ambientLight intensity={.49} color="#f1efff"/>
+      <hemisphereLight args={["#fff2ff","#5e729e",.48]}/>
+      <directionalLight position={[4,7,5]} intensity={.62} color="#fff8ff"/>
       {/* Concerted violet/cyan practicals bring the authored RGB workstation to
           life without the overexposed white patch caused by the original lights. */}
-      <pointLight position={[0,2.05,-1.5]} color="#c881ff" intensity={lightsOn ? 1.8 : .14} distance={3.1} decay={2}/>
-      <pointLight position={[-1.4,.72,-.65]} color="#50daff" intensity={lightsOn ? 2.4 : .2} distance={3.7} decay={2}/>
-      <pointLight position={[1.35,1.98,.06]} color="#ffb5df" intensity={lightsOn ? 1.8 : .14} distance={3.4} decay={2}/>
+      <pointLight position={[0,2.05,-1.5]} color="#c881ff" intensity={lightsOn ? 2.2 : .14} distance={3.1} decay={2}/>
+      <pointLight position={[-1.4,.72,-.65]} color="#50daff" intensity={lightsOn ? 3.0 : .2} distance={3.7} decay={2}/>
+      <pointLight position={[1.35,1.98,.06]} color="#ffb5df" intensity={lightsOn ? 2.4 : .14} distance={3.4} decay={2}/>
       <WorldCamera selected={selected} introSequence={introSequence}/>
       <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
+      <StudioReferenceDressing lightsOn={lightsOn} onOpenComputer={() => onInteract("monitor")} onExplore={() => onSelect("lab")}/>
       <primitive object={group} onClick={choose}
         onPointerOver={hover}
         onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>
@@ -330,7 +332,7 @@ export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleL
   return (
     <Canvas camera={{position:[-0.68,1.60,1.18],fov:48,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
-      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=1.05; }}
+      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.95; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
       <Suspense fallback={null}>
         <AuthenticYorRoom onSelect={onSelect} onInteract={onInteract} onHover={onHover} onToggleLights={onToggleLights}
