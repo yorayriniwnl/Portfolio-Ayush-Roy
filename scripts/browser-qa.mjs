@@ -447,6 +447,7 @@ try {
   assert(homeGpu.studioCanvases === 1 && homeGpu.projectCanvases === 0 && homeGpu.sceneLayers === 0,
     `Homepage has missing or duplicate GPU layers: ${JSON.stringify(homeGpu)}`);
   assert(homeGpu.controls === 4, "Studio camera presets are incomplete");
+  await capture(cdp, outputDir, "desktop-hero");
   await clickAtSelector('.yor-studio__locations button:nth-child(2)');
   await waitForCondition(cdp,
     `document.querySelector('.yor-studio__locations button:nth-child(2)')?.getAttribute('aria-pressed') === 'true'`,
@@ -454,7 +455,6 @@ try {
   await clickAtSelector('.yor-studio__locations button:nth-child(1)');
   const boardReady = await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-skills__matrix'))`, { description: "interactive technology keyboard" });
   report.rendering.home = { ...homeGpu, skillsReady: Boolean(boardReady.value), restoredInteractiveStudio: true };
-  await capture(cdp, outputDir, "desktop-hero");
   report.performance.samples.push({ path: "/", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
 
   await clickAtSelector('a[href="/projects"]');
