@@ -115,8 +115,8 @@ test("the workstation launcher is evidence-first and dismissible from keyboard",
 test("actual GLB fills the opening cinematic stage instead of an editorial side card", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
   const css = readFileSync("src/styles/studio-revival.css","utf8");
-  assert.match(scene,/work: \{ eye: \[1\.30,1\.67,1\.28\]/);
-  assert.match(scene,/gl\.toneMappingExposure=\.72/);
+  assert.match(scene,/work: \{ eye: \[-1\.90,1\.70,1\.45\]/);
+  assert.match(scene,/gl\.toneMappingExposure=1\.05/);
   assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
   assert.match(scene,/function StudioHexLights/);
   assert.match(scene,/new THREE.ShapeGeometry/);
@@ -131,4 +131,19 @@ test("actual GLB fills the opening cinematic stage instead of an editorial side 
   assert.match(css,/\.yor-world-hero__studio\.machine-home:has\(\[data-console-open="true"\]\)/);
   assert.match(css,/@media \(max-width:800px\)/);
   assert.match(css,/height:min\(81svh,720px\)/);
+});
+
+test("studio prioritizes the reference-backed wide camera and pastel daylight over the dark hero", () => {
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
+  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  assert.match(scene, /look: \[0\.12,1\.15,-1\.15\]/);
+  assert.match(scene, /ambientLight intensity=\{\.76\}/);
+  assert.match(scene, /THREE\.AdditiveBlending/);
+  assert.match(room, /data-photo-mode=\{String\(photoMode\)\}/);
+  assert.match(room, /Exit distraction-free room view/);
+  assert.match(room, /event\.key === "Escape"\) setPhotoMode\(false\)/);
+  assert.match(css, /Reference-aligned pastel workstation art pass/);
+  assert.match(css, /\.yor-studio\[data-photo-mode="true"\]/);
+  assert.match(css, /\.yor-studio__photo-toggle/);
 });
