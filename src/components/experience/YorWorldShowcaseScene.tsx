@@ -31,7 +31,7 @@ function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): Studi
 /* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
  * from the connected Yor-World production assets. No CSS 3D substitution. */
 const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
-  work: { eye: [-0.68,1.60,1.18], look: [0.04,1.18,-1.23] },
+  work: { eye: [-0.82,1.72,1.50], look: [0.04,1.30,-1.23] },
   about: { eye: [1.12,1.5,.82], look: [.3,.88,-.36] },
   lab: { eye: [.6,1.65,.68], look: [1.92,1.5,-.4] },
   contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
@@ -47,8 +47,8 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
   // Move toward the reference-facing station so the PC is visible to the right of the chair.
   const deskEye = useMemo(() => new THREE.Vector3(...CAMERA.work.eye), []);
   const deskLook = useMemo(() => new THREE.Vector3(...CAMERA.work.look), []);
-  const portraitDeskEye = useMemo(() => new THREE.Vector3(-.36,1.62,1.6), []);
-  const portraitDeskLook = useMemo(() => new THREE.Vector3(.22,1.23,-1.18), []);
+  const portraitDeskEye = useMemo(() => new THREE.Vector3(-.42,1.65,1.85), []);
+  const portraitDeskLook = useMemo(() => new THREE.Vector3(.20,1.26,-1.18), []);
   useEffect(() => { entryTime.current = introSequence > 0 ? 0 : null; }, [introSequence]);
   // Mutable Three.js cameras live outside React state, as does the scene rig below.
   // eslint-disable-next-line react-hooks/immutability
@@ -56,7 +56,7 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
     // Increase portrait horizontal coverage without moving the actual models.
     // Wide camera crops the chair on 390px phones; a wider portrait lens does not.
     if (camera instanceof THREE.PerspectiveCamera) {
-      const targetFov = portrait ? 58 : 48;
+      const targetFov = portrait ? 64 : 55;
       if (camera.fov !== targetFov) {
         // eslint-disable-next-line react-hooks/immutability
         camera.fov = targetFov;
@@ -345,7 +345,7 @@ export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleL
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
-    <Canvas camera={{position:[-0.68,1.60,1.18],fov:48,near:.08,far:30}}
+    <Canvas camera={{position:[-0.82,1.72,1.50],fov:55,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
       onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.95; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
