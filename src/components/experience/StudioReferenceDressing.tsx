@@ -109,17 +109,17 @@ function HangingVine({ x,y,count,phase }: { x:number; y:number; count:number; ph
         <meshStandardMaterial color="#4a9470" roughness={.84}/>
       </mesh>
       {points.slice(1).map((point,i) => (
-        <group key={i} position={point.toArray()} rotation={[.3,Math.sin(i*1.5),i%2===0?.56:-.56]}>
-          <mesh position={[i%2===0?-.040:.040,0,.012]}
+        <group key={i} position={[point.x,point.y,point.z]} rotation={[.3,Math.sin(i*1.5),i%2===0 ? .56 : -.56]}>
+          <mesh position={[i%2===0 ? -.040 : .040,0,.012]}
             scale={[.047,.085,.021]}>
             <sphereGeometry args={[1,10,8]}/>
-            <meshStandardMaterial color={i%3===0?"#6cb989":"#438968"}
+            <meshStandardMaterial color={i%3===0 ? "#6cb989" : "#438968"}
               roughness={.7} side={THREE.DoubleSide}/>
           </mesh>
-          <mesh position={[i%2===0?.040:-.040,.019,-.004]}
+          <mesh position={[i%2===0 ? .040 : -.040,.019,-.004]}
             scale={[.038,.07,.020]} rotation={[0,.2,-.3]}>
             <sphereGeometry args={[1,10,8]}/>
-            <meshStandardMaterial color={i%2===0?"#82c99b":"#337859"}
+            <meshStandardMaterial color={i%2===0 ? "#82c99b" : "#337859"}
               roughness={.7} side={THREE.DoubleSide}/>
           </mesh>
         </group>
