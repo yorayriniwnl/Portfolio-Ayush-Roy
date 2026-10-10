@@ -130,7 +130,7 @@ test("room can be traversed by WASD, clicking the floor and mobile directional c
   assert.match(scene,/onWalkTo\(\{x:event\.point\.x,z:event\.point\.z\}\)/);
   assert.match(camera,/window\.addEventListener\("keydown",down\)/);
   assert.match(camera,/canvas\.addEventListener\("pointerdown",startDrag\)/);
-  assert.match(camera,/canvas\.style\.touchAction="none"/);
+  assert.match(scene,/gl\.domElement\.tabIndex=0/);
   assert.match(camera,/if\(touchDirection==="forward"\)/);
   assert.match(camera,/route\.current=walkRoute/);
   assert.match(camera,/camera\.lookAt\(next\.x/);
