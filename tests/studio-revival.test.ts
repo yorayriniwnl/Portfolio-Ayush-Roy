@@ -15,7 +15,7 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
   assert.ok(authored.includes("yor-world-room.glb"));
   assert.ok(authored.includes("yor-world-resident.glb"));
   assert.ok(authored.includes("yor-world-fixture.glb"));
-  assert.match(authored, /<AuthenticYorRoom onSelect=\{onSelect\} onToggleLights=\{onToggleLights\}/);
+  assert.match(authored, /<AuthenticYorRoom onSelect=\{onSelect\} onInteract=\{onInteract\} onHover=\{onHover\} onToggleLights=\{onToggleLights\}/);
   assert.match(runtime, /pathname !== "\/" && <ExperienceSceneLayer/);
   assert.doesNotMatch(hero, /Illustrated engineer portrait/);
 });
@@ -73,4 +73,41 @@ test("cinematic doorway entry remains replayable and camera controls can skip it
   assert.match(authored, /doorwayOpening/);
   assert.match(authored, /actions\.get\("turn_to_visitor"\)/);
   assert.match(css, /\.yor-studio__utilities button:last-child \{ display:inline-flex/);
+});
+
+test("Yor World object map drives real blinds and tilt with accessible DOM controls", () => {
+  const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  for (const object of ["monitor", "painting", "blinds", "lights", "avatar", "door", "skills"]) {
+    assert.match(scene, new RegExp(`"${object}"`), `Scene must recognize ${object}`);
+  }
+  assert.match(scene, /getObjectByName\("painting-pivot"\)/);
+  assert.match(scene, /getObjectByName\(`blind_slat_/);
+  assert.match(scene, /getObjectByName\("hidden-yor-mark"\)/);
+  assert.match(scene, /blind\.node\.rotation\.z = THREE\.MathUtils\.damp/);
+  assert.match(scene, /props\.painting\.rotation\.x = props\.paintingBase \+ impulse/);
+  assert.match(scene, /props\.signature\.visible = paintingBeat > 0/);
+  assert.match(scene, /onPointerOver=\{hover\}/);
+  assert.match(room, /data-blinds-open=\{String\(blindsOpen\)\}/);
+  assert.match(room, /data-painting-beat=\{paintingBeat\}/);
+  assert.match(room, /onInteract=\{activateObject\}/);
+  assert.match(room, /aria-pressed=\{!blindsOpen\}/);
+  assert.match(room, /HIDDEN YOR MARK DISCOVERED/);
+  assert.match(css, /yor-studio__hover-label/);
+});
+
+test("the workstation launcher is evidence-first and dismissible from keyboard", () => {
+  const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
+  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  assert.match(room, /recruiterProjects\.map/);
+  assert.match(room, /href=\{`\/projects\/\$\{project\.slug\}`\}/);
+  assert.match(room, /aria-labelledby="yor-room-console-title"/);
+  assert.match(room, /aria-label="Close workstation launcher"/);
+  assert.match(room, /event\.key === "Escape"/);
+  assert.match(room, /consoleCloseButton\.current\?\.focus/);
+  assert.match(room, /consoleButton\.current\?\.focus/);
+  assert.match(room, /data-console-open=\{String\(consoleOpen\)\}/);
+  assert.match(css, /yor-studio__console-projects/);
+  assert.match(css, /@media \(max-width:650px\)/);
 });
