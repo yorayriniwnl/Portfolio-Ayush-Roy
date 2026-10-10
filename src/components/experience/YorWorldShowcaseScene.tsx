@@ -21,7 +21,8 @@ function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): Studi
   if (/painting|wall.art|hex_panel/.test(id)) return "painting";
   if (/door-hinge|door_leaf|door_handle|door_frame/.test(id)) return "door";
   if (/resident|body-turn|head|chair/.test(id)) return "avatar";
-  if (/pegboard_system|research.books|shelves/.test(id)) return "skills";
+  if (/pegboard_system|controller-pegboard|research.books|shelves/.test(id)) return "skills";
+  if (/helios-pc|pc_chassis|pc_tempered_glass|pc_fan|headset/.test(id)) return "monitor";
   if (/monitor|keyboard|mouse_body|desk/.test(id)) return "monitor";
   return null;
 }
@@ -126,10 +127,11 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
   introSequence:number;
   onReady:()=>void;
 }) {
-  const [world, resident, fixture] = useLoader(GLTFLoader, [
+  const [world, resident, fixture, workstationDetail] = useLoader(GLTFLoader, [
     "/models/yor-world-room.glb",
     "/models/yor-world-resident.glb",
     "/models/yor-world-fixture.glb",
+    "/models/yor-world-workstation-details.glb",
   ]);
   const { group, avatarMixer, chairMixer, actions, door, lightNodes, painting, blinds, signature } = useMemo(() => {
     const model = new THREE.Group();
@@ -143,6 +145,25 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     const toRemove = fixture.scene.getObjectByName("fixture-static");
     if (toRemove) toRemove.parent?.remove(toRemove);
     model.add(room,fixture.scene,resident.scene);
+
+    // Replace only the coarse workstation dressing, retaining the production
+    // door, blinds, painting, monitor hit zones and animated resident rig.
+    // Yor-World's B3 sample contains authored fine-grained PC fans, controllers,
+    // headset and a richer foliage collection in identical world coordinates.
+    workstationDetail.scene.updateWorldMatrix(true, true);
+    model.updateWorldMatrix(true, true);
+    const visualReplacements = [
+      ["helios-pc", "helios-pc"],
+      ["pegboard_system", "controller-pegboard"],
+      ["plants", "plants_group"],
+    ] as const;
+    for (const [legacyName, sourceName] of visualReplacements) {
+      const detail = workstationDetail.scene.getObjectByName(sourceName);
+      if (!detail) continue;
+      room.getObjectByName(legacyName)?.removeFromParent();
+      model.attach(detail);
+      detail.name = legacyName;
+    }
     const am = new THREE.AnimationMixer(resident.scene);
     const cm = new THREE.AnimationMixer(fixture.scene);
     const anims = new Map(resident.animations.map(clip => [clip.name, am.clipAction(clip)]));
@@ -168,7 +189,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     const signature = room.getObjectByName("hidden-yor-mark") || null;
     if (signature) signature.visible = false;
     return {group:model,avatarMixer:am,chairMixer:cm,actions:anims,door,lightNodes,painting,blinds,signature};
-  },[world,resident,fixture]);
+  },[world,resident,fixture,workstationDetail]);
 
   const entryTime = useRef<number | null>(null);
   const entryGreeted = useRef(false);
