@@ -103,7 +103,7 @@ export function StudioRoom() {
           <div className="yor-studio__fallback-drawer"/>
           <div className="yor-studio__fallback-lamp"/>
         </div>
-        {allowed && visible && graphicsAvailable && <Scene onSelect={setSelected} selected={selected} lightsOn={lightsOn}/>}
+        {allowed && visible && graphicsAvailable && <Scene onSelect={setSelected} onToggleLights={() => setLightsOn((value) => !value)} selected={selected} lightsOn={lightsOn}/>}
         <div className="yor-studio__hud" aria-hidden="true">
           <span>REAL 3D / WEBGL</span><span>CLICK OBJECTS · CHANGE CAMERA ANGLES ↗</span>
         </div>
