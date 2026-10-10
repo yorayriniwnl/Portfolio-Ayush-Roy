@@ -11,7 +11,7 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  `connect-src 'self'${isDevelopment ? " ws: wss:" : ""}`,
+  `connect-src 'self' blob:${isDevelopment ? " ws: wss:" : ""}`,
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   ...(!isDevelopment ? ["upgrade-insecure-requests"] : []),

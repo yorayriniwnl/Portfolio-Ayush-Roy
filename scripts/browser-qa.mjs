@@ -432,11 +432,38 @@ try {
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "editorial homepage visible" });
-  const noHomeGpu = await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas, .yor-studio__viewport canvas').length === 0`);
-  assert(noHomeGpu, "Reference homepage should not create duplicate GPU scenes");
-  const boardReady = await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-skills__matrix'))`, { description: "interactive technology keyboard" });
-  report.rendering.home = { sceneLayers: 0, canvases: 0, skillsReady: Boolean(boardReady.value) };
+  // The original interactive room is back. It is the homepage's only GPU
+  // surface, distinct from the persistent project-world renderer.
+  const studioCanvas = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio__viewport canvas') ? true : null`,
+    { timeoutMs: 18_000, description: "restored WebGL studio canvas" });
+  assert(studioCanvas.value, "Restored 3D workspace did not render in GPU-capable browser");
+  const homeGpu = await cdp.evaluate(`({
+    studioCanvases: document.querySelectorAll('.yor-studio__viewport canvas').length,
+    projectCanvases: document.querySelectorAll('.machine-canvas canvas').length,
+    sceneLayers: document.querySelectorAll('.machine-scene-layer').length,
+    controls: document.querySelectorAll('.yor-studio__locations button').length
+  })`);
+  assert(homeGpu.studioCanvases === 1 && homeGpu.projectCanvases === 0 && homeGpu.sceneLayers === 0,
+    `Homepage has missing or duplicate GPU layers: ${JSON.stringify(homeGpu)}`);
+  assert(homeGpu.controls === 4, "Studio camera presets are incomplete");
+  const genuineRoom = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
+    { timeoutMs: 28_000, description: "authentic Yor-World GLB workstation ready" });
+  assert(genuineRoom.value, "Authentic GLB room never finished loading");
   await capture(cdp, outputDir, "desktop-hero");
+  await cdp.evaluate(`(() => {
+    const avatar = document.querySelector('.yor-studio__locations button:nth-child(2)');
+    avatar?.scrollIntoView({ block:'center', behavior:'instant' });
+    avatar?.click();
+    return true;
+  })()`);
+  await waitForCondition(cdp,
+    `document.querySelector('.yor-studio__locations button:nth-child(2)')?.getAttribute('aria-pressed') === 'true'`,
+    { timeoutMs: 2500, description: "avatar camera preset activates after React update" });
+  await clickAtSelector('.yor-studio__locations button:nth-child(1)');
+  const boardReady = await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-skills__matrix'))`, { description: "interactive technology keyboard" });
+  report.rendering.home = { ...homeGpu, skillsReady: Boolean(boardReady.value), restoredInteractiveStudio: true };
   report.performance.samples.push({ path: "/", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
 
   await clickAtSelector('a[href="/projects"]');
@@ -472,6 +499,23 @@ try {
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "mobile editorial homepage" });
   assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas').length === 0`), "Mobile homepage mounted redundant 3D");
+  const mobileRoomReady = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
+    { timeoutMs: 28_000, description: "authentic Yor-World 3D room ready on mobile" });
+  assert(mobileRoomReady.value, "Mobile 3D room failed to load imported assets");
+  await delay(220); // Give WebGL a painted frame after model completion.
+  const mobileStage = await cdp.evaluate(`(() => {
+    const viewport = document.querySelector('.yor-studio__viewport');
+    const rect = viewport?.getBoundingClientRect();
+    return rect ? { top: rect.top, bottom: rect.bottom, height: rect.height,
+      loaded: document.querySelector('.yor-studio')?.dataset.sceneReady,
+      canvases: viewport.querySelectorAll('canvas').length,
+      visiblePixels: Math.max(0, Math.min(rect.bottom, innerHeight) - Math.max(rect.top, 0)) } : null;
+  })()`);
+  assert(mobileStage && mobileStage.top < 570 && mobileStage.visiblePixels >= 240 &&
+    mobileStage.canvases === 1 && mobileStage.loaded === "true",
+    `Mobile first screen needs visible loaded 3D room: ${JSON.stringify(mobileStage)}`);
+  report.rendering.mobileHome = mobileStage;
   await capture(cdp, outputDir, "mobile-hero");
   await navigate(cdp, baseUrl + "/projects");
   await positionProjectWorldForCapture();
