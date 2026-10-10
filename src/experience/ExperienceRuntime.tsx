@@ -12,7 +12,7 @@ export function ExperienceRuntime({ children }: { children: ReactNode }) {
   return (
     <ExperienceProvider initialPathname={pathname}>
       <ExperienceDirector />
-      <ExperienceSceneLayer />
+      {pathname !== "/" && <ExperienceSceneLayer />}
       {children}
     </ExperienceProvider>
   );
