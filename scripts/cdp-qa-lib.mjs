@@ -435,8 +435,23 @@ export async function navigate(cdp, url) {
 }
 
 export async function capture(cdp, outputDir, name) {
-  const result = await cdp.send("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false });
-  fs.writeFileSync(path.join(outputDir, `${name}.png`), Buffer.from(result.data, "base64"));
+  // Software-rendered WebGL is sometimes very slow to composite in CI Chrome.
+  // A single retry through the alternative CDP capture path keeps real pixels,
+  // never a substituted illustration or a skipped screenshot.
+  let result;
+  try {
+    result = await cdp.send("Page.captureScreenshot",
+      { format: "png", fromSurface: true, captureBeyondViewport: false }, 35_000);
+  } catch (error) {
+    if (!String(error).includes("Timed out waiting for CDP response Page.captureScreenshot")) throw error;
+    await new Promise(resolve => setTimeout(resolve, 600));
+    result = await cdp.send("Page.captureScreenshot",
+      { format: "png", fromSurface: false, captureBeyondViewport: false }, 40_000);
+  }
+  const png = Buffer.from(result.data, "base64");
+  if (png.byteLength < 1000 || png.subarray(0, 8).toString("hex") !== "89504e470d0a1a0a")
+    throw new Error(`Invalid PNG capture for ${name}`);
+  fs.writeFileSync(path.join(outputDir, `${name}.png`), png);
 }
 
 export async function pageHealth(cdp) {
