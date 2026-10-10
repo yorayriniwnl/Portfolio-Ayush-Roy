@@ -176,17 +176,14 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     if (props) {
       for (const blind of props.blinds) {
         const angle = blind.base + (blindsOpen ? 0 : Math.PI / 2);
-        // eslint-disable-next-line react-hooks/immutability
         blind.node.rotation.z = THREE.MathUtils.damp(blind.node.rotation.z, angle, 5, step);
       }
       if (props.painting) {
         const impulse = paintingImpulse.current;
-        // eslint-disable-next-line react-hooks/immutability
         props.painting.rotation.x = props.paintingBase + impulse;
         paintingImpulse.current = THREE.MathUtils.damp(impulse, 0, 6, step);
         if (Math.abs(paintingImpulse.current) < .0002) paintingImpulse.current = 0;
       }
-      // eslint-disable-next-line react-hooks/immutability
       if (props.signature) props.signature.visible = paintingBeat > 0;
     }
     const pivot = props?.door;
