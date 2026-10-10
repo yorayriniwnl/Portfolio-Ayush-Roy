@@ -580,3 +580,30 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   .yor-world-hero__description {font-size:10px;}
   .yor-world-hero__studio .yor-studio__viewport {height:70svh; min-height:490px;}
 }
+
+
+/* Second-stage art pass: foreground the actual monitor and chair instead of
+   letting an enormous editorial card consume the left half of the stage. */
+@media (min-width:801px) {
+  .yor-world-hero__intro {
+    align-self:start;
+    justify-self:start;
+    width:min(315px,30%);
+    margin:clamp(115px,14vh,158px) 0 0 clamp(14px,2.3vw,36px);
+    padding:15px 18px;
+    border-radius:15px;
+    background:linear-gradient(138deg,rgba(15,22,53,.78),rgba(26,23,59,.69));
+    box-shadow:0 15px 44px rgba(14,14,45,.18);
+    backdrop-filter:blur(11px);
+  }
+  .editorial-home .yor-world-hero h1 {
+    font-size:clamp(40px,3.3vw,51px);
+    line-height:.98;
+  }
+  .yor-world-hero__welcome {font-size:9px;margin-bottom:10px;}
+  .yor-world-hero__description {
+    max-width:none;font-size:12px;line-height:1.42;margin-top:12px;
+  }
+  .yor-world-hero__ctas {margin-top:13px;gap:6px;}
+  .yor-world-hero__ctas a {min-height:42px;font-size:9px;padding:10px 12px;gap:5px;}
+}
