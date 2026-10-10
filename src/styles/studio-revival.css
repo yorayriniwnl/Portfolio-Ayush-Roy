@@ -210,3 +210,28 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
    reveal the actual shaded scene only after all production modules mount. */
 .yor-studio[data-scene-ready="true"] .yor-studio__fallback {opacity:0; pointer-events:none;}
 .yor-studio[data-scene-failed="true"] .yor-studio__fallback {opacity:1;}
+
+/* Small screens deserve the room, not a full viewport of introductory copy.
+   Compact the prologue and move scene controls into a single economical row. */
+@media (max-width: 650px) {
+  .yor-world-hero__shell { padding-top: 81px; }
+  .yor-world-hero__eyebrow { padding-bottom: 12px; gap: 7px; }
+  .yor-world-hero__edition { font-size: 8px; margin-left: 15px; }
+  .yor-world-hero__intro { padding: 27px 0 24px; }
+  .yor-world-hero__welcome { margin-bottom: 12px; font-size: 9px; }
+  .editorial-home .yor-world-hero h1 { font-size: clamp(50px, 12vw, 70px); line-height: .93; }
+  .yor-world-hero__description { font-size: 13px; line-height: 1.44; margin-top: 15px; max-width: 340px; }
+  .yor-world-hero__ctas { margin-top: 16px; gap: 9px; }
+  .yor-world-hero__ctas a { min-height: 43px; padding: 10px 13px; gap: 8px; font-size: 10px; }
+  .yor-world-hero__studio .yor-studio__topline { flex-direction: row; align-items: center; gap: 7px; justify-content: space-between; }
+  .yor-world-hero__studio .yor-studio__topline > span:first-child { font-size: 8px; letter-spacing: .045em; }
+  .yor-studio__utilities { flex-wrap: nowrap; }
+  .yor-studio__utilities button { font-size: 8px; padding: 7px 10px; min-height: 34px; }
+  .yor-studio__utilities button:last-child { display: none; }
+  .yor-world-hero__studio .yor-studio__viewport { height: clamp(390px, 112vw, 500px); }
+  .yor-world-hero__studio .yor-studio__hud { left: 9px; right: 9px; bottom: 11px; font-size: 7px; }
+}
+@media (max-width: 375px) {
+  .editorial-home .yor-world-hero h1 { font-size: 49px; }
+  .yor-world-hero__ctas a { font-size: 9px; padding-inline: 10px; }
+}
