@@ -185,3 +185,23 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
 @media (prefers-reduced-motion:reduce) {
   .yor-world-hero * { animation-duration:.01ms !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
 }
+
+/* Desktop composition: the actual room occupies the first viewport, not the
+   second screen. The introduction sits beside the scene, never above it. */
+@media (min-width:1001px) {
+  .yor-world-hero__shell {
+    display:grid;
+    grid-template-columns:minmax(0,.76fr) minmax(0,1.24fr);
+    column-gap:clamp(24px,3.4vw,60px);
+    align-items:start;
+  }
+  .yor-world-hero__eyebrow { grid-column:1/-1; }
+  .yor-world-hero__intro { grid-column:1; grid-row:2; grid-template-columns:1fr; padding:clamp(80px,11vw,170px) 0 30px; }
+  .yor-world-hero__ornament { display:none; }
+  .editorial-home .yor-world-hero h1 { font-size:clamp(67px,6.65vw,106px); }
+  .yor-world-hero__description { margin-top:32px; font-size:clamp(15px,1.25vw,18px); }
+  .yor-world-hero__studio.machine-home { grid-column:2; grid-row:2; padding-top:30px; }
+  .yor-world-hero__studio .yor-studio__viewport { height:clamp(485px,45vw,695px); }
+  .yor-world-hero__studio .yor-studio__bottomline { grid-template-columns:1fr; }
+  .yor-world-hero__below { grid-column:1/-1; }
+}
