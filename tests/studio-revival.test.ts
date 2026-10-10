@@ -9,7 +9,7 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
   const runtime = readFileSync("src/experience/ExperienceRuntime.tsx", "utf8");
   assert.match(homepage, /<StudioHero \/>/);
   assert.match(hero, /<StudioRoom \/>/);
-  assert.match(room, /<Scene onSelect=\{setSelected\}/);
+  assert.match(room, /<Scene onSelect=\{selectTarget\}/);
   const authored = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
   assert.match(authored, /<Canvas camera=/);
   assert.ok(authored.includes("yor-world-room.glb"));
@@ -54,4 +54,23 @@ test("new scene preserves direct HTML project/resume navigation and small-screen
   assert.match(css, /prefers-reduced-motion:reduce/);
   assert.match(css, /\.yor-world-hero__studio \.yor-studio__viewport/);
   assert.match(css, /min-height: 42px/);
+});
+
+test("cinematic doorway entry remains replayable and camera controls can skip it", () => {
+  const hero = readFileSync("src/components/experience/StudioHero.tsx", "utf8");
+  const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
+  const authored = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  assert.match(hero, /href="#studio"/);
+  assert.match(room, /window\.addEventListener\("hashchange", handleStudioLink\)/);
+  assert.match(room, /setIntroSequence\(\(value\) => value \+ 1\)/);
+  assert.match(room, /Replay doorway entrance animation/);
+  assert.match(room, /setIntroSequence\(0\)/);
+  assert.match(room, /introSequence=\{introSequence\}/);
+  assert.match(authored, /function WorldCamera\(\{ selected, introSequence \}/);
+  assert.match(authored, /entryTime\.current = introSequence > 0 \? 0 : null/);
+  assert.match(authored, /camera\.position\.copy\(doorEye\)\.lerp\(deskEye,eased\)/);
+  assert.match(authored, /doorwayOpening/);
+  assert.match(authored, /actions\.get\("turn_to_visitor"\)/);
+  assert.match(css, /\.yor-studio__utilities button:last-child \{ display:inline-flex/);
 });
