@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 
 test("actual recovered WebGL workspace powers the homepage, never a static imitation", () => {
   const homepage = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
@@ -146,4 +146,19 @@ test("studio prioritizes the reference-backed wide camera and pastel daylight ov
   assert.match(css, /Reference-aligned pastel workstation art pass/);
   assert.match(css, /\.yor-studio\[data-photo-mode="true"\]/);
   assert.match(css, /\.yor-studio__photo-toggle/);
+});
+
+test("high-detail authored gaming props replace low-poly blockout groups without deleting controls", () => {
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  const css = readFileSync("src/styles/studio-revival.css","utf8");
+  assert.match(scene,/yor-world-workstation-details\.glb/);
+  for(const node of ["helios-pc","controller-pegboard","plants_group"]) {
+    assert.ok(scene.includes('"' + node + '"'), "Missing authored dressing " + node);
+  }
+  assert.match(scene,/authoredDressing = workstationDetail\.scene\.clone\(true\)/);
+  assert.match(scene,/model\.attach\(detail\)/);
+  assert.match(scene,/controller-pegboard/);
+  assert.match(css,/Compact mobile introduction preceding the 3D room/);
+  assert.match(css,/grid-column:1;grid-row:3/);
+  assert.ok(statSync("public/models/yor-world-workstation-details.glb").size > 700_000);
 });
