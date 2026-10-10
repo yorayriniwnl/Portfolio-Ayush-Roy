@@ -69,7 +69,7 @@ test("cinematic doorway entry remains replayable and camera controls can skip it
   assert.match(room, /introSequence=\{introSequence\}/);
   assert.match(authored, /function WorldCamera\(\{ selected, introSequence \}/);
   assert.match(authored, /entryTime\.current = introSequence > 0 \? 0 : null/);
-  assert.match(authored, /camera\.position\.copy\(doorEye\)\.lerp\(deskEye,eased\)/);
+  assert.match(authored, /camera\.position\.copy\(doorEye\)\.lerp\(portrait \? portraitDeskEye : deskEye,eased\)/);
   assert.match(authored, /doorwayOpening/);
   assert.match(authored, /actions\.get\("turn_to_visitor"\)/);
   assert.match(css, /\.yor-studio__utilities button:last-child \{ display:inline-flex/);
@@ -138,7 +138,7 @@ test("studio prioritizes the reference-backed wide camera and pastel daylight ov
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const css = readFileSync("src/styles/studio-revival.css", "utf8");
   assert.match(scene, /look: \[0\.04,1\.18,-1\.23\]/);
-  assert.match(scene, /ambientLight intensity=\{\.76\}/);
+  assert.match(scene, /ambientLight intensity=\{\.49\}/);
   assert.match(scene, /THREE\.AdditiveBlending/);
   assert.match(room, /data-photo-mode=\{String\(photoMode\)\}/);
   assert.match(room, /Exit distraction-free room view/);
