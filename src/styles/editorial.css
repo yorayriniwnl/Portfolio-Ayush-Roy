@@ -158,6 +158,8 @@ body:has(.editorial-home) header a[aria-current="page"] { color: #32323b; }
 body:has(.editorial-home) header button { color: #292933; border-color: rgba(35,36,43,.35); }
 body:has(.editorial-home) nav[id="mobile-nav"][data-open="true"] { background: #f9f8ee; }
 body:has(.editorial-home) nav[id="mobile-nav"] a { color: #292933; }
+body:has(.editorial-home) header nav a:last-child { color: #25262e; border-color: rgba(34,35,42,.4); background: #eaebd5; }
+body:has(.editorial-home) header nav a:last-child:hover { background: #dfe2b7; }
 
 @media (max-width: 1280px) {
   .editorial-home h1 { font-size: clamp(60px, 7.5vw, 102px); }
