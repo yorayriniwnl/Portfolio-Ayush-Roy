@@ -177,8 +177,10 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, onWal
     const target = identifyRoomObject(event.object,group);
     if (!target) {
       const point=new THREE.Vector3();
-      if(event.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),point))
+      if(event.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),point)) {
+        (event.nativeEvent.target as HTMLElement)?.focus?.({preventScroll:true});
         onWalkTo({x:point.x,z:point.z});
+      }
       return;
     }
     event.stopPropagation();
@@ -207,6 +209,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, onWal
         onClick={(event:ThreeEvent<MouseEvent>) => {
           if(event.delta>7)return;
           event.stopPropagation();
+          (event.nativeEvent.target as HTMLElement)?.focus?.({preventScroll:true});
           onWalkTo({x:event.point.x,z:event.point.z});
         }}>
         <planeGeometry args={[3.9,3.35]}/>
