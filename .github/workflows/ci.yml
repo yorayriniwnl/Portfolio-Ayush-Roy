@@ -38,8 +38,10 @@ jobs:
         run: npm run build
       - name: Browser QA
         run: npm run qa:browser
-      - name: Audit dependencies
-        run: npm audit --audit-level=high
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Verify full dependency advisory policy
+        run: node scripts/audit-dev-advisory.mjs
       - name: Save browser audit report and screenshots
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
