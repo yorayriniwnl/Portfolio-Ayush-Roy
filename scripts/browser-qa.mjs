@@ -652,8 +652,13 @@ try {
     const r=document.querySelector('.yor-studio__touch-forward').getBoundingClientRect();
     return {x:r.left+r.width/2,y:r.top+r.height/2};
   })()`);
+  await cdp.send("Input.dispatchMouseEvent",{type:"mouseMoved",x:pad.x,y:pad.y});
   await cdp.send("Input.dispatchMouseEvent",{type:"mousePressed",x:pad.x,y:pad.y,button:"left",clickCount:1});
-  await delay(900);
+  const held=await waitForCondition(cdp,
+    `document.querySelector('.yor-studio__touch-forward')?.getAttribute('aria-pressed') === 'true'`,
+    {timeoutMs:1800,description:"mobile forward button receives pointer hold"});
+  assert(held.value,"Mobile D-pad pointerdown did not register");
+  await delay(1300);
   await cdp.send("Input.dispatchMouseEvent",{type:"mouseReleased",x:pad.x,y:pad.y,button:"left",clickCount:1});
   await delay(120);
   const mobileWalkEnd=await cdp.evaluate(`(() => {
