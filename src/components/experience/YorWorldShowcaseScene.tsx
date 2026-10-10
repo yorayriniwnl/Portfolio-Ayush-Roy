@@ -138,11 +138,11 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
 
   // Three.js scene objects are inherently mutable. Keep that mutation behind
   // a ref so React memoized values stay read-only in effects and frame hooks.
-  const mutable = useRef<{ door: THREE.Object3D | null; lights: Array<{ node:THREE.Light; intensity:number }>; painting: THREE.Object3D | null; paintingBase:number; blinds: Array<{node:THREE.Object3D;base:number}>; signature:THREE.Object3D | null } | null>(null);
+  const mutable = useRef<{ door: THREE.Object3D | null; lights: Array<{ node:THREE.Light; intensity:number }>; painting: THREE.Object3D | null; paintingBase:number; blinds: Array<{node:THREE.Object3D;base:number}>; signature:THREE.Object3D | null; hexMaterials:Array<THREE.MeshStandardMaterial> } | null>(null);
   useEffect(() => {
-    mutable.current = { door, lights: lightNodes, painting, paintingBase:painting?.rotation.x ?? 0, blinds, signature };
+    mutable.current = { door, lights: lightNodes, painting, paintingBase:painting?.rotation.x ?? 0, blinds, signature, hexMaterials };
     return () => { mutable.current = null; };
-  }, [door, lightNodes, painting, blinds, signature]);
+  }, [door, lightNodes, painting, blinds, signature, hexMaterials]);
 
   useEffect(() => {
     actions.get("coding_idle")?.reset().play();
@@ -211,11 +211,12 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
       // Imported GPU lights must be mutated imperatively to dim without remount.
       // eslint-disable-next-line react-hooks/immutability
       node.intensity = intensity * (lightsOn ? .00092 : .00012);
-    for (const material of hexMaterials) {
+    for (const material of mutable.current?.hexMaterials ?? []) {
       // This material belongs to the external GLB scene and is intentionally mutable.
+      // eslint-disable-next-line react-hooks/immutability
       material.emissiveIntensity = lightsOn ? .48 : .035;
     }
-  },[lightsOn,lightNodes,hexMaterials]);
+  },[lightsOn,lightNodes]);
 
   const choose = (event:ThreeEvent<MouseEvent>) => {
     const target = identifyRoomObject(event.object,group);
