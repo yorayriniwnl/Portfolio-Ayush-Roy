@@ -80,7 +80,9 @@ export function StudioRoom() {
   },[]);
   const walkToPoint = useCallback((point:WalkPoint) => {
     setIntroSequence(0);setConsoleOpen(false);setRoaming(true);
-    setWalkTarget({...point,id:++walkId.current});
+    const id=++walkId.current;
+    if(root.current)root.current.dataset.walkTargetId=String(id);
+    setWalkTarget({...point,id});
   },[]);
   const reportWalk = useCallback((position:WalkPoint) => {
     if (root.current) {
