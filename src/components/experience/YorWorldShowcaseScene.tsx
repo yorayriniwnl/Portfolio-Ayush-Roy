@@ -7,6 +7,7 @@ import type { ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StudioTarget } from "./StudioScene";
 import { StudioReferenceDressing } from "./StudioReferenceDressing";
+import { StudioDeskProps } from "./StudioDeskProps";
 
 export type StudioObjectAction = "monitor" | "painting" | "blinds" | "lights" | "avatar" | "door" | "skills";
 function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): StudioObjectAction | null {
@@ -324,6 +325,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
       <WorldCamera selected={selected} introSequence={introSequence}/>
       <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
       <StudioReferenceDressing lightsOn={lightsOn} onOpenComputer={() => onInteract("monitor")} onExplore={() => onSelect("lab")}/>
+      <StudioDeskProps onOpen={() => onInteract("monitor")}/>
       <primitive object={group} onClick={choose}
         onPointerOver={hover}
         onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>
