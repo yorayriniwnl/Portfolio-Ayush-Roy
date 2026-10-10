@@ -30,7 +30,7 @@ function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): Studi
 /* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
  * from the connected Yor-World production assets. No CSS 3D substitution. */
 const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
-  work: { eye: [-1.90,1.70,1.45], look: [0.12,1.15,-1.15] },
+  work: { eye: [-0.68,1.60,1.18], look: [0.04,1.18,-1.23] },
   about: { eye: [1.12,1.5,.82], look: [.3,.88,-.36] },
   lab: { eye: [.6,1.65,.68], look: [1.92,1.5,-.4] },
   contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
@@ -42,7 +42,7 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
   const { camera } = useThree();
   const doorEye = useMemo(() => new THREE.Vector3(...CAMERA.contact.eye), []);
   const doorLook = useMemo(() => new THREE.Vector3(...CAMERA.contact.look), []);
-  // This is the corrected uncropped home framing from the authored Yor-World W1 camera evidence.
+  // Move toward the reference-facing station so the PC is visible to the right of the chair.
   const deskEye = useMemo(() => new THREE.Vector3(...CAMERA.work.eye), []);
   const deskLook = useMemo(() => new THREE.Vector3(...CAMERA.work.look), []);
   useEffect(() => { entryTime.current = introSequence > 0 ? 0 : null; }, [introSequence]);
@@ -328,7 +328,7 @@ export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleL
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
-    <Canvas camera={{position:[-1.90,1.70,1.45],fov:48,near:.08,far:30}}
+    <Canvas camera={{position:[-0.68,1.60,1.18],fov:48,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
       onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=1.05; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
