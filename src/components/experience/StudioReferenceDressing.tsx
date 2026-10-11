@@ -96,6 +96,32 @@ function Controller({ y, color }: { y:number; color:string }) {
   );
 }
 
+function ShelfBooks() {
+  const books = [
+    { x: -.07, width: .052, height: .15, color: "#5c4d91" },
+    { x: 0, width: .056, height: .19, color: "#386b79" },
+    { x: .072, width: .05, height: .17, color: "#b66f83" },
+  ] as const;
+  return (
+    <group name="reference-shelf-books" position={[-.86,1.515,-1.705]} rotation={[0,0,-.025]}>
+      {books.map(({x,width,height,color},index) => (
+        <group key={index} position={[x,0,0]}>
+          <mesh position={[0,height/2,0]} castShadow receiveShadow>
+            <boxGeometry args={[width,height,.12]}/>
+            <meshStandardMaterial color={color} roughness={.58}/>
+          </mesh>
+          {[.16,.23,.78,.84].map((fraction,detail) => (
+            <mesh key={detail} position={[0,height*fraction,.062]}>
+              <boxGeometry args={[width*.72,.004,.003]}/>
+              <meshBasicMaterial color={detail%2===0?"#e8d5aa":"#d5c6f0"} toneMapped={false}/>
+            </mesh>
+          ))}
+        </group>
+      ))}
+    </group>
+  );
+}
+
 function WallHeadset() {
   return (
     <group name="wall-headset" position={[1.25,1.35,-.84]}>
@@ -164,44 +190,51 @@ function HangingVine({ x,y,count,phase }: { x:number; y:number; count:number; ph
 
 function FloorPlant() {
   return (
-    <group name="reference-floor-plant" position={[-1.3,0,-.85]} scale={.84}>
-      <mesh position={[0,.31,0]}>
-        <cylinderGeometry args={[.14,.105,.25,20]}/>
-        <meshStandardMaterial color="#ddd9ef" roughness={.32}/>
+    <group name="reference-floor-plant" position={[1.16,0,.10]} scale={.82}>
+      <mesh position={[0,.23,0]} castShadow receiveShadow>
+        <cylinderGeometry args={[.16,.12,.38,24,1,true]}/>
+        <meshStandardMaterial color="#d8d0ef" metalness={.06} roughness={.27} side={THREE.DoubleSide}/>
       </mesh>
-      <mesh position={[0,.44,0]}>
-        <torusGeometry args={[.124,.012,8,24]}/>
-        <meshStandardMaterial color="#f5f0ff" roughness={.3}/>
+      <mesh position={[0,.42,0]} castShadow>
+        <torusGeometry args={[.15,.014,10,28]}/>
+        <meshStandardMaterial color="#f5f0ff" metalness={.12} roughness={.24}/>
       </mesh>
-      <mesh position={[0,.438,0]}>
-        <cylinderGeometry args={[.119,.119,.012,20]}/>
+      <mesh position={[0,.41,0]}>
+        <cylinderGeometry args={[.138,.138,.014,24]}/>
         <meshStandardMaterial color="#514333" roughness={.9}/>
       </mesh>
-      {[0,1,2].map(index => {
-        const angle = index * Math.PI * 2 / 3 + .25;
-        return <mesh key={index}
-          position={[Math.cos(angle)*.082,.18,Math.sin(angle)*.082]}
-          rotation={[0,0,Math.cos(angle)*.08]}>
-          <cylinderGeometry args={[.013,.019,.36,8]}/>
-          <meshStandardMaterial color="#9a7457" roughness={.86}/>
-        </mesh>;
-      })}
-      {Array.from({length:9},(_,index) => {
+      <mesh position={[0,.035,0]} castShadow>
+        <cylinderGeometry args={[.135,.14,.05,24]}/>
+        <meshStandardMaterial color="#8d82b8" metalness={.18} roughness={.3}/>
+      </mesh>
+      {Array.from({length:11},(_,index) => {
         const angle = index * 2.39996;
-        const length = .31 + (index % 3) * .04;
-        const reach = .08 + (index % 2) * .03;
-        const color = index % 3 === 0 ? "#397b52" : index % 3 === 1 ? "#579763" : "#2f6947";
-        return <group key={index} position={[Math.cos(angle)*.035,.44,Math.sin(angle)*.035]}>
-          <mesh position={[Math.cos(angle)*reach*.45,length*.47,Math.sin(angle)*reach*.45]}
-            rotation={[Math.cos(angle)*.22,0,-Math.sin(angle)*.25]} scale={[.052,length*.55,.024]}>
+        const height = .36 + (index % 4) * .065;
+        const reach = .12 + (index % 3) * .035;
+        const color = index % 3 === 0 ? "#347c57" : index % 3 === 1 ? "#58a16b" : "#2f694d";
+        const x = Math.cos(angle)*reach;
+        const z = Math.sin(angle)*reach;
+        return <group key={index} position={[Math.cos(angle)*.035,.41,Math.sin(angle)*.035]}>
+          <mesh position={[x*.42,height*.48,z*.42]} rotation={[0,0,-Math.cos(angle)*.18]}>
+            <cylinderGeometry args={[.005,.008,height,7]}/>
+            <meshStandardMaterial color="#527f55" roughness={.82}/>
+          </mesh>
+          <mesh position={[x,height*.69,z]} rotation={[Math.cos(angle)*.18,angle,-Math.sin(angle)*.16]}
+            scale={[.065,.18+(index%3)*.015,.026]} castShadow>
             <sphereGeometry args={[1,14,10]}/>
-            <meshStandardMaterial color={color} roughness={.68} side={THREE.DoubleSide}/>
+            <meshStandardMaterial color={color} roughness={.62} side={THREE.DoubleSide}/>
           </mesh>
         </group>;
       })}
     </group>
   );
 }
+
+const SHELF_EDGES = [
+  { x: -.90, y: 1.486, width: .58 },
+  { x: .45, y: 1.636, width: .57 },
+  { x: -.50, y: 1.836, width: .80 },
+] as const;
 
 export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore, pcX=1.02, includeFloorPlant=false }: {
   lightsOn:boolean;
@@ -224,6 +257,19 @@ export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore, p
         <Controller y={1.60} color="#72ccff"/>
         <WallHeadset/>
       </group>
+
+      <ShelfBooks/>
+      {SHELF_EDGES.map(({x,y,width},index) => (
+        <group key={index}>
+          <mesh position={[x,y,-1.646]}>
+            <boxGeometry args={[width,.008,.014]}/>
+            <meshBasicMaterial color={lightsOn ? index===1 ? "#8ce5ff" : "#b9a1ff" : "#41465f"}
+              toneMapped={false}/>
+          </mesh>
+          <pointLight position={[x,y-.10,-1.48]} color={index===1?"#71dfff":"#9c83ff"}
+            intensity={lightsOn?.18:.012} distance={.85} decay={2}/>
+        </group>
+      ))}
 
       {/* Trailing leaves make the wall shelving organic rather than isolated
           green spheres. Curved stems are geometry, not 2D image cards. */}

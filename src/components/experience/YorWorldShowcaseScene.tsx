@@ -443,7 +443,7 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
   const portrait = size.width < 800;
   const cameraName = portrait ? "Camera_HomeMobile" : size.width >= 1600 ? "Camera_HomeDesktop" : "Camera_ReferenceMatch";
   const sourcePose = cameraPoses[cameraName];
-  const pose = sourcePose && portrait ? { ...sourcePose, fov: Math.max(sourcePose.fov, 52) } : sourcePose;
+  const pose = sourcePose && portrait ? { ...sourcePose, fov: Math.max(sourcePose.fov, 54) } : sourcePose;
 
   useEffect(() => {
     for (const entry of sample.emissives) {
@@ -490,8 +490,8 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
   return (
     <>
       <color attach="background" args={["#aaa8d0"]}/>
-      <ambientLight intensity={.38} color="#fff4ff"/>
-      <hemisphereLight args={["#fff1ff","#31335c",.48]}/>
+      <ambientLight intensity={.32} color="#fff4ff"/>
+      <hemisphereLight args={["#fff1ff","#31335c",.44]}/>
       <directionalLight position={[-3.5,6,4]} intensity={1.05} color="#fff3fb" castShadow
         shadow-mapSize-width={2048} shadow-mapSize-height={2048}
         shadow-bias={-.0004} shadow-normalBias={.035}
@@ -502,6 +502,8 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
         intensity={lightsOn ? 1.15 : .06} distance={2.8} decay={2}/>
       <pointLight position={[1.15,1.2,-.1]} color="#52caff"
         intensity={lightsOn ? .72 : .04} distance={2.2} decay={2}/>
+      <pointLight position={[1.42,1.05,.34]} color="#7784ff"
+        intensity={lightsOn ? .82 : .035} distance={2.7} decay={2}/>
       <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
       <StudioReferenceDressing lightsOn={lightsOn} onOpenComputer={() => onInteract("monitor")}
         onExplore={() => onSelect("lab")} pcX={-1.02} includeFloorPlant/>
