@@ -451,6 +451,26 @@ try {
     `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
     { timeoutMs: 28_000, description: "authentic Yor-World GLB workstation ready" });
   assert(genuineRoom.value, "Authentic GLB room never finished loading");
+  const referenceFraming = await cdp.evaluate(`(() => {
+    const stage = document.querySelector('.yor-studio__viewport')?.getBoundingClientRect();
+    const intro = document.querySelector('.yor-world-hero__intro')?.getBoundingClientRect();
+    if (!stage || !intro) return null;
+    return {
+      stageWidth: Math.round(stage.width), viewportWidth: innerWidth,
+      stageHeight: Math.round(stage.height), stageTop: Math.round(stage.top),
+      introBottom: Math.round(intro.bottom), referenceRoomReady:
+        document.querySelector('.yor-studio')?.dataset.sceneReady === 'true',
+      sceneCanvas: stage.width > 0 &&
+        document.querySelector('.yor-studio__viewport canvas') !== null,
+    };
+  })()`);
+  assert(referenceFraming && referenceFraming.referenceRoomReady &&
+    referenceFraming.sceneCanvas &&
+    referenceFraming.stageWidth >= referenceFraming.viewportWidth * .80 &&
+    referenceFraming.stageHeight >= 600 &&
+    referenceFraming.introBottom <= referenceFraming.stageTop + 18,
+    `The workstation must be a wide, unobstructed art-directed hero, not a cropped split card: ${JSON.stringify(referenceFraming)}`);
+  report.rendering.referenceFraming = referenceFraming;
   await capture(cdp, outputDir, "desktop-hero");
 
   activeScenario = "distraction-free full-scene room and Escape restoration";
