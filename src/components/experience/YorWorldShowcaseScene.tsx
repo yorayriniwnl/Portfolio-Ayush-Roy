@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import type { ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StudioTarget } from "./StudioScene";
@@ -32,7 +33,7 @@ function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): Studi
 /* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
  * from the connected Yor-World production assets. No CSS 3D substitution. */
 const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
-  work: { eye: [-0.82,1.72,1.50], look: [0.04,1.30,-1.23] },
+  work: { eye: [-1.95,2.10,1.55], look: [0.22,0.90,-1.15] },
   about: { eye: [1.12,1.5,.82], look: [.3,.88,-.36] },
   lab: { eye: [.6,1.65,.68], look: [1.92,1.5,-.4] },
   contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
@@ -88,9 +89,9 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
  * positions. Basic shaded faces keep their individual pink/violet colors visible
  * instead of tone-mapping the upstream 5.7x emissive panels into white blocks. */
 const HEX_LIGHTS = [
-  [-.57,2.38,"#dfaeff"],[-.285,2.38,"#e9bfff"],[0,2.38,"#d7a7fb"],[.285,2.38,"#e4b1f9"],[.57,2.38,"#c7b7ff"],
-  [-.427,2.14,"#caafff"],[-.142,2.14,"#f1b5ee"],[.143,2.14,"#c9abfd"],[.428,2.14,"#f3b3e9"],
-  [-.285,1.90,"#d1b4fe"],[0,1.90,"#edb3f5"],[.285,1.90,"#b0adff"],
+  [-.57,2.23,"#f69cff"],[-.285,2.23,"#ffb0f2"],[0,2.23,"#e494ff"],[.285,2.23,"#ff9de7"],[.57,2.23,"#ca9cff"],
+  [-.427,1.99,"#d49cff"],[-.142,1.99,"#ff8bf2"],[.143,1.99,"#ce91ff"],[.428,1.99,"#ff9bdf"],
+  [-.285,1.75,"#df9aff"],[0,1.75,"#ff9beb"],[.285,1.75,"#a99cff"],
 ] as const;
 function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:()=>void }) {
   const geometry = useMemo(() => {
@@ -108,7 +109,10 @@ function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:
       if(i===0) face.moveTo(x,y); else face.lineTo(x,y);
     }
     face.closePath();
-    return {rim:new THREE.ShapeGeometry(outline), core:new THREE.ShapeGeometry(face)};
+    return {
+      rim:new THREE.ExtrudeGeometry(outline,{depth:.016,bevelEnabled:true,bevelSegments:2,steps:1,bevelThickness:.004,bevelSize:.003}),
+      core:new THREE.ExtrudeGeometry(face,{depth:.012,bevelEnabled:true,bevelSegments:2,steps:1,bevelThickness:.003,bevelSize:.002}),
+    };
   }, []);
   useEffect(() => () => { geometry.rim.dispose(); geometry.core.dispose(); }, [geometry]);
   return (
@@ -116,8 +120,8 @@ function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:
       {HEX_LIGHTS.map(([x,y,color],i) =>
         <group key={i} position={[x,y,0]}>
           <mesh position={[0,0,-.003]}>
-            <circleGeometry args={[.19,32]}/>
-            <meshBasicMaterial color={color} transparent opacity={lightsOn ? .105 : .025}
+            <circleGeometry args={[.205,32]}/>
+            <meshBasicMaterial color={color} transparent opacity={lightsOn ? .19 : .025}
               blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}/>
           </mesh>
           <mesh geometry={geometry.rim}>
@@ -129,6 +133,377 @@ function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:
         </group>
       )}
     </group>
+  );
+}
+
+function createCarpetTexture() {
+  const size = 256;
+  const pixels = new Uint8Array(size * size * 4);
+  let state = 0x7a31c9;
+  for (let index = 0; index < pixels.length; index += 4) {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    const grain = ((state >>> 25) & 15) - 7;
+    const fleck = ((state >>> 22) & 0x3ff) === 0 ? 12 : 0;
+    pixels[index] = THREE.MathUtils.clamp(31 + grain + fleck, 0, 255);
+    pixels[index + 1] = THREE.MathUtils.clamp(43 + grain + fleck, 0, 255);
+    pixels[index + 2] = THREE.MathUtils.clamp(105 + grain * 2 + fleck, 0, 255);
+    pixels[index + 3] = 255;
+  }
+  const texture = new THREE.DataTexture(pixels, size, size, THREE.RGBAFormat);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(5,5);
+  texture.generateMipmaps = true;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.anisotropy = 8;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+type AuthoredCameraPose = {
+  position: THREE.Vector3;
+  quaternion: THREE.Quaternion;
+  fov: number;
+};
+
+type AuthoredEmissive = {
+  material: THREE.MeshStandardMaterial;
+  lit: number;
+  dim: number;
+};
+
+type AuthoredLight = { light: THREE.Light; intensity: number };
+
+function ReferenceGamingChair({ onSelect, onHover }: {
+  onSelect: (target: StudioTarget) => void;
+  onHover: (action: StudioObjectAction | null) => void;
+}) {
+  const geometry = useMemo(() => ({
+    shell: new RoundedBoxGeometry(.72,1.20,.15,.12,5),
+    back: new RoundedBoxGeometry(.50,.94,.105,.12,5),
+    backWing: new RoundedBoxGeometry(.105,.78,.13,.05,4),
+    headrestShell: new RoundedBoxGeometry(.47,.31,.14,.11,5),
+    headrest: new RoundedBoxGeometry(.37,.23,.09,.085,5),
+    headrestPatch: new RoundedBoxGeometry(.19,.15,.035,.06,4),
+    lumbar: new RoundedBoxGeometry(.44,.22,.12,.09,5),
+    seatShell: new RoundedBoxGeometry(.75,.18,.59,.095,5),
+    seat: new RoundedBoxGeometry(.63,.17,.51,.09,5),
+    seatWing: new RoundedBoxGeometry(.14,.19,.48,.065,4),
+    seam: new RoundedBoxGeometry(.014,.61,.012,.006,3),
+    armStem: new RoundedBoxGeometry(.075,.35,.09,.035,4),
+    armPad: new RoundedBoxGeometry(.29,.09,.16,.045,5),
+    armCap: new RoundedBoxGeometry(.18,.035,.11,.017,4),
+    baseBeam: new RoundedBoxGeometry(.80,.065,.10,.032,4),
+  }), []);
+  const leftPiping = useMemo(() => new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-.285,.91,.177),
+    new THREE.Vector3(-.292,1.13,.177),
+    new THREE.Vector3(-.292,1.52,.177),
+    new THREE.Vector3(-.25,1.74,.15),
+  ]), []);
+  const rightPiping = useMemo(() => new THREE.CatmullRomCurve3([
+    new THREE.Vector3(.285,.91,.177),
+    new THREE.Vector3(.292,1.13,.177),
+    new THREE.Vector3(.292,1.52,.177),
+    new THREE.Vector3(.25,1.74,.15),
+  ]), []);
+  const pipeGeometries = useMemo(() => ({
+    left: new THREE.TubeGeometry(leftPiping,24,.009,7,false),
+    right: new THREE.TubeGeometry(rightPiping,24,.009,7,false),
+  }), [leftPiping,rightPiping]);
+  const handleClick = (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation();
+    onSelect("about");
+  };
+  const handleHover = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
+    document.body.style.cursor = "pointer";
+    onHover("avatar");
+  };
+  const handlePointerOut = () => {
+    document.body.style.cursor = "";
+    onHover(null);
+  };
+
+  return (
+    <group name="reference-gaming-chair" position={[.72,0,-.18]} rotation={[0,-.10,0]} scale={[.84,.62,.74]}
+      onClick={handleClick} onPointerOver={handleHover} onPointerOut={handlePointerOut}>
+      {/* White outer shell and the sculpted blue cushions face the camera. */}
+      <mesh geometry={geometry.shell} position={[0,1.32,-.015]} castShadow>
+        <meshStandardMaterial color="#f6f5ff" roughness={.31}/>
+      </mesh>
+      <mesh geometry={geometry.back} position={[0,1.34,.075]} castShadow>
+        <meshStandardMaterial color="#275bc7" roughness={.35}/>
+      </mesh>
+      {[-1,1].map(side => (
+        <mesh key={`back-wing-${side}`} geometry={geometry.backWing}
+          position={[side*.275,1.34,.105]} rotation={[0,0,side*-.045]} castShadow>
+          <meshStandardMaterial color={side < 0 ? "#3474e7" : "#194caf"} roughness={.34}/>
+        </mesh>
+      ))}
+      <mesh geometry={geometry.headrestShell} position={[0,1.79,.065]} castShadow>
+        <meshStandardMaterial color="#f7f6ff" roughness={.3}/>
+      </mesh>
+      <mesh geometry={geometry.headrest} position={[0,1.80,.15]} castShadow>
+        <meshStandardMaterial color="#3177ec" roughness={.33}/>
+      </mesh>
+      <mesh geometry={geometry.headrestPatch} position={[0,1.80,.205]}>
+        <meshStandardMaterial color="#b8e7ff" roughness={.3}/>
+      </mesh>
+      <mesh geometry={geometry.lumbar} position={[0,1.035,.16]} castShadow>
+        <meshStandardMaterial color="#a9dcff" roughness={.4}/>
+      </mesh>
+      <mesh geometry={pipeGeometries.left}>
+        <meshStandardMaterial color="#a7eaff" metalness={.12} roughness={.28}/>
+      </mesh>
+      <mesh geometry={pipeGeometries.right}>
+        <meshStandardMaterial color="#a7eaff" metalness={.12} roughness={.28}/>
+      </mesh>
+      {[-1,1].map(side => (
+        <mesh key={`back-seam-${side}`} geometry={geometry.seam}
+          position={[side*.075,1.34,.133]}>
+          <meshStandardMaterial color="#1a469e" roughness={.42}/>
+        </mesh>
+      ))}
+
+      <mesh geometry={geometry.seatShell} position={[0,.705,.12]} castShadow>
+        <meshStandardMaterial color="#f4f3ff" roughness={.33}/>
+      </mesh>
+      <mesh geometry={geometry.seat} position={[0,.79,.145]} castShadow>
+        <meshStandardMaterial color="#2463d2" roughness={.37}/>
+      </mesh>
+      {[-1,1].map(side => (
+        <mesh key={`seat-wing-${side}`} geometry={geometry.seatWing}
+          position={[side*.315,.795,.12]} rotation={[0,0,side*.06]} castShadow>
+          <meshStandardMaterial color={side < 0 ? "#4384ee" : "#1d54bb"} roughness={.35}/>
+        </mesh>
+      ))}
+      <mesh geometry={geometry.seat} scale={[.58,.12,.78]} position={[0,.886,.13]}>
+        <meshStandardMaterial color="#3477e5" roughness={.43}/>
+      </mesh>
+
+      {/* Cushioned armrests, supported by white and metallic brackets. */}
+      {[-1,1].map(side => (
+        <group key={`arm-${side}`} position={[side*.40,0,.045]}>
+          <mesh geometry={geometry.armStem} position={[0,.86,-.01]} castShadow>
+            <meshStandardMaterial color="#e5e8f8" metalness={.17} roughness={.32}/>
+          </mesh>
+          <mesh geometry={geometry.armPad} position={[0,1.045,.035]} castShadow>
+            <meshStandardMaterial color="#3479eb" roughness={.34}/>
+          </mesh>
+          <mesh geometry={geometry.armCap} position={[0,1.097,.035]}>
+            <meshStandardMaterial color="#7bcfff" roughness={.3}/>
+          </mesh>
+        </group>
+      ))}
+
+      {/* Gas lift and a six-point star base make the silhouette read as a real
+          adjustable chair instead of a decorative blockout. */}
+      <mesh position={[0,.48,.08]} castShadow>
+        <cylinderGeometry args={[.047,.055,.43,20]}/>
+        <meshStandardMaterial color="#b9c5dc" metalness={.68} roughness={.23}/>
+      </mesh>
+      <mesh position={[0,.255,.08]}>
+        <cylinderGeometry args={[.11,.105,.08,20]}/>
+        <meshStandardMaterial color="#d8e0f1" metalness={.5} roughness={.25}/>
+      </mesh>
+      {[0,Math.PI/3,-Math.PI/3].map((angle,index) => (
+        <mesh key={`base-${index}`} geometry={geometry.baseBeam}
+          position={[0,.105,.08]} rotation={[0,angle,0]} castShadow>
+          <meshStandardMaterial color="#e6e9f7" metalness={.22} roughness={.3}/>
+        </mesh>
+      ))}
+      {Array.from({length:5},(_,index) => {
+        const angle = index*Math.PI*2/5;
+        const x = Math.sin(angle)*.49;
+        const z = .08 + Math.cos(angle)*.43;
+        return (
+          <group key={`caster-${index}`} position={[x,.095,z]}>
+            <mesh position={[0,.035,0]}>
+              <cylinderGeometry args={[.026,.032,.09,12]}/>
+              <meshStandardMaterial color="#b6c7e8" metalness={.5} roughness={.28}/>
+            </mesh>
+            <mesh position={[0,-.014,0]} scale={[.045,.05,.07]} castShadow>
+              <sphereGeometry args={[1,16,12]}/>
+              <meshStandardMaterial color="#262943" roughness={.5}/>
+            </mesh>
+            <mesh position={[0,-.014,.054]} rotation={[Math.PI/2,0,0]}>
+              <torusGeometry args={[.028,.006,7,16]}/>
+              <meshStandardMaterial color="#8fcfff" metalness={.25} roughness={.29}/>
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHover, onToggleLights, lightsOn }: {
+  workstationDetail: { scene: THREE.Group };
+  onSelect: (target:StudioTarget)=>void;
+  onInteract: (action:StudioObjectAction)=>void;
+  onHover: (action:StudioObjectAction | null)=>void;
+  onToggleLights: ()=>void;
+  lightsOn: boolean;
+}) {
+  const { camera, size } = useThree();
+  const authoredScene = workstationDetail;
+  const sample = useMemo(() => {
+    const referenceRoot = authoredScene.scene.getObjectByName("workstation-sample-root");
+    const root = referenceRoot?.clone(true) ?? null;
+    const emissives: AuthoredEmissive[] = [];
+    const authoredLights: AuthoredLight[] = [];
+    const carpetTexture = createCarpetTexture();
+    if (!root) return { root, emissives, authoredLights, carpetTexture };
+
+    root.name = "reference-workstation-stage";
+    // Move the tower and chair apart so the reference composition keeps the
+    // display clear, with the PC on the left and the empty seat on the right.
+    const pc = root.getObjectByName("helios-pc");
+    pc?.position.set(-1.02,.98,-1.15);
+    const chair = root.getObjectByName("chair-root");
+    chair?.position.set(.72,0,-.18);
+    if (chair) chair.visible = false;
+
+    const materialCopies = new Map<THREE.Material, THREE.Material>();
+    root.traverse((node) => {
+      if (/^(ivy_leaf_|pothos_leaf_)/.test(node.name)
+        || node.name === "foreground_floor_plant"
+        || /^peg_controller_/.test(node.name)) {
+        node.visible = false;
+      }
+      if ((node as THREE.Light).isLight) {
+        const light = node as THREE.Light;
+        authoredLights.push({ light, intensity: light.intensity });
+        light.intensity *= .0002;
+      }
+      if (!(node instanceof THREE.Mesh)) return;
+      const copyMaterial = (source: THREE.Material) => {
+        let copy = materialCopies.get(source);
+        if (!copy) {
+          copy = source.clone();
+          materialCopies.set(source, copy);
+          if (copy instanceof THREE.MeshStandardMaterial && copy.emissiveIntensity > 0) {
+            const screen = copy.name === "Monitor_Screen";
+            const lit = Math.min(copy.emissiveIntensity * (screen ? .58 : .34), screen ? 2.2 : 1.7);
+            emissives.push({ material: copy, lit, dim: Math.min(lit * .16, .28) });
+            copy.emissiveIntensity = lit;
+          }
+        }
+        return copy;
+      };
+      node.material = Array.isArray(node.material)
+        ? node.material.map(copyMaterial)
+        : copyMaterial(node.material);
+      if (node.name === "room_floor") {
+        const floorMaterials = Array.isArray(node.material) ? node.material : [node.material];
+        for (const material of floorMaterials) {
+          if (!(material instanceof THREE.MeshStandardMaterial)) continue;
+          material.map = carpetTexture;
+          material.color.set("#ffffff");
+          material.roughness = .98;
+          material.metalness = 0;
+          material.needsUpdate = true;
+        }
+      }
+      node.castShadow = true;
+      node.receiveShadow = node.name === "room_floor" || node.name === "desk_top"
+        || node.name.startsWith("wall_shelf_")
+        || ["desk_left_pedestal", "desk_right_pedestal", "desk_modesty_panel"].includes(node.name);
+    });
+
+    return { root, emissives, authoredLights, carpetTexture };
+  }, [authoredScene.scene]);
+
+  const cameraPoses = useMemo(() => {
+    const readPose = (name: string): AuthoredCameraPose | null => {
+      const authored = authoredScene.scene.getObjectByName(name);
+      if (!(authored instanceof THREE.PerspectiveCamera)) return null;
+      return {
+        position: authored.position.clone(),
+        quaternion: authored.quaternion.clone(),
+        fov: authored.fov,
+      };
+    };
+    return {
+      Camera_ReferenceMatch: readPose("Camera_ReferenceMatch"),
+      Camera_HomeDesktop: readPose("Camera_HomeDesktop"),
+      Camera_HomeMobile: readPose("Camera_HomeMobile"),
+    };
+  }, [authoredScene.scene]);
+
+  const portrait = size.width < 800;
+  const cameraName = portrait ? "Camera_HomeMobile" : size.width >= 1600 ? "Camera_HomeDesktop" : "Camera_ReferenceMatch";
+  const sourcePose = cameraPoses[cameraName];
+  const pose = sourcePose && portrait ? { ...sourcePose, fov: Math.max(sourcePose.fov, 52) } : sourcePose;
+
+  useEffect(() => {
+    for (const entry of sample.emissives) {
+      // The authored scene owns its mutable Three.js materials.
+      // eslint-disable-next-line react-hooks/immutability
+      entry.material.emissiveIntensity = lightsOn ? entry.lit : entry.dim;
+    }
+    for (const entry of sample.authoredLights) {
+      // The imported practicals are calibrated to the browser renderer scale.
+      entry.light.intensity = entry.intensity * (lightsOn ? .0002 : .00002);
+    }
+  }, [sample.emissives, sample.authoredLights, lightsOn]);
+  useEffect(() => () => sample.carpetTexture.dispose(), [sample.carpetTexture]);
+
+  useFrame((_, delta) => {
+    if (!(camera instanceof THREE.PerspectiveCamera) || !pose) return;
+    const weight = 1 - Math.exp(-3.2 * Math.min(delta, .06));
+    camera.position.lerp(pose.position, weight);
+    camera.quaternion.slerp(pose.quaternion, weight);
+    // The authored GLB camera owns focal length; the viewport controls aspect.
+    // eslint-disable-next-line react-hooks/immutability
+    camera.fov = THREE.MathUtils.damp(camera.fov, pose.fov, 4, delta);
+    camera.updateProjectionMatrix();
+  });
+
+  const choose = (event:ThreeEvent<MouseEvent>) => {
+    if (!sample.root) return;
+    const target = identifyRoomObject(event.object, sample.root);
+    if (!target) return;
+    event.stopPropagation();
+    if (target === "lights") onToggleLights();
+    else if (target === "avatar") onSelect("about");
+    else if (target === "door") onSelect("contact");
+    else if (target === "skills") onSelect("lab");
+    else onInteract(target);
+  };
+  const hover = (event:ThreeEvent<PointerEvent>) => {
+    if (!sample.root) return;
+    const target = identifyRoomObject(event.object, sample.root);
+    document.body.style.cursor = target ? "pointer" : "";
+    onHover(target);
+  };
+
+  return (
+    <>
+      <color attach="background" args={["#aaa8d0"]}/>
+      <ambientLight intensity={.38} color="#fff4ff"/>
+      <hemisphereLight args={["#fff1ff","#31335c",.48]}/>
+      <directionalLight position={[-3.5,6,4]} intensity={1.05} color="#fff3fb" castShadow
+        shadow-mapSize-width={2048} shadow-mapSize-height={2048}
+        shadow-bias={-.0004} shadow-normalBias={.035}
+        shadow-camera-near={.1} shadow-camera-far={12}
+        shadow-camera-left={-4} shadow-camera-right={4}
+        shadow-camera-top={4} shadow-camera-bottom={-4}/>
+      <pointLight position={[-.35,1.95,-1.2]} color="#ec84ff"
+        intensity={lightsOn ? 1.15 : .06} distance={2.8} decay={2}/>
+      <pointLight position={[1.15,1.2,-.1]} color="#52caff"
+        intensity={lightsOn ? .72 : .04} distance={2.2} decay={2}/>
+      <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
+      <StudioReferenceDressing lightsOn={lightsOn} onOpenComputer={() => onInteract("monitor")}
+        onExplore={() => onSelect("lab")} pcX={-1.02} includeFloorPlant/>
+      {sample.root && <primitive object={sample.root} onClick={choose}
+        onPointerOver={hover}
+        onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>}
+      <ReferenceGamingChair onSelect={onSelect} onHover={onHover}/>
+    </>
   );
 }
 
@@ -311,7 +686,12 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     document.body.style.cursor = target ? "pointer" : "";
     onHover(target);
   };
-  return (
+  const showAuthoredWorkstation = selected === "work" && introSequence === 0;
+
+  return showAuthoredWorkstation ? (
+    <AuthoredWorkstationView workstationDetail={workstationDetail} onSelect={onSelect}
+      onInteract={onInteract} onHover={onHover} onToggleLights={onToggleLights} lightsOn={lightsOn}/>
+  ) : (
     <>
       <color attach="background" args={["#b5bad7"]}/>
       <ambientLight intensity={.49} color="#f1efff"/>
@@ -347,7 +727,7 @@ export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleL
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
-    <Canvas camera={{position:[-0.82,1.72,1.50],fov:55,near:.08,far:30}}
+    <Canvas shadows camera={{position:[-1.95,2.10,1.55],fov:40.18,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
       onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.95; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">

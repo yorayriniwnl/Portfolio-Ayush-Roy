@@ -58,13 +58,35 @@ export function StudioRoom() {
   const [consoleOpen, setConsoleOpen] = useState(false);
   const [hoveredObject, setHoveredObject] = useState<StudioObjectAction | null>(null);
   const [introSequence, setIntroSequence] = useState(0);
+  const introResetTimer = useRef<number | null>(null);
   const [roomReady, setRoomReady] = useState(false);
   const [roomFailed, setRoomFailed] = useState(false);
   const announceReady = useCallback(() => setRoomReady(true), []);
   const reportFailed = useCallback(() => setRoomFailed(true), []);
   const toggleLights = useCallback(() => setLightsOn((value)=>!value), []);
-  const selectTarget = useCallback((target: StudioTarget) => { setSelected(target); setIntroSequence(0); setConsoleOpen(false); }, []);
-  const playIntro = useCallback(() => { setSelected("work"); setConsoleOpen(false); setIntroSequence((value) => value + 1); }, []);
+  const clearIntroTimer = useCallback(() => {
+    if (introResetTimer.current !== null) {
+      window.clearTimeout(introResetTimer.current);
+      introResetTimer.current = null;
+    }
+  }, []);
+  const selectTarget = useCallback((target: StudioTarget) => {
+    clearIntroTimer();
+    setSelected(target);
+    setIntroSequence(0);
+    setConsoleOpen(false);
+  }, [clearIntroTimer]);
+  const playIntro = useCallback(() => {
+    clearIntroTimer();
+    setSelected("work");
+    setConsoleOpen(false);
+    setIntroSequence((value) => value + 1);
+    introResetTimer.current = window.setTimeout(() => {
+      introResetTimer.current = null;
+      setIntroSequence(0);
+    }, 5400);
+  }, [clearIntroTimer]);
+  useEffect(() => () => clearIntroTimer(), [clearIntroTimer]);
   const closeConsole = useCallback(() => { setConsoleOpen(false); window.requestAnimationFrame(() => consoleButton.current?.focus()); }, []);
   const activateObject = useCallback((object: StudioObjectAction) => {
     if (object === "lights") setLightsOn(current => !current);

@@ -19,9 +19,9 @@ const TRAILS = [
   { x: .80, y: 1.99, count: 8, phase: .25 },
 ] as const;
 
-function GlowingFan({ y, color, enabled }: { y:number; color:string; enabled:boolean }) {
+function GlowingFan({ x, y, color, enabled }: { x:number; y:number; color:string; enabled:boolean }) {
   return (
-    <group position={[1.02,y,-.912]}>
+    <group position={[x,y,-.912]}>
       <mesh>
         <circleGeometry args={[.073,24]}/>
         <meshBasicMaterial color="#243052" toneMapped={false}/>
@@ -96,6 +96,42 @@ function Controller({ y, color }: { y:number; color:string }) {
   );
 }
 
+function WallHeadset() {
+  return (
+    <group name="wall-headset" position={[1.25,1.35,-.84]}>
+      <mesh>
+        <torusGeometry args={[.15,.019,10,32,Math.PI]}/>
+        <meshStandardMaterial color="#24213f" metalness={.24} roughness={.32}/>
+      </mesh>
+      {[-1,1].map((side,index) => (
+        <group key={side} position={[side*.15,-.012,.012]}>
+          <mesh scale={[1,1.26,.76]}>
+            <sphereGeometry args={[.063,16,12]}/>
+            <meshStandardMaterial color="#30284f" roughness={.42}/>
+          </mesh>
+          <mesh position={[0,0,.046]} rotation={[Math.PI/2,0,0]}>
+            <cylinderGeometry args={[.043,.043,.014,20]}/>
+            <meshStandardMaterial color={index===0 ? "#9d78f3" : "#738eff"}
+              metalness={.18} roughness={.28}/>
+          </mesh>
+          <mesh position={[0,0,.055]}>
+            <torusGeometry args={[.035,.005,7,20]}/>
+            <meshBasicMaterial color={index===0 ? "#f2a7ff" : "#8ee5ff"} toneMapped={false}/>
+          </mesh>
+          <mesh position={[0,0,.056]}>
+            <circleGeometry args={[.026,20]}/>
+            <meshStandardMaterial color="#252441" roughness={.72}/>
+          </mesh>
+        </group>
+      ))}
+      <mesh position={[0,.02,.026]}>
+        <boxGeometry args={[.018,.09,.028]}/>
+        <meshStandardMaterial color="#bcb9d4" metalness={.2} roughness={.34}/>
+      </mesh>
+    </group>
+  );
+}
+
 function HangingVine({ x,y,count,phase }: { x:number; y:number; count:number; phase:number }) {
   const points = Array.from({ length: count+1 },(_,i) =>
     new THREE.Vector3(Math.sin(i*.64+phase)*.083, -(i*.095), Math.sin(i*.43+phase)*.033));
@@ -126,16 +162,59 @@ function HangingVine({ x,y,count,phase }: { x:number; y:number; count:number; ph
   );
 }
 
-export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore }: {
+function FloorPlant() {
+  return (
+    <group name="reference-floor-plant" position={[-1.3,0,-.85]} scale={.84}>
+      <mesh position={[0,.31,0]}>
+        <cylinderGeometry args={[.14,.105,.25,20]}/>
+        <meshStandardMaterial color="#ddd9ef" roughness={.32}/>
+      </mesh>
+      <mesh position={[0,.44,0]}>
+        <torusGeometry args={[.124,.012,8,24]}/>
+        <meshStandardMaterial color="#f5f0ff" roughness={.3}/>
+      </mesh>
+      <mesh position={[0,.438,0]}>
+        <cylinderGeometry args={[.119,.119,.012,20]}/>
+        <meshStandardMaterial color="#514333" roughness={.9}/>
+      </mesh>
+      {[0,1,2].map(index => {
+        const angle = index * Math.PI * 2 / 3 + .25;
+        return <mesh key={index}
+          position={[Math.cos(angle)*.082,.18,Math.sin(angle)*.082]}
+          rotation={[0,0,Math.cos(angle)*.08]}>
+          <cylinderGeometry args={[.013,.019,.36,8]}/>
+          <meshStandardMaterial color="#9a7457" roughness={.86}/>
+        </mesh>;
+      })}
+      {Array.from({length:9},(_,index) => {
+        const angle = index * 2.39996;
+        const length = .31 + (index % 3) * .04;
+        const reach = .08 + (index % 2) * .03;
+        const color = index % 3 === 0 ? "#397b52" : index % 3 === 1 ? "#579763" : "#2f6947";
+        return <group key={index} position={[Math.cos(angle)*.035,.44,Math.sin(angle)*.035]}>
+          <mesh position={[Math.cos(angle)*reach*.45,length*.47,Math.sin(angle)*reach*.45]}
+            rotation={[Math.cos(angle)*.22,0,-Math.sin(angle)*.25]} scale={[.052,length*.55,.024]}>
+            <sphereGeometry args={[1,14,10]}/>
+            <meshStandardMaterial color={color} roughness={.68} side={THREE.DoubleSide}/>
+          </mesh>
+        </group>;
+      })}
+    </group>
+  );
+}
+
+export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore, pcX=1.02, includeFloorPlant=false }: {
   lightsOn:boolean;
   onOpenComputer:()=>void;
   onExplore:()=>void;
+  pcX?:number;
+  includeFloorPlant?:boolean;
 }) {
   return (
     <group name="reference-detailed-room-dressing">
       <group onClick={event => {event.stopPropagation();onOpenComputer();}}>
         {FAN_LIGHTS.map(({y,color}) =>
-          <GlowingFan key={y} y={y} color={color} enabled={lightsOn}/>)}
+          <GlowingFan key={y} x={pcX} y={y} color={color} enabled={lightsOn}/>)}
       </group>
 
       {/* A pair of raised white gamepads with genuine depth, in front of
@@ -143,12 +222,14 @@ export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore }:
       <group onClick={event => {event.stopPropagation();onExplore();}}>
         <Controller y={1.86} color="#e984ed"/>
         <Controller y={1.60} color="#72ccff"/>
+        <WallHeadset/>
       </group>
 
       {/* Trailing leaves make the wall shelving organic rather than isolated
           green spheres. Curved stems are geometry, not 2D image cards. */}
       {TRAILS.map(vine=><HangingVine key={vine.x}
         x={vine.x} y={vine.y} count={vine.count} phase={vine.phase}/>)}
+      {includeFloorPlant && <FloorPlant/>}
 
       <mesh position={[0,1.33,-1.30]}>
         <boxGeometry args={[.57,.014,.021]}/>

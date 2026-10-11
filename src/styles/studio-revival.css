@@ -645,3 +645,84 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   .yor-world-hero__identity {grid-template-columns:minmax(0,1fr) minmax(240px,.95fr);}
   .editorial-home .yor-world-hero h1 {font-size:clamp(38px,4vw,48px);}
 }
+
+/* Reference scene first: give the complete authored workstation its full
+   composition, then place the portfolio introduction below the 3D artwork. */
+.yor-world-hero__shell {
+  padding-top:clamp(78px,6.2vw,100px);
+}
+.yor-world-hero__studio.machine-home {
+  grid-column:1;grid-row:2;min-width:0;margin:0;padding:0;z-index:2;
+}
+.yor-world-hero__studio .yor-studio__topline {
+  position:relative;inset:auto;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:0 4px 12px;color:#eee8ff;text-shadow:none;pointer-events:auto;
+}
+.yor-world-hero__studio .yor-studio__viewport {
+  width:min(100%,112svh);height:auto;min-height:0;aspect-ratio:4/3;
+  margin-inline:auto;overflow:hidden;border-radius:18px;
+  background:#c8c2de;border:1px solid rgba(236,224,255,.76);
+  box-shadow:0 30px 90px rgba(5,6,23,.42),0 0 0 1px rgba(236,215,255,.18);
+}
+.yor-world-hero__studio .yor-studio__viewport::after {
+  background:none;box-shadow:none;
+}
+.yor-world-hero__studio .yor-studio__hud,
+.yor-world-hero__studio .yor-studio__corner {
+  display:none;
+}
+.yor-world-hero__studio .yor-studio__photo-toggle {
+  top:14px;right:14px;bottom:auto;z-index:6;
+  background:rgba(25,22,55,.72);border-color:rgba(239,205,255,.65);
+  color:#fff4ff;backdrop-filter:blur(8px);
+}
+.yor-world-hero__intro {
+  grid-column:1;grid-row:3;align-self:stretch;justify-self:stretch;
+  width:100%;max-width:none;margin:24px 0 0;padding:0;
+  position:relative;z-index:3;display:block;pointer-events:auto;
+  background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;
+}
+.yor-world-hero__identity {
+  display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);
+  grid-template-rows:auto auto auto;column-gap:clamp(24px,5vw,84px);
+  align-items:center;
+}
+.yor-world-hero__welcome {grid-column:1;grid-row:1;margin:0 0 8px;}
+.editorial-home .yor-world-hero h1 {
+  grid-column:1;grid-row:2/span 2;
+  font-size:clamp(42px,5.2vw,76px);line-height:.98;
+}
+.yor-world-hero__description {
+  grid-column:2;grid-row:1/span 2;max-width:440px;
+  margin:0;font-size:clamp(14px,1.15vw,17px);line-height:1.5;
+}
+.yor-world-hero__ctas {grid-column:2;grid-row:3;margin:14px 0 0;gap:10px;}
+.yor-world-hero__below {grid-column:1;grid-row:4;padding-top:28px;}
+
+@media (max-width:800px) {
+  .yor-world-hero__shell {padding:76px 10px 26px;}
+  .yor-world-hero__studio.machine-home {grid-column:1;grid-row:2;margin:0;}
+  .yor-world-hero__studio .yor-studio__topline {padding:0 3px 9px;gap:6px;}
+  .yor-world-hero__studio .yor-studio__topline > span:first-child {font-size:8px;}
+  .yor-studio__utilities {gap:5px;}
+  .yor-studio__utilities button {min-height:38px;font-size:7px;padding:7px 9px;}
+  .yor-world-hero__studio .yor-studio__viewport {
+    width:100%;height:auto;min-height:0;aspect-ratio:4/3;border-radius:13px;
+  }
+  .yor-world-hero__studio .yor-studio__photo-toggle {top:10px;right:9px;bottom:auto;}
+  .yor-world-hero__intro {
+    grid-column:1;grid-row:3;width:auto;margin:18px 8px 0;padding:0;
+  }
+  .yor-world-hero__identity {display:block;}
+  .yor-world-hero__welcome {font-size:9px;margin-bottom:7px;}
+  .editorial-home .yor-world-hero h1 {font-size:clamp(37px,9vw,58px);line-height:1;}
+  .yor-world-hero__description {font-size:12px;line-height:1.48;margin-top:11px;}
+  .yor-world-hero__ctas {margin-top:12px;gap:8px;}
+  .yor-world-hero__ctas a {min-height:43px;padding:10px 12px;font-size:9px;}
+  .yor-world-hero__below {grid-row:4;padding-top:20px;}
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .yor-world-hero__studio .yor-studio__photo-toggle {transition:none;}
+}

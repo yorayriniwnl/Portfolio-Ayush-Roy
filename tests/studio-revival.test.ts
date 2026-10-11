@@ -2,6 +2,19 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, statSync } from "node:fs";
 
+function readGlbDocument(path: string) {
+  const binary = readFileSync(path);
+  assert.equal(binary.toString("ascii", 0, 4), "glTF");
+  assert.equal(binary.readUInt32LE(4), 2);
+  const jsonLength = binary.readUInt32LE(12);
+  const jsonType = binary.readUInt32LE(16);
+  assert.equal(jsonType, 0x4e4f534a);
+  return JSON.parse(binary.toString("utf8", 20, 20 + jsonLength)) as {
+    nodes: Array<{ name?: string; translation?: number[] }>;
+    cameras: Array<{ name?: string; perspective?: { yfov?: number } }>;
+  };
+}
+
 test("actual recovered WebGL workspace powers the homepage, never a static imitation", () => {
   const homepage = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
   const hero = readFileSync("src/components/experience/StudioHero.tsx", "utf8");
@@ -11,7 +24,7 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
   assert.match(hero, /<StudioRoom \/>/);
   assert.match(room, /<Scene onSelect=\{selectTarget\}/);
   const authored = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
-  assert.match(authored, /<Canvas camera=/);
+  assert.match(authored, /<Canvas(?: shadows)? camera=/);
   assert.ok(authored.includes("yor-world-room.glb"));
   assert.ok(authored.includes("yor-world-resident.glb"));
   assert.ok(authored.includes("yor-world-fixture.glb"));
@@ -115,11 +128,11 @@ test("the workstation launcher is evidence-first and dismissible from keyboard",
 test("actual GLB fills the opening cinematic stage instead of an editorial side card", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
   const css = readFileSync("src/styles/studio-revival.css","utf8");
-  assert.match(scene,/work: \{ eye: \[-0\.82,1\.72,1\.50\]/);
+  assert.match(scene,/work: \{ eye: \[-1\.95,2\.10,1\.55\]/);
   assert.match(scene,/gl\.toneMappingExposure=\.95/);
   assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
   assert.match(scene,/function StudioHexLights/);
-  assert.match(scene,/new THREE.ShapeGeometry/);
+  assert.match(scene,/new THREE.ExtrudeGeometry/);
   assert.match(scene,/oldFixture.visible=false/);
   assert.match(scene,/<StudioHexLights lightsOn=\{lightsOn\}/);
   assert.match(scene,/HEX_LIGHTS.map/);
@@ -137,7 +150,7 @@ test("studio prioritizes the reference-backed wide camera and pastel daylight ov
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const css = readFileSync("src/styles/studio-revival.css", "utf8");
-  assert.match(scene, /look: \[0\.04,1\.30,-1\.23\]/);
+  assert.match(scene, /look: \[0\.22,0\.90,-1\.15\]/);
   assert.match(scene, /ambientLight intensity=\{\.49\}/);
   assert.match(scene, /THREE\.AdditiveBlending/);
   assert.match(room, /data-photo-mode=\{String\(photoMode\)\}/);
@@ -167,15 +180,26 @@ test("reference dressing uses modeled RGB fans, gamepads and trailing vines, not
   const detail = readFileSync("src/components/experience/StudioReferenceDressing.tsx", "utf8");
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
   const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  const workstation = scene.slice(scene.indexOf("function AuthoredWorkstationView"), scene.indexOf("function AuthenticYorRoom"));
   assert.match(detail, /function GlowingFan/);
   assert.match(detail, /function Controller/);
+  assert.match(detail, /function WallHeadset/);
   assert.match(detail, /function HangingVine/);
+  assert.match(detail, /position=\{\[-1\.3,0,-\.85\]\} scale=\{\.84\}/);
+  assert.match(detail, /const length = \.31 \+ \(index % 3\) \* \.04/);
   assert.match(detail, /CatmullRomCurve3/);
   assert.match(detail, /torusGeometry/);
   assert.match(detail, /onOpenComputer/);
   assert.match(detail, /onExplore/);
   assert.match(scene, /<StudioReferenceDressing lightsOn=\{lightsOn\}/);
-  assert.match(scene, /\[-\.57,2\.38,"#dfaeff"\]/);
+  assert.match(scene, /new THREE\.ExtrudeGeometry\(outline/);
+  assert.match(scene, /function createCarpetTexture/);
+  assert.match(scene, /new THREE\.DataTexture/);
+  assert.match(scene, /node\.name === "room_floor"/);
+  assert.match(scene, /#ff8bf2/);
+  assert.match(workstation, /<StudioHexLights lightsOn=\{lightsOn\} onExplore=\{\(\) => onSelect\("lab"\)\}\/>/);
+  assert.match(workstation, /pointLight position=\{\[-\.35,1\.95,-1\.2\]\} color="#ec84ff"/);
+  assert.match(workstation, /pointLight position=\{\[1\.15,1\.2,-\.1\]\} color="#52caff"/);
   assert.match(css, /Second-stage art pass:/);
 });
 
@@ -197,4 +221,39 @@ test("the reference workstation includes lightweight modeled desk and floor acce
   assert.match(scene, /<StudioDeskProps onOpen=\{\(\) => onInteract\("monitor"\)\}\/>/);
   assert.match(details, /position=\{\[-1\.02,\.751,-\.99\]\}/);
   assert.match(details, /scale=\{\[\.055,\.04,\.043\]\}/);
+});
+
+test("the opening view uses the complete authored workstation and its reference cameras", () => {
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  const hero = readFileSync("src/styles/studio-revival.css", "utf8");
+  const asset = readGlbDocument("public/models/yor-world-workstation-details.glb");
+  const names = new Set(asset.nodes.map((node) => node.name));
+
+  for (const name of ["workstation-sample-root", "Camera_ReferenceMatch", "Camera_HomeDesktop", "Camera_HomeMobile"]) {
+    assert.ok(names.has(name), `Authored GLB is missing ${name}`);
+    assert.ok(scene.includes(name), `Runtime does not use ${name}`);
+  }
+
+  assert.match(scene, /getObjectByName\("workstation-sample-root"\)/);
+  assert.match(scene, /referenceRoot\?\.clone\(true\)/);
+  assert.match(scene, /selected === "work" && introSequence === 0/);
+  assert.match(scene, /portrait \? "Camera_HomeMobile" : size\.width >= 1600 \? "Camera_HomeDesktop" : "Camera_ReferenceMatch"/);
+  assert.match(scene, /pc\?\.position\.set\(-1\.02,\.98,-1\.15\)/);
+  assert.match(scene, /chair\?\.position\.set\(\.72,0,-\.18\)/);
+  assert.match(scene, /entry\.intensity \* \(lightsOn \? \.0002 : \.00002\)/);
+  assert.match(scene, /<Canvas shadows camera=/);
+  assert.match(hero, /grid-column:1;grid-row:2/);
+  assert.match(hero, /aspect-ratio:4\/3/);
+  assert.doesNotMatch(hero, /aspect-ratio:4\/5/);
+});
+
+test("the reference chair uses rounded upholstery and remains an interactive creator link", () => {
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  assert.match(scene, /function ReferenceGamingChair/);
+  assert.match(scene, /RoundedBoxGeometry/);
+  assert.match(scene, /chair\.visible = false/);
+  assert.match(scene, /<group name="reference-gaming-chair" position=\{\[\.72,0,-\.18\]\} rotation=\{\[0,-\.10,0\]\} scale=\{\[\.84,\.62,\.74\]\}/);
+  assert.match(scene, /scale=\{\[\.045,\.05,\.07\]\}/);
+  assert.match(scene, /color="#262943"/);
+  assert.match(scene, /onSelect\("about"\)/);
 });
