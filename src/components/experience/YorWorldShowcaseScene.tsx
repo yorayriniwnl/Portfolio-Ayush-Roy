@@ -366,6 +366,12 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
     const chair = root.getObjectByName("chair-root");
     chair?.position.set(.72,0,-.18);
     if (chair) chair.visible = false;
+    // The reference uses an ultrawide display. Widen the authored display
+    // shell and lightbar while preserving the original stand and desk scale.
+    for (const name of ["lightbar_chassis","lightbar_diffuser_lens","lightbar_mount_clamp","monitor_bezel","monitor_rear_housing","monitor_screen_mesh"]) {
+      const monitorPart = root.getObjectByName(name);
+      if (monitorPart) monitorPart.scale.x = 1.4;
+    }
 
     const materialCopies = new Map<THREE.Material, THREE.Material>();
     root.traverse((node) => {

@@ -240,6 +240,8 @@ test("the opening view uses the complete authored workstation and its reference 
   assert.match(scene, /portrait \? "Camera_HomeMobile" : size\.width >= 1600 \? "Camera_HomeDesktop" : "Camera_ReferenceMatch"/);
   assert.match(scene, /pc\?\.position\.set\(-1\.02,\.98,-1\.15\)/);
   assert.match(scene, /chair\?\.position\.set\(\.72,0,-\.18\)/);
+  assert.match(scene, /for \(const name of \["lightbar_chassis","lightbar_diffuser_lens","lightbar_mount_clamp","monitor_bezel","monitor_rear_housing","monitor_screen_mesh"\]\)/);
+  assert.match(scene, /monitorPart\.scale\.x = 1\.4/);
   assert.match(scene, /entry\.intensity \* \(lightsOn \? \.0002 : \.00002\)/);
   assert.match(scene, /<Canvas shadows camera=/);
   assert.match(hero, /grid-column:1;grid-row:2/);
