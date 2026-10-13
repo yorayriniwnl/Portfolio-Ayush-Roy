@@ -40,11 +40,11 @@
 - Consumes: the cloned `workstation-sample-root` scene and its named `helios-pc`, `monitor_bezel`, `monitor_rear_housing`, `monitor_screen_mesh`, `lightbar_chassis`, `lightbar_diffuser_lens`, and `lightbar_mount_clamp` nodes; the authored `Camera_ReferenceMatch`, `Camera_HomeDesktop`, and `Camera_HomeMobile` poses.
 - Produces: a default workstation composition with the monitor centered, the PC on the right under the pegboard, and the existing chair retained in the near-right foreground.
 
-- [ ] **Step 1: Move the authored PC back to the reference's right side.** Set the cloned `helios-pc` to `(1.02, 0.98, -1.15)` instead of `(-1.02, 0.98, -1.15)`. Update the fan-light overlay call's `pcX` to `1.02` so its lights stay aligned to the case.
-- [ ] **Step 2: Enlarge the screen and lightbar together.** Change the current `scale.x = 1.4` for the six named display/lightbar meshes to `scale.x = 2.0`; leave the monitor stand, camera-independent hit behavior, and vertical scale unchanged. The desktop render target is approximately 42–45% of the 4:3 room-frame width.
-- [ ] **Step 3: Fit the composition across the three authored camera poses.** Keep the current camera selection thresholds. Adjust the cloned camera poses only if needed so the PC, full monitor, and full chair remain inside the frame at desktop and portrait widths; do not modify the source GLB files.
-- [ ] **Step 4: Inspect the rendered result.** Compare the default workstation frame at 1440×900, 1920×1080, 390×844, and 430×932 with the attached image. Confirm the PC reads on the right and the monitor is the main focal point while the chair remains legible.
-- [ ] **Step 5: Commit and push this task.** Use `feat: align workstation composition to pastel reference` and push `feat/reference-framed-pastel-room-20261011`.
+- [x] **Step 1: Move the authored PC back to the reference's right side.** Set the cloned `helios-pc` to `(1.02, 0.98, -1.15)` instead of `(-1.02, 0.98, -1.15)`. Update the fan-light overlay call's `pcX` to `1.02` so its lights stay aligned to the case.
+- [x] **Step 2: Enlarge the screen and lightbar together.** Change the current `scale.x = 1.4` for the six named display/lightbar meshes to `scale.x = 2.0`; leave the monitor stand, camera-independent hit behavior, and vertical scale unchanged. The desktop render target is approximately 42–45% of the 4:3 room-frame width.
+- [x] **Step 3: Fit the composition across the three authored camera poses.** Keep the current camera selection thresholds. The `Camera_ReferenceMatch` pose receives a 3° field-of-view increase, calibrated at 1440×900 to match the 1920×1080 desktop framing; the authored desktop and portrait poses and source GLB files remain unchanged.
+- [x] **Step 4: Inspect the rendered result.** Compared the default workstation frame at 1440×900, 1920×1080, 390×844, and 430×932 with the attached image. The PC reads on the right, the monitor remains the focal point, the chair stays legible, and mobile touch controls remain clear.
+- [x] **Step 5: Commit and push this task.** Use `feat: align workstation composition to pastel reference` and push `feat/reference-framed-pastel-room-20261011`.
 
 ### Task 2: Correct the foreground plant and pegboard dressing
 

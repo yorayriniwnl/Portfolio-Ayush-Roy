@@ -359,18 +359,18 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
     if (!root) return { root, emissives, authoredLights, carpetTexture };
 
     root.name = "reference-workstation-stage";
-    // Move the tower and chair apart so the reference composition keeps the
-    // display clear, with the PC on the left and the empty seat on the right.
+    // Keep the tower under the right-wall pegboard and leave the chair in the
+    // near-right foreground, as in the supplied workstation reference.
     const pc = root.getObjectByName("helios-pc");
-    pc?.position.set(-1.02,.98,-1.15);
+    pc?.position.set(1.02,.98,-1.15);
     const chair = root.getObjectByName("chair-root");
     chair?.position.set(.72,0,-.18);
     if (chair) chair.visible = false;
-    // The reference uses an ultrawide display. Widen the authored display
+    // The reference monitor spans roughly 42–45% of the room frame. Widen its
     // shell and lightbar while preserving the original stand and desk scale.
     for (const name of ["lightbar_chassis","lightbar_diffuser_lens","lightbar_mount_clamp","monitor_bezel","monitor_rear_housing","monitor_screen_mesh"]) {
       const monitorPart = root.getObjectByName(name);
-      if (monitorPart) monitorPart.scale.x = 1.4;
+      if (monitorPart) monitorPart.scale.x = 2.0;
     }
 
     const materialCopies = new Map<THREE.Material, THREE.Material>();
@@ -443,7 +443,16 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
   const portrait = size.width < 800;
   const cameraName = portrait ? "Camera_HomeMobile" : size.width >= 1600 ? "Camera_HomeDesktop" : "Camera_ReferenceMatch";
   const sourcePose = cameraPoses[cameraName];
-  const pose = sourcePose && portrait ? { ...sourcePose, fov: Math.max(sourcePose.fov, 54) } : sourcePose;
+  const pose = sourcePose
+    ? {
+      ...sourcePose,
+      fov: portrait
+        ? Math.max(sourcePose.fov, 54)
+        : cameraName === "Camera_ReferenceMatch"
+          ? sourcePose.fov + THREE.MathUtils.degToRad(3)
+          : sourcePose.fov,
+    }
+    : sourcePose;
 
   useEffect(() => {
     for (const entry of sample.emissives) {
@@ -506,7 +515,7 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
         intensity={lightsOn ? .82 : .035} distance={2.7} decay={2}/>
       <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
       <StudioReferenceDressing lightsOn={lightsOn} onOpenComputer={() => onInteract("monitor")}
-        onExplore={() => onSelect("lab")} pcX={-1.02} includeFloorPlant/>
+        onExplore={() => onSelect("lab")} pcX={1.02} includeFloorPlant/>
       {sample.root && <primitive object={sample.root} onClick={choose}
         onPointerOver={hover}
         onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>}
