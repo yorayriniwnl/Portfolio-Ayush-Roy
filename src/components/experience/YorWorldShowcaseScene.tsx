@@ -162,6 +162,65 @@ function createCarpetTexture() {
   return texture;
 }
 
+function createUpholsteryBumpTexture() {
+  const size = 128;
+  const pixels = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const index = (y * size + x) * 4;
+      const warp = (x % 6 < 2 ? 7 : -3);
+      const weft = (y % 6 < 2 ? 6 : -3);
+      const slub = ((Math.imul(x + 17, 374761393) ^ Math.imul(y + 29, 668265263)) >>> 27) - 8;
+      const value = THREE.MathUtils.clamp(128 + warp + weft + slub, 0, 255);
+      pixels[index] = value;
+      pixels[index + 1] = value;
+      pixels[index + 2] = value;
+      pixels[index + 3] = 255;
+    }
+  }
+  const texture = new THREE.DataTexture(pixels, size, size, THREE.RGBAFormat);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(4, 4);
+  texture.generateMipmaps = true;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.anisotropy = 8;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function createUpholsteryColorTexture() {
+  const size = 144;
+  const pixels = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const index = (y * size + x) * 4;
+      const warpRaised = x % 6 < 3;
+      const weftRaised = y % 6 < 3;
+      const overUnder = (Math.floor(x / 3) + Math.floor(y / 3)) % 2 === 0;
+      const raised = overUnder ? warpRaised : weftRaised;
+      const fiber = ((x * 13 + y * 29 + x * y * 7) % 7) - 3;
+      const value = THREE.MathUtils.clamp((raised ? 253 : 245) + fiber, 0, 255);
+      pixels[index] = value;
+      pixels[index + 1] = value;
+      pixels[index + 2] = value;
+      pixels[index + 3] = 255;
+    }
+  }
+  const texture = new THREE.DataTexture(pixels, size, size, THREE.RGBAFormat);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(4, 4);
+  texture.generateMipmaps = true;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.anisotropy = 8;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 type AuthoredCameraPose = {
   position: THREE.Vector3;
   quaternion: THREE.Quaternion;
@@ -190,6 +249,16 @@ function ReferenceGamingChair({ onSelect, onHover }: {
     lumbar: new RoundedBoxGeometry(.44,.22,.12,.09,5),
     seatShell: new RoundedBoxGeometry(.75,.18,.59,.095,5),
     seat: new RoundedBoxGeometry(.63,.17,.51,.09,5),
+    seatSeam: (() => {
+      const points = Array.from({ length: 64 }, (_, index) => {
+        const angle = (index / 64) * Math.PI * 2;
+        const x = .255 * Math.cos(angle);
+        const y = .84 + .07 * Math.sin(angle);
+        const depth = Math.sqrt(Math.max(.04, 1 - (x / .30) ** 2 - ((y - .84) / .10) ** 2));
+        return new THREE.Vector3(x, y, .19 + .26 * depth + .002);
+      });
+      return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points, true), 96, .0035, 6, true);
+    })(),
     seatWing: new RoundedBoxGeometry(.14,.19,.48,.065,4),
     cushion: new THREE.SphereGeometry(1,32,24),
     armStem: new RoundedBoxGeometry(.075,.35,.09,.035,4),
@@ -197,6 +266,9 @@ function ReferenceGamingChair({ onSelect, onHover }: {
     armCap: new RoundedBoxGeometry(.18,.035,.11,.017,4),
     baseBeam: new RoundedBoxGeometry(.80,.065,.10,.032,4),
   }), []);
+  const fabricBump = useMemo(() => createUpholsteryBumpTexture(), []);
+  const fabricColor = useMemo(() => createUpholsteryColorTexture(), []);
+  useEffect(() => () => { fabricBump.dispose(); fabricColor.dispose(); }, [fabricBump, fabricColor]);
   const leftPiping = useMemo(() => new THREE.CatmullRomCurve3([
     new THREE.Vector3(-.285,.91,.18),
     new THREE.Vector3(-.30,1.13,.19),
@@ -243,40 +315,40 @@ function ReferenceGamingChair({ onSelect, onHover }: {
         <meshStandardMaterial color="#f6f5ff" roughness={.62}/>
       </mesh>
       <mesh geometry={geometry.back} position={[0,1.34,.075]} castShadow>
-        <meshStandardMaterial color="#275bc7" roughness={.86} metalness={0}/>
+        <meshStandardMaterial color="#275bc7" roughness={.9} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
       </mesh>
       {[-1,1].map(side => (
         <mesh key={`back-wing-${side}`} geometry={geometry.backWing}
           position={[side*.275,1.34,.105]} rotation={[0,0,side*-.045]} castShadow>
-          <meshStandardMaterial color={side < 0 ? "#3474e7" : "#194caf"} roughness={.84} metalness={0}/>
+          <meshStandardMaterial color={side < 0 ? "#3474e7" : "#194caf"} roughness={.9} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
         </mesh>
       ))}
       <mesh geometry={geometry.cushion} position={[0,1.34,.18]} scale={[.24,.46,.07]} castShadow>
-        <meshStandardMaterial color="#3976ce" roughness={.9} metalness={0}/>
+        <meshStandardMaterial color="#3976ce" roughness={.96} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
       </mesh>
       {[-1,1].map(side => (
         <mesh key={`back-bolster-${side}`} geometry={geometry.cushion}
           position={[side*.255,1.34,.14]} scale={[.065,.37,.062]} castShadow>
-          <meshStandardMaterial color={side < 0 ? "#4b85dc" : "#2d62bd"} roughness={.9} metalness={0}/>
+          <meshStandardMaterial color={side < 0 ? "#4b85dc" : "#2d62bd"} roughness={.96} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
         </mesh>
       ))}
       <mesh geometry={geometry.headrestShell} position={[0,1.79,.065]} castShadow>
         <meshStandardMaterial color="#f7f6ff" roughness={.62}/>
       </mesh>
       <mesh geometry={geometry.headrest} position={[0,1.80,.15]} castShadow>
-        <meshStandardMaterial color="#3177ec" roughness={.86} metalness={0}/>
+        <meshStandardMaterial color="#3177ec" roughness={.92} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
       </mesh>
       <mesh geometry={geometry.cushion} position={[0,1.80,.195]} scale={[.185,.105,.05]} castShadow>
-        <meshStandardMaterial color="#3f83e4" roughness={.9} metalness={0}/>
+        <meshStandardMaterial color="#3f83e4" roughness={.96} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
       </mesh>
       <mesh geometry={geometry.headrestPatch} position={[0,1.80,.25]}>
         <meshStandardMaterial color="#b8e7ff" roughness={.82} metalness={0}/>
       </mesh>
       <mesh geometry={geometry.lumbar} position={[0,1.035,.16]} castShadow>
-        <meshStandardMaterial color="#a9dcff" roughness={.88} metalness={0}/>
+        <meshStandardMaterial color="#a9dcff" roughness={.94} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
       </mesh>
       <mesh geometry={geometry.cushion} position={[0,1.035,.207]} scale={[.205,.115,.07]} castShadow>
-        <meshStandardMaterial color="#91c9ee" roughness={.92} metalness={0}/>
+        <meshStandardMaterial color="#91c9ee" roughness={.97} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
       </mesh>
       <mesh geometry={pipeGeometries.left}>
         <meshStandardMaterial color="#a7eaff" metalness={0} roughness={.52}/>
@@ -294,22 +366,25 @@ function ReferenceGamingChair({ onSelect, onHover }: {
         <meshStandardMaterial color="#f4f3ff" roughness={.62}/>
       </mesh>
       <mesh geometry={geometry.seat} position={[0,.79,.145]} castShadow>
-        <meshStandardMaterial color="#2463d2" roughness={.86} metalness={0}/>
+        <meshStandardMaterial color="#2463d2" roughness={.93} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
       </mesh>
       {[-1,1].map(side => (
         <mesh key={`seat-wing-${side}`} geometry={geometry.seatWing}
           position={[side*.315,.795,.12]} rotation={[0,0,side*.06]} castShadow>
-          <meshStandardMaterial color={side < 0 ? "#4384ee" : "#1d54bb"} roughness={.86} metalness={0}/>
+          <meshStandardMaterial color={side < 0 ? "#4384ee" : "#1d54bb"} roughness={.93} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
         </mesh>
       ))}
       {[-1,1].map(side => (
         <mesh key={`seat-bolster-${side}`} geometry={geometry.cushion}
           position={[side*.30,.81,.14]} scale={[.07,.085,.20]} castShadow>
-          <meshStandardMaterial color={side < 0 ? "#4384ee" : "#1d54bb"} roughness={.9} metalness={0}/>
+          <meshStandardMaterial color={side < 0 ? "#4384ee" : "#1d54bb"} roughness={.97} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
         </mesh>
       ))}
       <mesh geometry={geometry.cushion} position={[0,.84,.19]} scale={[.30,.10,.26]} castShadow>
-        <meshStandardMaterial color="#3477d2" roughness={.92} metalness={0}/>
+        <meshStandardMaterial color="#3477d2" roughness={.97} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
+      </mesh>
+      <mesh geometry={geometry.seatSeam}>
+        <meshStandardMaterial color="#70b9e8" roughness={.92} metalness={0}/>
       </mesh>
 
       {/* Cushioned armrests, supported by white and metallic brackets. */}
@@ -319,7 +394,7 @@ function ReferenceGamingChair({ onSelect, onHover }: {
             <meshStandardMaterial color="#e5e8f8" metalness={.17} roughness={.32}/>
           </mesh>
           <mesh geometry={geometry.armPad} position={[0,1.045,.035]} castShadow>
-            <meshStandardMaterial color="#3479eb" roughness={.82} metalness={0}/>
+            <meshStandardMaterial color="#3479eb" roughness={.94} metalness={0} map={fabricColor} bumpMap={fabricBump} bumpScale={.004}/>
           </mesh>
           <mesh geometry={geometry.armCap} position={[0,1.097,.035]}>
             <meshStandardMaterial color="#7bcfff" roughness={.3}/>
