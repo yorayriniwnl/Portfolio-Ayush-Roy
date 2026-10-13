@@ -649,18 +649,19 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
 /* Reference scene first: give the complete authored workstation its full
    composition, then place the portfolio introduction below the 3D artwork. */
 .yor-world-hero__shell {
-  padding-top:clamp(78px,6.2vw,100px);
+  padding-top:clamp(78px,5.55vw,85px);
 }
+.yor-world-hero__eyebrow {padding-bottom:12px;}
 .yor-world-hero__studio.machine-home {
   grid-column:1;grid-row:2;min-width:0;margin:0;padding:0;z-index:2;
 }
 .yor-world-hero__studio .yor-studio__topline {
   position:relative;inset:auto;z-index:5;
   display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:0 4px 12px;color:#eee8ff;text-shadow:none;pointer-events:auto;
+  padding:0 4px 8px;color:#eee8ff;text-shadow:none;pointer-events:auto;
 }
 .yor-world-hero__studio .yor-studio__viewport {
-  width:min(100%,112svh);height:auto;min-height:0;aspect-ratio:4/3;
+  width:min(100%,106svh);height:auto;min-height:0;aspect-ratio:4/3;
   margin-inline:auto;overflow:hidden;border-radius:18px;
   background:#c8c2de;border:1px solid rgba(236,224,255,.76);
   box-shadow:0 30px 90px rgba(5,6,23,.42),0 0 0 1px rgba(236,215,255,.18);
@@ -721,6 +722,12 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   .yor-world-hero__ctas {margin-top:12px;gap:8px;}
   .yor-world-hero__ctas a {min-height:43px;padding:10px 12px;font-size:9px;}
   .yor-world-hero__below {grid-row:4;padding-top:20px;}
+}
+
+@media (min-width:801px) and (max-height:800px) {
+  .yor-world-hero__shell {padding-top:78px;}
+  .yor-world-hero__eyebrow {display:none;}
+  .yor-world-hero__studio .yor-studio__viewport {width:min(100%,100svh);}
 }
 
 @media (prefers-reduced-motion:reduce) {
