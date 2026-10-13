@@ -77,4 +77,4 @@
 - [x] **Step 2: Adjust upholstery and trim materials.** Use matte fabric-like roughness for the blue cushion meshes, retain the light shell and cyan piping, and keep seams visible without making the chair look metallic or plastic.
 - [x] **Step 3: Balance the scene lights.** Tune the existing violet, cyan, and warm point lights and hex-panel emission so the room reads pastel rather than grey, while the monitor and hex panels retain detail at both `lightsOn` values.
 - [x] **Step 4: Inspect the full viewport matrix and preserved controls.** Capture the default workstation view at every size in the global matrix; check the full-scene and mobile compositions, the dim/lit transition, visible touch controls, and the existing no-WebGL/reduced-motion content paths. Do not add or run automated tests as part of this visual pass.
-- [ ] **Step 5: Commit and push this task.** Use `feat: polish workstation upholstery and pastel lighting` and push the feature branch.
+- [x] **Step 5: Commit and push this task.** Use `feat: polish workstation upholstery and pastel lighting` and push the feature branch.
