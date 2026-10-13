@@ -375,7 +375,7 @@ export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore, p
         <meshBasicMaterial color={lightsOn?"#ffe5aa":"#5b5966"} toneMapped={false}/>
       </mesh>
       <pointLight position={[0,1.29,-1.14]} color="#ffe6bd"
-        intensity={lightsOn?.82:.05} distance={1.15} decay={2}/>
+        intensity={lightsOn?.95:.05} distance={1.15} decay={2}/>
       <mesh position={[0,.695,-.74]}>
         <boxGeometry args={[2.37,.012,.011]}/>
         <meshBasicMaterial color={lightsOn?"#8ce5fb":"#405574"} toneMapped={false}/>

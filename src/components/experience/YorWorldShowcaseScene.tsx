@@ -121,11 +121,11 @@ function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:
         <group key={i} position={[x,y,0]}>
           <mesh position={[0,0,-.003]}>
             <circleGeometry args={[.205,32]}/>
-            <meshBasicMaterial color={color} transparent opacity={lightsOn ? .19 : .025}
+            <meshBasicMaterial color={color} transparent opacity={lightsOn ? .15 : .025}
               blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}/>
           </mesh>
           <mesh geometry={geometry.rim}>
-            <meshBasicMaterial color={lightsOn ? "#f7e3ff" : "#696178"} toneMapped={false}/>
+            <meshBasicMaterial color={lightsOn ? "#e1c9f7" : "#696178"} toneMapped={false}/>
           </mesh>
           <mesh geometry={geometry.core} position={[0,0,.008]}>
             <meshBasicMaterial color={lightsOn ? color : "#322b4b"} toneMapped={false}/>
@@ -186,33 +186,41 @@ function ReferenceGamingChair({ onSelect, onHover }: {
     backWing: new RoundedBoxGeometry(.105,.78,.13,.05,4),
     headrestShell: new RoundedBoxGeometry(.47,.31,.14,.11,5),
     headrest: new RoundedBoxGeometry(.37,.23,.09,.085,5),
-    headrestPatch: new RoundedBoxGeometry(.19,.15,.035,.06,4),
+    headrestPatch: new RoundedBoxGeometry(.13,.055,.014,.024,4),
     lumbar: new RoundedBoxGeometry(.44,.22,.12,.09,5),
     seatShell: new RoundedBoxGeometry(.75,.18,.59,.095,5),
     seat: new RoundedBoxGeometry(.63,.17,.51,.09,5),
     seatWing: new RoundedBoxGeometry(.14,.19,.48,.065,4),
-    seam: new RoundedBoxGeometry(.014,.61,.012,.006,3),
+    cushion: new THREE.SphereGeometry(1,32,24),
     armStem: new RoundedBoxGeometry(.075,.35,.09,.035,4),
     armPad: new RoundedBoxGeometry(.29,.09,.16,.045,5),
     armCap: new RoundedBoxGeometry(.18,.035,.11,.017,4),
     baseBeam: new RoundedBoxGeometry(.80,.065,.10,.032,4),
   }), []);
   const leftPiping = useMemo(() => new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-.285,.91,.177),
-    new THREE.Vector3(-.292,1.13,.177),
-    new THREE.Vector3(-.292,1.52,.177),
-    new THREE.Vector3(-.25,1.74,.15),
+    new THREE.Vector3(-.285,.91,.18),
+    new THREE.Vector3(-.30,1.13,.19),
+    new THREE.Vector3(-.30,1.52,.19),
+    new THREE.Vector3(-.25,1.74,.16),
   ]), []);
   const rightPiping = useMemo(() => new THREE.CatmullRomCurve3([
-    new THREE.Vector3(.285,.91,.177),
-    new THREE.Vector3(.292,1.13,.177),
-    new THREE.Vector3(.292,1.52,.177),
-    new THREE.Vector3(.25,1.74,.15),
+    new THREE.Vector3(.285,.91,.18),
+    new THREE.Vector3(.30,1.13,.19),
+    new THREE.Vector3(.30,1.52,.19),
+    new THREE.Vector3(.25,1.74,.16),
   ]), []);
   const pipeGeometries = useMemo(() => ({
     left: new THREE.TubeGeometry(leftPiping,24,.009,7,false),
     right: new THREE.TubeGeometry(rightPiping,24,.009,7,false),
   }), [leftPiping,rightPiping]);
+  const backSeams = useMemo(() => [-1,1].map(side => {
+    const x = side*.085;
+    const points = [-.29,-.145,0,.145,.29].map(offsetY => {
+      const cushionFront = .18 + .07*Math.sqrt(Math.max(0,1-(x/.24)**2-(offsetY/.46)**2));
+      return new THREE.Vector3(x,1.34+offsetY,cushionFront+.003);
+    });
+    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),32,.004,5,false);
+  }), []);
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
     onSelect("about");
@@ -232,56 +240,76 @@ function ReferenceGamingChair({ onSelect, onHover }: {
       onClick={handleClick} onPointerOver={handleHover} onPointerOut={handlePointerOut}>
       {/* White outer shell and the sculpted blue cushions face the camera. */}
       <mesh geometry={geometry.shell} position={[0,1.32,-.015]} castShadow>
-        <meshStandardMaterial color="#f6f5ff" roughness={.31}/>
+        <meshStandardMaterial color="#f6f5ff" roughness={.62}/>
       </mesh>
       <mesh geometry={geometry.back} position={[0,1.34,.075]} castShadow>
-        <meshStandardMaterial color="#275bc7" roughness={.35}/>
+        <meshStandardMaterial color="#275bc7" roughness={.86} metalness={0}/>
       </mesh>
       {[-1,1].map(side => (
         <mesh key={`back-wing-${side}`} geometry={geometry.backWing}
           position={[side*.275,1.34,.105]} rotation={[0,0,side*-.045]} castShadow>
-          <meshStandardMaterial color={side < 0 ? "#3474e7" : "#194caf"} roughness={.34}/>
+          <meshStandardMaterial color={side < 0 ? "#3474e7" : "#194caf"} roughness={.84} metalness={0}/>
+        </mesh>
+      ))}
+      <mesh geometry={geometry.cushion} position={[0,1.34,.18]} scale={[.24,.46,.07]} castShadow>
+        <meshStandardMaterial color="#3976ce" roughness={.9} metalness={0}/>
+      </mesh>
+      {[-1,1].map(side => (
+        <mesh key={`back-bolster-${side}`} geometry={geometry.cushion}
+          position={[side*.255,1.34,.14]} scale={[.065,.37,.062]} castShadow>
+          <meshStandardMaterial color={side < 0 ? "#4b85dc" : "#2d62bd"} roughness={.9} metalness={0}/>
         </mesh>
       ))}
       <mesh geometry={geometry.headrestShell} position={[0,1.79,.065]} castShadow>
-        <meshStandardMaterial color="#f7f6ff" roughness={.3}/>
+        <meshStandardMaterial color="#f7f6ff" roughness={.62}/>
       </mesh>
       <mesh geometry={geometry.headrest} position={[0,1.80,.15]} castShadow>
-        <meshStandardMaterial color="#3177ec" roughness={.33}/>
+        <meshStandardMaterial color="#3177ec" roughness={.86} metalness={0}/>
       </mesh>
-      <mesh geometry={geometry.headrestPatch} position={[0,1.80,.205]}>
-        <meshStandardMaterial color="#b8e7ff" roughness={.3}/>
+      <mesh geometry={geometry.cushion} position={[0,1.80,.195]} scale={[.185,.105,.05]} castShadow>
+        <meshStandardMaterial color="#3f83e4" roughness={.9} metalness={0}/>
+      </mesh>
+      <mesh geometry={geometry.headrestPatch} position={[0,1.80,.25]}>
+        <meshStandardMaterial color="#b8e7ff" roughness={.82} metalness={0}/>
       </mesh>
       <mesh geometry={geometry.lumbar} position={[0,1.035,.16]} castShadow>
-        <meshStandardMaterial color="#a9dcff" roughness={.4}/>
+        <meshStandardMaterial color="#a9dcff" roughness={.88} metalness={0}/>
+      </mesh>
+      <mesh geometry={geometry.cushion} position={[0,1.035,.207]} scale={[.205,.115,.07]} castShadow>
+        <meshStandardMaterial color="#91c9ee" roughness={.92} metalness={0}/>
       </mesh>
       <mesh geometry={pipeGeometries.left}>
-        <meshStandardMaterial color="#a7eaff" metalness={.12} roughness={.28}/>
+        <meshStandardMaterial color="#a7eaff" metalness={0} roughness={.52}/>
       </mesh>
       <mesh geometry={pipeGeometries.right}>
-        <meshStandardMaterial color="#a7eaff" metalness={.12} roughness={.28}/>
+        <meshStandardMaterial color="#a7eaff" metalness={0} roughness={.52}/>
       </mesh>
-      {[-1,1].map(side => (
-        <mesh key={`back-seam-${side}`} geometry={geometry.seam}
-          position={[side*.075,1.34,.133]}>
-          <meshStandardMaterial color="#1a469e" roughness={.42}/>
+      {backSeams.map((seam,index) => (
+        <mesh key={`back-seam-${index}`} geometry={seam}>
+          <meshStandardMaterial color="#2058ad" roughness={.9} metalness={0}/>
         </mesh>
       ))}
 
       <mesh geometry={geometry.seatShell} position={[0,.705,.12]} castShadow>
-        <meshStandardMaterial color="#f4f3ff" roughness={.33}/>
+        <meshStandardMaterial color="#f4f3ff" roughness={.62}/>
       </mesh>
       <mesh geometry={geometry.seat} position={[0,.79,.145]} castShadow>
-        <meshStandardMaterial color="#2463d2" roughness={.37}/>
+        <meshStandardMaterial color="#2463d2" roughness={.86} metalness={0}/>
       </mesh>
       {[-1,1].map(side => (
         <mesh key={`seat-wing-${side}`} geometry={geometry.seatWing}
           position={[side*.315,.795,.12]} rotation={[0,0,side*.06]} castShadow>
-          <meshStandardMaterial color={side < 0 ? "#4384ee" : "#1d54bb"} roughness={.35}/>
+          <meshStandardMaterial color={side < 0 ? "#4384ee" : "#1d54bb"} roughness={.86} metalness={0}/>
         </mesh>
       ))}
-      <mesh geometry={geometry.seat} scale={[.58,.12,.78]} position={[0,.886,.13]}>
-        <meshStandardMaterial color="#3477e5" roughness={.43}/>
+      {[-1,1].map(side => (
+        <mesh key={`seat-bolster-${side}`} geometry={geometry.cushion}
+          position={[side*.30,.81,.14]} scale={[.07,.085,.20]} castShadow>
+          <meshStandardMaterial color={side < 0 ? "#4384ee" : "#1d54bb"} roughness={.9} metalness={0}/>
+        </mesh>
+      ))}
+      <mesh geometry={geometry.cushion} position={[0,.84,.19]} scale={[.30,.10,.26]} castShadow>
+        <meshStandardMaterial color="#3477d2" roughness={.92} metalness={0}/>
       </mesh>
 
       {/* Cushioned armrests, supported by white and metallic brackets. */}
@@ -291,7 +319,7 @@ function ReferenceGamingChair({ onSelect, onHover }: {
             <meshStandardMaterial color="#e5e8f8" metalness={.17} roughness={.32}/>
           </mesh>
           <mesh geometry={geometry.armPad} position={[0,1.045,.035]} castShadow>
-            <meshStandardMaterial color="#3479eb" roughness={.34}/>
+            <meshStandardMaterial color="#3479eb" roughness={.82} metalness={0}/>
           </mesh>
           <mesh geometry={geometry.armCap} position={[0,1.097,.035]}>
             <meshStandardMaterial color="#7bcfff" roughness={.3}/>
@@ -500,20 +528,20 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
   return (
     <>
       <color attach="background" args={["#aaa8d0"]}/>
-      <ambientLight intensity={.32} color="#fff4ff"/>
-      <hemisphereLight args={["#fff1ff","#31335c",.44]}/>
-      <directionalLight position={[-3.5,6,4]} intensity={1.05} color="#fff3fb" castShadow
+      <ambientLight intensity={.24} color="#f5eaff"/>
+      <hemisphereLight args={["#eadcff","#252c62",.52]}/>
+      <directionalLight position={[-3.5,6,4]} intensity={.84} color="#ffe8fa" castShadow
         shadow-mapSize-width={2048} shadow-mapSize-height={2048}
         shadow-bias={-.0004} shadow-normalBias={.035}
         shadow-camera-near={.1} shadow-camera-far={12}
         shadow-camera-left={-4} shadow-camera-right={4}
         shadow-camera-top={4} shadow-camera-bottom={-4}/>
-      <pointLight position={[-.35,1.95,-1.2]} color="#ec84ff"
-        intensity={lightsOn ? 1.15 : .06} distance={2.8} decay={2}/>
-      <pointLight position={[1.15,1.2,-.1]} color="#52caff"
-        intensity={lightsOn ? .72 : .04} distance={2.2} decay={2}/>
-      <pointLight position={[1.42,1.05,.34]} color="#7784ff"
-        intensity={lightsOn ? .82 : .035} distance={2.7} decay={2}/>
+      <pointLight position={[-.35,1.95,-1.2]} color="#d997ff"
+        intensity={lightsOn ? 1.05 : .06} distance={2.8} decay={2}/>
+      <pointLight position={[1.15,1.2,-.1]} color="#73dcff"
+        intensity={lightsOn ? .92 : .04} distance={2.2} decay={2}/>
+      <pointLight position={[1.42,1.05,.34]} color="#ffb9d7"
+        intensity={lightsOn ? .65 : .035} distance={2.7} decay={2}/>
       <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
       <StudioReferenceDressing lightsOn={lightsOn} onOpenComputer={() => onInteract("monitor")}
         onExplore={() => onSelect("lab")} pcX={1.02} includeFloorPlant showBoomMicrophone/>
