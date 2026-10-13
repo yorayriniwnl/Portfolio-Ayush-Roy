@@ -57,7 +57,7 @@ function GlowingFan({ x, y, color, enabled }: { x:number; y:number; color:string
 
 function Controller({ y, color }: { y:number; color:string }) {
   return (
-    <group position={[1.33,y,-.875]} rotation={[0,0,-.1]} scale={1.25}>
+    <group position={[1.30,y,-.99]} rotation={[0,-Math.PI/2,-.1]} scale={1.25}>
       <mesh>
         <boxGeometry args={[.20,.076,.04]}/>
         <meshStandardMaterial color="#fbf8ff" roughness={.32}/>
@@ -124,7 +124,7 @@ function ShelfBooks() {
 
 function WallHeadset() {
   return (
-    <group name="wall-headset" position={[1.25,1.35,-.84]}>
+    <group name="wall-headset" position={[1.25,1.28,-1.25]} rotation={[0,-Math.PI/2,0]}>
       <mesh>
         <torusGeometry args={[.15,.019,10,32,Math.PI]}/>
         <meshStandardMaterial color="#24213f" metalness={.24} roughness={.32}/>
@@ -345,8 +345,8 @@ export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore, p
       {/* A pair of raised white gamepads with genuine depth, in front of
           the right-wall pegboard rather than flat colored blockout disks. */}
       <group onClick={event => {event.stopPropagation();onExplore();}}>
-        <Controller y={1.86} color="#e984ed"/>
-        <Controller y={1.60} color="#72ccff"/>
+        <Controller y={1.66} color="#e984ed"/>
+        <Controller y={1.40} color="#72ccff"/>
         <WallHeadset/>
       </group>
 

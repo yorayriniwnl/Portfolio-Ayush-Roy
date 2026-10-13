@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
@@ -452,6 +452,15 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
   lightsOn: boolean;
 }) {
   const { camera, size } = useThree();
+  const [wideDesktop, setWideDesktop] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(min-width: 1600px)").matches,
+  );
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 1600px)");
+    const update = () => setWideDesktop(query.matches);
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
   const authoredScene = workstationDetail;
   const sample = useMemo(() => {
     const referenceRoot = authoredScene.scene.getObjectByName("workstation-sample-root");
@@ -545,11 +554,19 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
   }, [authoredScene.scene]);
 
   const portrait = size.width < 800;
-  const cameraName = portrait ? "Camera_HomeMobile" : size.width >= 1600 ? "Camera_HomeDesktop" : "Camera_ReferenceMatch";
+  const cameraName = portrait ? "Camera_HomeMobile" : wideDesktop ? "Camera_HomeDesktop" : "Camera_ReferenceMatch";
   const sourcePose = cameraPoses[cameraName];
   const pose = sourcePose
     ? {
       ...sourcePose,
+      quaternion: portrait
+        ? sourcePose.quaternion
+        : sourcePose.quaternion.clone().multiply(
+          new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(1,0,0),
+            THREE.MathUtils.degToRad(cameraName === "Camera_ReferenceMatch" ? 10 : 6),
+          ),
+        ),
       fov: portrait
         ? Math.max(sourcePose.fov, 54)
         : cameraName === "Camera_ReferenceMatch"
