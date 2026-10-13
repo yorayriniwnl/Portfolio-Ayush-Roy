@@ -377,7 +377,8 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
     root.traverse((node) => {
       if (/^(ivy_leaf_|pothos_leaf_)/.test(node.name)
         || node.name === "foreground_floor_plant"
-        || /^peg_controller_/.test(node.name)) {
+        || /^peg_controller_/.test(node.name)
+        || ["mic_boom_lower", "mic_boom_upper", "mic_desk_clamp", "mic_pop_filter", "talks-microphone"].includes(node.name)) {
         node.visible = false;
       }
       if ((node as THREE.Light).isLight) {
@@ -515,7 +516,7 @@ function AuthoredWorkstationView({ workstationDetail, onSelect, onInteract, onHo
         intensity={lightsOn ? .82 : .035} distance={2.7} decay={2}/>
       <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
       <StudioReferenceDressing lightsOn={lightsOn} onOpenComputer={() => onInteract("monitor")}
-        onExplore={() => onSelect("lab")} pcX={1.02} includeFloorPlant/>
+        onExplore={() => onSelect("lab")} pcX={1.02} includeFloorPlant showBoomMicrophone/>
       {sample.root && <primitive object={sample.root} onClick={choose}
         onPointerOver={hover}
         onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>}

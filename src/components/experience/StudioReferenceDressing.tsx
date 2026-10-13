@@ -57,7 +57,7 @@ function GlowingFan({ x, y, color, enabled }: { x:number; y:number; color:string
 
 function Controller({ y, color }: { y:number; color:string }) {
   return (
-    <group position={[1.33,y,-.875]} rotation={[0,0,-.1]}>
+    <group position={[1.33,y,-.875]} rotation={[0,0,-.1]} scale={1.25}>
       <mesh>
         <boxGeometry args={[.20,.076,.04]}/>
         <meshStandardMaterial color="#fbf8ff" roughness={.32}/>
@@ -190,7 +190,7 @@ function HangingVine({ x,y,count,phase }: { x:number; y:number; count:number; ph
 
 function FloorPlant() {
   return (
-    <group name="reference-floor-plant" position={[1.16,0,.10]} scale={.82}>
+    <group name="reference-floor-plant" position={[-1.0,0,-.65]} scale={.82}>
       <mesh position={[0,.23,0]} castShadow receiveShadow>
         <cylinderGeometry args={[.16,.12,.38,24,1,true]}/>
         <meshStandardMaterial color="#d8d0ef" metalness={.06} roughness={.27} side={THREE.DoubleSide}/>
@@ -209,23 +209,114 @@ function FloorPlant() {
       </mesh>
       {Array.from({length:11},(_,index) => {
         const angle = index * 2.39996;
-        const height = .36 + (index % 4) * .065;
-        const reach = .12 + (index % 3) * .035;
+        const height = .31 + (index % 4) * .055;
+        const reach = .15 + (index % 3) * .035;
         const color = index % 3 === 0 ? "#347c57" : index % 3 === 1 ? "#58a16b" : "#2f694d";
         const x = Math.cos(angle)*reach;
         const z = Math.sin(angle)*reach;
+        const width = .105 + (index % 3) * .012;
         return <group key={index} position={[Math.cos(angle)*.035,.41,Math.sin(angle)*.035]}>
           <mesh position={[x*.42,height*.48,z*.42]} rotation={[0,0,-Math.cos(angle)*.18]}>
             <cylinderGeometry args={[.005,.008,height,7]}/>
             <meshStandardMaterial color="#527f55" roughness={.82}/>
           </mesh>
-          <mesh position={[x,height*.69,z]} rotation={[Math.cos(angle)*.18,angle,-Math.sin(angle)*.16]}
-            scale={[.065,.18+(index%3)*.015,.026]} castShadow>
+          <mesh position={[x,height*.69,z]} rotation={[.22,angle,-Math.cos(angle)*.34]}
+            scale={[width,.082+(index%2)*.008,.024]} castShadow>
             <sphereGeometry args={[1,14,10]}/>
             <meshStandardMaterial color={color} roughness={.62} side={THREE.DoubleSide}/>
           </mesh>
         </group>;
       })}
+    </group>
+  );
+}
+
+type Point3 = [number,number,number];
+
+function BoomArmLink({ from, to }: { from:Point3; to:Point3 }) {
+  const start = new THREE.Vector3(...from);
+  const end = new THREE.Vector3(...to);
+  const direction = end.clone().sub(start);
+  const length = direction.length();
+  const midpoint = start.clone().add(end).multiplyScalar(.5);
+  const orientation = new THREE.Quaternion().setFromUnitVectors(
+    new THREE.Vector3(0,1,0), direction.normalize(),
+  );
+
+  return (
+    <group position={[midpoint.x,midpoint.y,midpoint.z]} quaternion={orientation}>
+      {[-1,1].map(side => (
+        <mesh key={side} position={[0,0,side*.022]} castShadow>
+          <cylinderGeometry args={[.012,.012,length,10]}/>
+          <meshStandardMaterial color="#27263b" metalness={.48} roughness={.38}/>
+        </mesh>
+      ))}
+      {[-1,1].map(side => (
+        <mesh key={`brace-${side}`} position={[0,side*(length/2-.025),0]} castShadow>
+          <boxGeometry args={[.045,.014,.052]}/>
+          <meshStandardMaterial color="#413d59" metalness={.38} roughness={.4}/>
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function BoomMicrophone() {
+  const base:Point3 = [-1.20,.75,-.76];
+  const elbow:Point3 = [-1.02,1.01,-.81];
+  const mount:Point3 = [-.84,1.12,-.87];
+  const capsule:Point3 = [-.84,1.02,-.83];
+
+  return (
+    <group name="reference-boom-microphone">
+      <group position={base}>
+        <mesh position={[0,.015,.015]} castShadow>
+          <boxGeometry args={[.12,.055,.11]}/>
+          <meshStandardMaterial color="#37344d" metalness={.42} roughness={.42}/>
+        </mesh>
+        <mesh position={[0,-.06,.045]} castShadow>
+          <boxGeometry args={[.065,.105,.045]}/>
+          <meshStandardMaterial color="#27263b" metalness={.48} roughness={.4}/>
+        </mesh>
+        <mesh position={[0,-.12,.025]} castShadow>
+          <boxGeometry args={[.10,.028,.095]}/>
+          <meshStandardMaterial color="#37344d" metalness={.42} roughness={.42}/>
+        </mesh>
+        <mesh position={[0,-.13,.085]} rotation={[Math.PI/2,0,0]} castShadow>
+          <cylinderGeometry args={[.014,.014,.075,12]}/>
+          <meshStandardMaterial color="#b9b6d0" metalness={.68} roughness={.26}/>
+        </mesh>
+        <mesh position={[0,-.175,.085]} castShadow>
+          <cylinderGeometry args={[.025,.025,.012,12]}/>
+          <meshStandardMaterial color="#77738f" metalness={.62} roughness={.31}/>
+        </mesh>
+      </group>
+
+      <BoomArmLink from={base} to={elbow}/>
+      <BoomArmLink from={elbow} to={mount}/>
+      {[base,elbow,mount].map((point,index) => (
+        <mesh key={index} position={point} castShadow>
+          <sphereGeometry args={[index===1 ? .032 : .027,14,12]}/>
+          <meshStandardMaterial color="#aaa7c1" metalness={.62} roughness={.3}/>
+        </mesh>
+      ))}
+
+      <mesh position={mount} rotation={[Math.PI/2,0,0]} castShadow>
+        <torusGeometry args={[.078,.009,8,24]}/>
+        <meshStandardMaterial color="#aaa7c1" metalness={.54} roughness={.32}/>
+      </mesh>
+      <mesh position={capsule} rotation={[.16,0,-.12]} castShadow>
+        <capsuleGeometry args={[.043,.17,5,14]}/>
+        <meshStandardMaterial color="#201e31" metalness={.22} roughness={.4}/>
+      </mesh>
+      <mesh position={[capsule[0],capsule[1]+.055,capsule[2]]} rotation={[.16,0,-.12]}>
+        <cylinderGeometry args={[.039,.039,.016,14]}/>
+        <meshStandardMaterial color="#69657e" metalness={.38} roughness={.36}/>
+      </mesh>
+      <mesh position={[capsule[0],capsule[1]-.042,capsule[2]+.006]} rotation={[Math.PI/2,0,0]}>
+        <torusGeometry args={[.046,.006,6,20]}/>
+        <meshBasicMaterial color="#a39dbd" toneMapped={false}/>
+      </mesh>
     </group>
   );
 }
@@ -236,12 +327,13 @@ const SHELF_EDGES = [
   { x: -.50, y: 1.836, width: .80 },
 ] as const;
 
-export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore, pcX=1.02, includeFloorPlant=false }: {
+export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore, pcX=1.02, includeFloorPlant=false, showBoomMicrophone=false }: {
   lightsOn:boolean;
   onOpenComputer:()=>void;
   onExplore:()=>void;
   pcX?:number;
   includeFloorPlant?:boolean;
+  showBoomMicrophone?:boolean;
 }) {
   return (
     <group name="reference-detailed-room-dressing">
@@ -276,6 +368,7 @@ export function StudioReferenceDressing({ lightsOn, onOpenComputer, onExplore, p
       {TRAILS.map(vine=><HangingVine key={vine.x}
         x={vine.x} y={vine.y} count={vine.count} phase={vine.phase}/>)}
       {includeFloorPlant && <FloorPlant/>}
+      {showBoomMicrophone && <BoomMicrophone/>}
 
       <mesh position={[0,1.33,-1.30]}>
         <boxGeometry args={[.57,.014,.021]}/>
