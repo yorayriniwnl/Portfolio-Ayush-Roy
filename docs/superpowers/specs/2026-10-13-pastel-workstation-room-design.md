@@ -1,6 +1,6 @@
 # Pastel Workstation Room — Design Specification
 
-**Status:** Draft for user review
+**Status:** Approved for implementation
 **Repository:** `Portfolio-Ayush-Roy`
 **Branch:** `feat/reference-framed-pastel-room-20261011`
 **Baseline:** `0598c7f3413a05708adca66fb2166a040d583c1d`
