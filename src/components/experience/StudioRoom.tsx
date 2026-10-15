@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Component, useCallback, useEffect, useReducer, useRef, useState, type ReactNode } from "react";
 import type { StudioTarget } from "./StudioScene";
 import type { StudioObjectAction } from "./YorWorldShowcaseScene";
+import { isWalkable, type WalkDirection, type WalkPoint, type WalkPose } from "./StudioWalk";
 import { recruiterProjects } from "@/content/project-registry";
 import { initialStudioLifecycle, studioIsActive, studioLifecycle, studioShouldMount, studioStatus } from "./studio-lifecycle";
 
@@ -48,6 +49,7 @@ export function StudioRoom() {
   const viewport = useRef<HTMLDivElement>(null);
   const consoleButton = useRef<HTMLButtonElement>(null);
   const consoleCloseButton = useRef<HTMLButtonElement>(null);
+  const walkToggleButton = useRef<HTMLButtonElement>(null);
   const [selected, setSelected] = useState<StudioTarget>("work");
   const [lifecycle, dispatch] = useReducer(studioLifecycle, initialStudioLifecycle);
   const [lightsOn, setLightsOn] = useState(true);
@@ -57,6 +59,10 @@ export function StudioRoom() {
   const [secretFound, setSecretFound] = useState(false);
   const [consoleOpen, setConsoleOpen] = useState(false);
   const [hoveredObject, setHoveredObject] = useState<StudioObjectAction | null>(null);
+  const [roaming, setRoaming] = useState(false);
+  const [touchDirection, setTouchDirection] = useState<WalkDirection | null>(null);
+  const [walkTarget, setWalkTarget] = useState<(WalkPoint & { id: number }) | null>(null);
+  const walkTargetId = useRef(0);
   const [introSequence, setIntroSequence] = useState(0);
   const [introActive, setIntroActive] = useState(false);
   const [greetingSequence, setGreetingSequence] = useState(0);
@@ -66,19 +72,53 @@ export function StudioRoom() {
     dispatch({ type: "failed", attempt });
     setIntroActive(false);
     setHoveredObject(null);
+    setRoaming(false);
+    setTouchDirection(null);
+    setWalkTarget(null);
   }, [attempt]);
   const finishIntro = useCallback(() => setIntroActive(false), []);
   const skipIntro = useCallback(() => { setIntroSequence(0); setIntroActive(false); }, []);
   const toggleLights = useCallback(() => setLightsOn((value)=>!value), []);
+  const exitWalk = useCallback(() => {
+    setRoaming(false);
+    setTouchDirection(null);
+    setWalkTarget(null);
+  }, []);
   const selectTarget = useCallback((target: StudioTarget) => {
     setSelected(target);
     skipIntro();
     setConsoleOpen(false);
+    exitWalk();
     if (target === "about") setGreetingSequence((value) => value + 1);
-  }, [skipIntro]);
+  }, [exitWalk, skipIntro]);
   const playIntro = useCallback(() => {
     setSelected("work"); setConsoleOpen(false);
+    exitWalk();
     setIntroSequence((value) => value + 1); setIntroActive(true);
+  }, [exitWalk]);
+  const toggleWalk = useCallback(() => {
+    setWalkTarget(null);
+    setTouchDirection(null);
+    setIntroSequence(0);
+    setIntroActive(false);
+    setRoaming((current) => !current);
+  }, []);
+  const walkToPoint = useCallback((point: WalkPoint) => {
+    const id = ++walkTargetId.current;
+    setIntroSequence(0);
+    setIntroActive(false);
+    setConsoleOpen(false);
+    setRoaming(true);
+    setTouchDirection(null);
+    setWalkTarget({ ...point, id });
+  }, []);
+  const reportWalk = useCallback((pose: WalkPose) => {
+    if (!root.current) return;
+    root.current.dataset.walkX = pose.x.toFixed(3);
+    root.current.dataset.walkZ = pose.z.toFixed(3);
+    root.current.dataset.walkYaw = pose.yaw.toFixed(4);
+    root.current.dataset.walkPitch = pose.pitch.toFixed(4);
+    root.current.dataset.walkable = String(isWalkable(pose.x, pose.z));
   }, []);
   const closeConsole = useCallback(() => { setConsoleOpen(false); window.requestAnimationFrame(() => consoleButton.current?.focus()); }, []);
   const activateObject = useCallback((object: StudioObjectAction) => {
@@ -95,11 +135,23 @@ export function StudioRoom() {
       setSelected("work");
       skipIntro();
       setConsoleOpen(true);
+      setTouchDirection(null);
     }
-    if (object === "avatar") selectTarget("about");
-    if (object === "door") selectTarget("contact");
-    if (object === "skills") selectTarget("lab");
-  }, [selectTarget, skipIntro]);
+    if (object === "avatar") {
+      if (roaming) {
+        setSelected("about");
+        setGreetingSequence((value) => value + 1);
+      } else selectTarget("about");
+    }
+    if (object === "door") {
+      if (roaming) setSelected("contact");
+      else selectTarget("contact");
+    }
+    if (object === "skills") {
+      if (roaming) setSelected("lab");
+      else selectTarget("lab");
+    }
+  }, [roaming, selectTarget, skipIntro]);
   useEffect(() => {
     if (!consoleOpen) return;
     const frame = window.requestAnimationFrame(() => consoleCloseButton.current?.focus());
@@ -109,6 +161,18 @@ export function StudioRoom() {
     window.addEventListener("keydown", onKey);
     return () => { window.cancelAnimationFrame(frame); window.removeEventListener("keydown", onKey); };
   }, [consoleOpen, closeConsole]);
+
+  useEffect(() => {
+    if (!roaming || consoleOpen) return;
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || !root.current?.contains(document.activeElement)) return;
+      event.preventDefault();
+      exitWalk();
+      window.requestAnimationFrame(() => walkToggleButton.current?.focus());
+    };
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, [consoleOpen, exitWalk, roaming]);
 
   useEffect(() => {
     const handleStudioLink = () => { if (window.location.hash === "#studio") playIntro(); };
@@ -121,12 +185,14 @@ export function StudioRoom() {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => {
       dispatch({ type: "motion", allowed: !media.matches });
-      if (media.matches) { skipIntro(); setHoveredObject(null); }
+      if (media.matches) {
+        skipIntro(); setHoveredObject(null); exitWalk();
+      }
     };
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
-  }, [skipIntro]);
+  }, [exitWalk, skipIntro]);
 
   useEffect(() => {
     // WebGL can be absent even when motion is allowed (software rendering,
@@ -149,7 +215,9 @@ export function StudioRoom() {
     if (typeof IntersectionObserver === "undefined") {
       const update = () => {
         const bounds = viewport.current?.getBoundingClientRect();
-        dispatch({ type: "viewport", visible: Boolean(bounds && bounds.bottom > 0 && bounds.top < window.innerHeight && bounds.right > 0 && bounds.left < window.innerWidth) });
+        const visible = Boolean(bounds && bounds.bottom > 0 && bounds.top < window.innerHeight && bounds.right > 0 && bounds.left < window.innerWidth);
+        if (!visible) setTouchDirection(null);
+        dispatch({ type: "viewport", visible });
       };
       update();
       window.addEventListener("scroll", update, { passive: true });
@@ -157,7 +225,9 @@ export function StudioRoom() {
       return () => { window.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
     }
     const observer = new IntersectionObserver((entries) => {
-      dispatch({ type: "viewport", visible: entries.some((entry) => entry.isIntersecting && entry.intersectionRatio > 0) });
+      const visible = entries.some((entry) => entry.isIntersecting && entry.intersectionRatio > 0);
+      if (!visible) setTouchDirection(null);
+      dispatch({ type: "viewport", visible });
     }, { threshold: 0 });
     observer.observe(viewport.current);
     return () => observer.disconnect();
@@ -165,9 +235,13 @@ export function StudioRoom() {
 
   useEffect(() => {
     const update = () => dispatch({ type: "document", visible: !document.hidden });
+    const releaseTouch = () => {
+      if (document.hidden) setTouchDirection(null);
+      update();
+    };
     update();
-    document.addEventListener("visibilitychange", update);
-    return () => document.removeEventListener("visibilitychange", update);
+    document.addEventListener("visibilitychange", releaseTouch);
+    return () => document.removeEventListener("visibilitychange", releaseTouch);
   }, []);
 
   // Scene-only mode lets the workstation art breathe; Escape restores its controls.
@@ -190,7 +264,7 @@ export function StudioRoom() {
     unavailable: "STUDIO UNAVAILABLE", "reduced-motion": "STATIC STUDIO / REDUCED MOTION",
   }[status];
   return (
-    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(lifecycle.failed)} data-scene-status={status} data-scene-active={String(active)} data-intro-active={String(introActive)} data-greeting-sequence={greetingSequence} data-intro-sequence={introSequence} data-blinds-open={String(blindsOpen)} data-painting-beat={paintingBeat} data-console-open={String(consoleOpen)} data-secret-found={String(secretFound)} data-photo-mode={String(photoMode)}>
+    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(lifecycle.failed)} data-scene-status={status} data-scene-active={String(active)} data-intro-active={String(introActive)} data-greeting-sequence={greetingSequence} data-intro-sequence={introSequence} data-blinds-open={String(blindsOpen)} data-painting-beat={paintingBeat} data-console-open={String(consoleOpen)} data-secret-found={String(secretFound)} data-photo-mode={String(photoMode)} data-roaming={String(roaming)} data-walk-target-id={walkTarget?.id ?? ""}>
       <div className="yor-studio__topline">
         <span role="status"><i className="yor-studio__pulse" aria-hidden="true"/> {statusLabel} / STUDIO_001</span>
         <div className="yor-studio__utilities">
@@ -216,10 +290,10 @@ export function StudioRoom() {
         <button type="button" className="yor-studio__photo-toggle"
           aria-pressed={photoMode}
           aria-label={photoMode ? "Exit distraction-free room view" : "View the full studio without interface overlays"}
-          onClick={() => { if (!photoMode) { setConsoleOpen(false); setHoveredObject(null); } setPhotoMode(value => !value); }}>
+          onClick={() => { if (!photoMode) { setConsoleOpen(false); setHoveredObject(null); exitWalk(); } setPhotoMode(value => !value); }}>
           {photoMode ? "↙ EXIT SCENE VIEW" : "✧ FULL SCENE"}
         </button>
-        {shouldMount && <StudioErrorBoundary key={attempt} onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} greetingSequence={greetingSequence} active={active} onReady={announceReady} onError={reportFailed} onIntroComplete={finishIntro}/></StudioErrorBoundary>}
+        {shouldMount && <StudioErrorBoundary key={attempt} onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} onWalkTo={walkToPoint} onWalkStep={reportWalk} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} greetingSequence={greetingSequence} active={active} onReady={announceReady} onError={reportFailed} onIntroComplete={finishIntro} roaming={roaming} paused={!active || consoleOpen} walkTarget={walkTarget} touchDirection={consoleOpen ? null : touchDirection}/></StudioErrorBoundary>}
         {hoveredObject && !consoleOpen && <div className="yor-studio__hover-label" aria-hidden="true">
           {hoveredObject === "monitor" ? "OPEN PROJECT LAUNCHER" : hoveredObject === "painting" ? "TILT WALL ART" :
             hoveredObject === "blinds" ? "TOGGLE WINDOW BLINDS" : hoveredObject === "lights" ? "TOGGLE STUDIO LIGHTS" :
@@ -236,12 +310,42 @@ export function StudioRoom() {
           </div>
           <div className="yor-studio__console-foot"><span>06 SYSTEMS / DIRECT ACCESS</span><Link href="/projects">ALL PROJECTS ↗</Link></div>
         </section>}
+        {roaming && !consoleOpen && <div className="yor-studio__touch-pad" role="group" aria-label="Directional controls for walking through the room">
+          {(["forward", "left", "back", "right"] as const).map((direction) => (
+            <button key={direction} type="button" aria-label={`Walk ${direction}`}
+              className={`yor-studio__touch-${direction}`} aria-pressed={touchDirection === direction}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                setTouchDirection(direction);
+                try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* The held direction still works without capture. */ }
+              }}
+              onPointerUp={() => setTouchDirection(null)}
+              onPointerCancel={() => setTouchDirection(null)}
+              onLostPointerCapture={() => setTouchDirection(null)}
+              onKeyDown={(event) => {
+                if (event.key === " " || event.key === "Enter") {
+                  event.preventDefault();
+                  setTouchDirection(direction);
+                }
+              }}
+              onKeyUp={() => setTouchDirection(null)}
+              onBlur={() => setTouchDirection(null)}>
+              {direction === "forward" ? "↑" : direction === "left" ? "←" : direction === "back" ? "↓" : "→"}
+            </button>
+          ))}
+        </div>}
         <div className="yor-studio__hud" aria-hidden="true">
-          <span>{roomReady ? "INTERACTIVE STUDIO" : status === "loading" ? "PREPARING THE ROOM" : "STATIC STUDIO"}</span><span>{roomReady ? "CLICK OBJECTS · CHANGE CAMERA ANGLES ↗" : "OPEN WORKSTATION TO EXPLORE PROJECTS ↗"}</span>
+          <span>{roaming ? "FREE ROAM / FIRST PERSON" : roomReady ? "INTERACTIVE STUDIO" : status === "loading" ? "PREPARING THE ROOM" : "STATIC STUDIO"}</span>
+          <span>{roaming ? "WASD / ARROWS MOVE · DRAG LOOK · CLICK FLOOR TO WALK" : roomReady ? "CLICK OBJECTS · CHANGE CAMERA ANGLES ↗" : "OPEN WORKSTATION TO EXPLORE PROJECTS ↗"}</span>
         </div>
         <div className="yor-studio__corner yor-studio__corner--tl"/><div className="yor-studio__corner yor-studio__corner--br"/>
       </div>
       <div className="yor-studio__actions" aria-label="Interactive room controls">
+        <button ref={walkToggleButton} type="button" className="yor-studio__walk-toggle"
+          aria-pressed={roaming} aria-label={roaming ? "Exit walk mode and return to the cinematic camera" : "Walk freely around the 3D room using WASD or touch"}
+          disabled={!roomReady || lifecycle.motionAllowed !== true || lifecycle.failed} onClick={toggleWalk}>
+          <span aria-hidden="true">⌖</span> {roaming ? "EXIT WALK MODE" : "WALK THE ROOM"}
+        </button>
         <button ref={consoleButton} type="button" onClick={() => activateObject("monitor")} aria-expanded={consoleOpen} aria-controls="yor-room-console"><span aria-hidden="true">⌘</span> OPEN WORKSTATION</button>
         <button type="button" disabled={!roomReady} onClick={() => activateObject("blinds")} aria-pressed={!blindsOpen}><span aria-hidden="true">◪</span> BLINDS {blindsOpen ? "OPEN" : "CLOSED"}</button>
         <button type="button" disabled={!roomReady} onClick={() => activateObject("painting")}><span aria-hidden="true">✳</span> TILT ART</button>
@@ -262,7 +366,7 @@ export function StudioRoom() {
           <Link href={selectedItem.href} aria-label={selectedItem.cta}>{selectedItem.cta} <span aria-hidden="true">↗</span></Link>
         </div>
       </div>
-      <p className="yor-studio__access-note">Explore the workstation launcher, physical blinds, art and avatar. Click room objects or use these accessible buttons. Every project remains readable without 3D.</p>
+      <p className="yor-studio__access-note">Explore the workstation launcher, physical blinds, art and avatar. Click room objects or use these accessible buttons. Once the room is ready, click its floor or choose Walk the Room. Use W/A/S/D or arrow keys, drag to look, and hold Shift to move faster. Escape returns to the selected camera view. On touchscreens, use the directional pad. Every project remains readable without 3D.</p>
     </div>
   );
 }

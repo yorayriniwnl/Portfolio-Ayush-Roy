@@ -481,9 +481,111 @@ try {
   report.rendering.referenceFraming = referenceFraming;
   await capture(cdp, outputDir, "desktop-hero");
 
+  activeScenario = "bounded studio walk mode, keyboard, drag look, click-to-move and camera return";
+  await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.click();true`);
+  const walkEntered = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.roaming === 'true' &&
+     document.querySelector('.yor-studio')?.dataset.walkable === 'true'`,
+    { timeoutMs:3000, description:"walk mode starts at a safe point inside the room" });
+  assert(walkEntered.value, "Walk mode did not initialize a safe camera pose");
+  const walkBefore = await cdp.evaluate(`(() => {
+    const room=document.querySelector('.yor-studio');
+    return {x:Number(room.dataset.walkX),z:Number(room.dataset.walkZ)};
+  })()`);
+  await cdp.evaluate(`(() => {
+    window.__qaWalkKeys=[];
+    window.addEventListener("keydown", event=>{if(["w","W","Shift"].includes(event.key))window.__qaWalkKeys.push(["down",event.key,event.repeat])});
+    window.addEventListener("keyup", event=>{if(["w","W","Shift"].includes(event.key))window.__qaWalkKeys.push(["up",event.key,event.repeat])});
+    window.addEventListener("blur", ()=>window.__qaWalkKeys.push(["blur"]));
+  })()`);
+  const walkRafBefore = await cdp.evaluate(`window.__qaRafCalls || 0`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.focus();true`);
+  await cdp.send("Input.dispatchKeyEvent",{type:"keyDown",key:"w",code:"KeyW",windowsVirtualKeyCode:87,nativeVirtualKeyCode:87});
+  await delay(450);
+  await cdp.send("Input.dispatchKeyEvent",{type:"keyUp",key:"w",code:"KeyW",windowsVirtualKeyCode:87,nativeVirtualKeyCode:87});
+  await delay(160);
+  const walkAfter = await cdp.evaluate(`(() => {
+    const room=document.querySelector('.yor-studio');
+    return {x:Number(room.dataset.walkX),z:Number(room.dataset.walkZ),walkable:room.dataset.walkable};
+  })()`);
+  const walkRafAfter = await cdp.evaluate(`window.__qaRafCalls || 0`);
+  const walkKeyTrace = await cdp.evaluate(`window.__qaWalkKeys || []`);
+  const wasdDistance = Math.hypot(walkAfter.x-walkBefore.x,walkAfter.z-walkBefore.z);
+  assert(walkAfter.walkable === "true" && wasdDistance > .075,
+    `Holding W must move inside the walkmesh: ${JSON.stringify({walkBefore,walkAfter})}`);
+  const fastWalkStart = await cdp.evaluate(`(() => {
+    const room=document.querySelector('.yor-studio');
+    return {x:Number(room.dataset.walkX),z:Number(room.dataset.walkZ)};
+  })()`);
+  await cdp.send("Input.dispatchKeyEvent",{type:"keyDown",key:"Shift",code:"ShiftLeft",windowsVirtualKeyCode:16,nativeVirtualKeyCode:16});
+  await cdp.send("Input.dispatchKeyEvent",{type:"keyDown",key:"w",code:"KeyW",windowsVirtualKeyCode:87,nativeVirtualKeyCode:87});
+  await delay(450);
+  await cdp.send("Input.dispatchKeyEvent",{type:"keyUp",key:"w",code:"KeyW",windowsVirtualKeyCode:87,nativeVirtualKeyCode:87});
+  await cdp.send("Input.dispatchKeyEvent",{type:"keyUp",key:"Shift",code:"ShiftLeft",windowsVirtualKeyCode:16,nativeVirtualKeyCode:16});
+  await delay(160);
+  const fastWalkEnd = await cdp.evaluate(`(() => {
+    const room=document.querySelector('.yor-studio');
+    return {x:Number(room.dataset.walkX),z:Number(room.dataset.walkZ),walkable:room.dataset.walkable};
+  })()`);
+  const fastKeyTrace = await cdp.evaluate(`window.__qaWalkKeys || []`);
+  const shiftDistance = Math.hypot(fastWalkEnd.x-fastWalkStart.x,fastWalkEnd.z-fastWalkStart.z);
+  assert(fastWalkEnd.walkable === "true" && shiftDistance > wasdDistance * 1.2,
+    `Shift must increase walking speed without leaving the walkmesh: ${JSON.stringify({walkBefore,walkAfter,fastWalkStart,fastWalkEnd,wasdDistance,shiftDistance,walkRafDelta:walkRafAfter-walkRafBefore,walkKeyTrace,fastKeyTrace})}`);
+
+  const walkCanvas = await cdp.evaluate(`(() => {
+    const bounds=document.querySelector('.yor-studio__viewport canvas').getBoundingClientRect();
+    return {x:bounds.left+bounds.width*.58,y:bounds.top+bounds.height*.52};
+  })()`);
+  const yawBeforeDrag = await cdp.evaluate(`Number(document.querySelector('.yor-studio')?.dataset.walkYaw)`);
+  await cdp.send("Input.dispatchMouseEvent",{type:"mouseMoved",x:walkCanvas.x,y:walkCanvas.y});
+  await cdp.send("Input.dispatchMouseEvent",{type:"mousePressed",x:walkCanvas.x,y:walkCanvas.y,button:"left",buttons:1,clickCount:1});
+  await cdp.send("Input.dispatchMouseEvent",{type:"mouseMoved",x:walkCanvas.x+85,y:walkCanvas.y+18,button:"left",buttons:1});
+  await delay(120);
+  await cdp.send("Input.dispatchMouseEvent",{type:"mouseReleased",x:walkCanvas.x+85,y:walkCanvas.y+18,button:"left",clickCount:1});
+  const yawAfterDrag = await cdp.evaluate(`Number(document.querySelector('.yor-studio')?.dataset.walkYaw)`);
+  assert(Number.isFinite(yawBeforeDrag) && Number.isFinite(yawAfterDrag) && Math.abs(yawAfterDrag-yawBeforeDrag) > .08,
+    `Dragging the room must change camera heading (${yawBeforeDrag} -> ${yawAfterDrag})`);
+
+  await cdp.evaluate(`document.querySelector('.yor-studio__viewport canvas')?.focus();true`);
+  await pressKey("Escape", "Escape", 27);
+  const escapeReturned = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.roaming === 'false'`,
+    { timeoutMs:2500, description:"Escape exits free roam to the selected cinematic camera" });
+  assert(escapeReturned.value, "Escape did not restore the selected camera");
+
+  const floorPoint = await cdp.evaluate(`(() => {
+    const r=document.querySelector('.yor-studio__viewport canvas').getBoundingClientRect();
+    return {x:r.left+r.width*.17,y:r.top+r.height*.78};
+  })()`);
+  const previousWalkTarget = await cdp.evaluate(`document.querySelector('.yor-studio')?.dataset.walkTargetId || ""`);
+  await cdp.send("Input.dispatchMouseEvent",{type:"mouseMoved",x:floorPoint.x,y:floorPoint.y});
+  await cdp.send("Input.dispatchMouseEvent",{type:"mousePressed",x:floorPoint.x,y:floorPoint.y,button:"left",buttons:1,clickCount:1});
+  await cdp.send("Input.dispatchMouseEvent",{type:"mouseReleased",x:floorPoint.x,y:floorPoint.y,button:"left",clickCount:1});
+  const floorRoute = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.roaming === 'true' &&
+     Boolean(document.querySelector('.yor-studio')?.dataset.walkTargetId) &&
+     document.querySelector('.yor-studio')?.dataset.walkTargetId !== '${previousWalkTarget}'`,
+    { timeoutMs:3500, description:"clicking the room floor starts routed free roam" });
+  assert(floorRoute.value, "A floor click did not create a new safe walk target");
+  await cdp.evaluate(`document.querySelector('.yor-studio__locations button:first-child')?.click();true`);
+  const presetReturned = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.roaming === 'false' &&
+     document.querySelector('.yor-studio__locations button:first-child')?.getAttribute('aria-pressed') === 'true'`,
+    { timeoutMs:2500, description:"cinematic camera preset exits free roam" });
+  assert(presetReturned.value, "Selecting a camera preset did not end free roam");
+  report.interaction.studioWalking = {
+    wasdDistance,
+    shiftDistance,
+    dragYawDelta:Math.abs(yawAfterDrag-yawBeforeDrag),
+    floorClickRoutes:true,
+    escapeReturnsToCamera:true,
+    presetReturnsToCamera:true,
+    walkableAfterMovement:walkAfter.walkable === "true",
+  };
+
   activeScenario = "homepage studio render lifecycle, repeated greeting and reduced-motion recovery";
   const greetingStart = await cdp.evaluate(`Number(document.querySelector('.yor-studio')?.dataset.greetingSequence || 0)`);
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(4)')?.click(); document.querySelector('.yor-studio__actions button:nth-child(4)')?.click(); true`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(5)')?.click(); document.querySelector('.yor-studio__actions button:nth-child(5)')?.click(); true`);
   const repeatedGreeting = await waitForCondition(cdp,
     `Number(document.querySelector('.yor-studio')?.dataset.greetingSequence || 0) === ${greetingStart + 2}`,
     { timeoutMs:2500, description:"repeated accessible creator-greeting controls queue two real scene greetings" });
@@ -572,7 +674,7 @@ try {
   report.interaction.fullScene = { activated:true, escapeRestores:true, screenshot:true };
 
   activeScenario = "3D workstation object interaction controls";
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:first-child')?.click(); true`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(2)')?.click(); true`);
   const consoleOpened = await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true' &&
      document.querySelectorAll('.yor-studio__console-project').length === 6`,
@@ -597,20 +699,20 @@ try {
   await pressKey("Escape", "Escape", 27);
   await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.consoleOpen === 'false' &&
-     document.activeElement === document.querySelector('.yor-studio__actions button:first-child')`,
+     document.activeElement === document.querySelector('.yor-studio__actions button:nth-child(2)')`,
     { timeoutMs:3000, description:"Escape closes workstation launcher and restores focus" });
   report.interaction.studioObjects.escapeRestoresFocus=true;
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(2)')?.click(); true`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(3)')?.click(); true`);
   await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.blindsOpen === 'false' &&
-    document.querySelector('.yor-studio__actions button:nth-child(2)')?.getAttribute('aria-pressed') === 'true'`,
+    document.querySelector('.yor-studio__actions button:nth-child(3)')?.getAttribute('aria-pressed') === 'true'`,
     { timeoutMs:2500, description:"room blinds close through accessible button" });
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(3)')?.click(); true`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(4)')?.click(); true`);
   await waitForCondition(cdp,
     `Number(document.querySelector('.yor-studio')?.dataset.paintingBeat) === 1 &&
      document.querySelector('.yor-studio')?.dataset.secretFound === 'true'`,
     { timeoutMs:2500, description:"painting tilt reveals hidden YOR detail" });
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(2)')?.click(); true`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(3)')?.click(); true`);
   await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.blindsOpen === 'true'`,
     { timeoutMs:2500, description:"room blinds reopen" });
@@ -693,7 +795,7 @@ try {
     `Mobile first screen needs visible loaded 3D room: ${JSON.stringify(mobileStage)}`);
   report.rendering.mobileHome = mobileStage;
   await capture(cdp, outputDir, "mobile-hero");
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:first-child')?.click(); true`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(2)')?.click(); true`);
   await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true'`,
     { timeoutMs:2500, description:"mobile workstation launcher opens" });
   const mobileLauncher = await cdp.evaluate(`(() => ({
@@ -709,6 +811,81 @@ try {
   await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'false'`,
     { timeoutMs:2500,description:"mobile launcher closes" });
   report.interaction.studioObjects.mobileLauncherAccessible=true;
+
+  activeScenario = "mobile held directional pad, touch camera look and walk-mode exit";
+  await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.click();true`);
+  const mobileWalkEntered = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.roaming === 'true' &&
+     document.querySelectorAll('.yor-studio__touch-pad button').length === 4`,
+    { timeoutMs:2500,description:"mobile free roam exposes four named hold controls" });
+  assert(mobileWalkEntered.value,"Mobile directional controls did not appear");
+  await delay(180);
+  const mobileWalkStart = await cdp.evaluate(`(() => {
+    const room=document.querySelector('.yor-studio');
+    const canvas=document.querySelector('.yor-studio__viewport canvas');
+    return {x:Number(room.dataset.walkX),z:Number(room.dataset.walkZ),tabIndex:canvas?.tabIndex};
+  })()`);
+  assert(mobileWalkStart.tabIndex === 0,"The 3D walking surface must be keyboard-focusable");
+  const mobileForward = await cdp.evaluate(`(() => {
+    const button=document.querySelector('.yor-studio__touch-forward');
+    button.scrollIntoView({block:'center',behavior:'instant'});
+    const r=button.getBoundingClientRect();
+    const x=r.left+r.width/2,y=r.top+r.height/2;
+    return {x,y,hit:document.elementFromPoint(x,y)?.closest('.yor-studio__touch-forward')===button};
+  })()`);
+  assert(mobileForward.hit,"The mobile forward control is not hit-testable");
+  await cdp.evaluate(`(() => {
+    document.querySelector('.yor-studio__touch-forward').dispatchEvent(new PointerEvent('pointerdown',{
+      bubbles:true,cancelable:true,pointerId:77,pointerType:'touch',isPrimary:true,button:0,buttons:1
+    }));
+    return true;
+  })()`);
+  const forwardHeld = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio__touch-forward')?.getAttribute('aria-pressed') === 'true'`,
+    { timeoutMs:1500,description:"touch pointer holds the forward movement control" });
+  assert(forwardHeld.value,"The touch movement hold was not registered");
+  await delay(520);
+  await cdp.evaluate(`document.querySelector('.yor-studio__touch-forward').dispatchEvent(new PointerEvent('pointerup',{
+    bubbles:true,cancelable:true,pointerId:77,pointerType:'touch',isPrimary:true,button:0,buttons:0
+  }));true`);
+  await delay(150);
+  const mobileWalkEnd = await cdp.evaluate(`(() => {
+    const room=document.querySelector('.yor-studio');
+    return {x:Number(room.dataset.walkX),z:Number(room.dataset.walkZ),walkable:room.dataset.walkable};
+  })()`);
+  const mobilePadDistance = Math.hypot(mobileWalkEnd.x-mobileWalkStart.x,mobileWalkEnd.z-mobileWalkStart.z);
+  assert(mobilePadDistance > .06 && mobileWalkEnd.walkable === "true",
+    `Holding the mobile direction pad must move within the walkmesh: ${JSON.stringify({mobileWalkStart,mobileWalkEnd})}`);
+
+  const yawBeforeTouchLook = await cdp.evaluate(`Number(document.querySelector('.yor-studio')?.dataset.walkYaw)`);
+  await cdp.evaluate(`(() => {
+    const canvas=document.querySelector('.yor-studio__viewport canvas');
+    const rect=canvas.getBoundingClientRect();
+    const x=rect.left+rect.width*.6,y=rect.top+rect.height*.5;
+    canvas.dispatchEvent(new PointerEvent('pointerdown',{
+      bubbles:true,cancelable:true,pointerId:78,pointerType:'touch',isPrimary:true,button:0,buttons:1,clientX:x,clientY:y
+    }));
+    window.dispatchEvent(new PointerEvent('pointermove',{
+      bubbles:true,cancelable:true,pointerId:78,pointerType:'touch',isPrimary:true,button:0,buttons:1,clientX:x+70,clientY:y+12
+    }));
+    window.dispatchEvent(new PointerEvent('pointerup',{
+      bubbles:true,cancelable:true,pointerId:78,pointerType:'touch',isPrimary:true,button:0,buttons:0,clientX:x+70,clientY:y+12
+    }));
+    return true;
+  })()`);
+  const yawAfterTouchLook = await waitForCondition(cdp,
+    `Math.abs(Number(document.querySelector('.yor-studio')?.dataset.walkYaw)-${yawBeforeTouchLook}) > .08`,
+    { timeoutMs:1500,description:"touch dragging changes the first-person camera heading" });
+  assert(yawAfterTouchLook.value,"Touch dragging did not rotate the walking camera");
+  await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.click();true`);
+  const mobileWalkExited = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.roaming === 'false'`,
+    { timeoutMs:2000,description:"mobile walk mode returns to the selected camera" });
+  assert(mobileWalkExited.value,"Mobile exit control did not restore the camera view");
+  report.interaction.studioWalking.mobileDirectionalPad = { distance:mobilePadDistance, safe:true };
+  report.interaction.studioWalking.touchLookYawDelta = Math.abs(
+    Number(await cdp.evaluate(`document.querySelector('.yor-studio')?.dataset.walkYaw || 0`))-yawBeforeTouchLook,
+  );
   await navigate(cdp, baseUrl + "/projects");
   await positionProjectWorldForCapture();
   await capture(cdp, outputDir, "mobile-project-world");

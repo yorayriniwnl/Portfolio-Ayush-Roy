@@ -24,11 +24,12 @@ test("recovered objects have camera targets and physical interactions", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const runtime = readFileSync("src/components/experience/studio-room-runtime.ts", "utf8");
+  const camera = readFileSync("src/components/experience/StudioWalkCamera.tsx", "utf8");
   for (const target of ["work", "about", "lab", "contact"]) {
-    assert.match(scene, new RegExp(`\\b${target}: \\{ eye:`));
+    assert.match(camera, new RegExp(`\\b${target}: \\{ eye:`));
   }
-  assert.match(scene, /function WorldCamera/);
-  assert.match(scene, /camera\.position\.lerp/);
+  assert.match(camera, /function StudioWalkCamera/);
+  assert.match(camera, /camera\.position\.lerp/);
   assert.match(runtime, /function identifyRoomObject/);
   assert.match(runtime, /function setStudioLights/);
   assert.match(runtime, /class StudioGreeting/);
@@ -57,6 +58,7 @@ test("cinematic doorway entry remains replayable and camera controls can skip it
   const hero = readFileSync("src/components/experience/StudioHero.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const authored = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  const camera = readFileSync("src/components/experience/StudioWalkCamera.tsx", "utf8");
   const css = readFileSync("src/styles/studio-revival.css", "utf8");
   assert.match(hero, /href="#studio"/);
   assert.match(room, /window\.addEventListener\("hashchange", handleStudioLink\)/);
@@ -67,11 +69,12 @@ test("cinematic doorway entry remains replayable and camera controls can skip it
   assert.match(room, /data-intro-active=\{String\(introActive\)\}/);
   assert.match(room, /SKIP INTRO/);
   assert.match(room, /onIntroComplete=\{finishIntro\}/);
-  assert.match(authored, /function WorldCamera\(\{ selected, introSequence, desktopCamera, onIntroComplete \}/);
+  assert.match(authored, /<StudioWalkCamera selected=\{selected\} introSequence=\{introSequence\}/);
+  assert.match(camera, /entryTime\.current = roaming \? null : introSequence > 0 \? 0 : null/);
   assert.match(authored, /entryTime\.current = introSequence > 0 \? 0 : null/);
-  assert.match(authored, /camera\.position\.copy\(doorEye\)\.lerp\(homeEye,eased\)/);
+  assert.match(camera, /camera\.position\.copy\(doorEye\)\.lerp\(portrait \? portraitDeskEye : desktopCamera\?\.position \?\? deskEye, eased\)/);
   assert.match(authored, /doorwayOpening/);
-  assert.match(authored, /onIntroComplete\(\)/);
+  assert.match(camera, /onIntroComplete\(\)/);
   assert.match(css, /\.yor-studio__utilities button:last-child \{ display:inline-flex/);
 });
 
@@ -115,10 +118,11 @@ test("the workstation launcher is evidence-first and dismissible from keyboard",
 
 test("actual GLB fills the opening cinematic stage instead of an editorial side card", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  const camera = readFileSync("src/components/experience/StudioWalkCamera.tsx","utf8");
   const roomRuntime = readFileSync("src/components/experience/studio-room-runtime.ts","utf8");
   const css = readFileSync("src/styles/studio-revival.css","utf8");
-  assert.match(scene,/desktopCamera\?\.fov \?\? 55/);
-  assert.match(scene,/selected === "work" \? homeEye/);
+  assert.match(camera,/desktopCamera\?\.fov \?\? 55/);
+  assert.match(camera,/selected === "work" \? homeEye/);
   assert.match(roomRuntime,/Camera_HomeDesktop/);
   assert.match(scene,/gl\.toneMappingExposure=\.95/);
   assert.match(roomRuntime,/node\.intensity = intensity \* \(enabled \? \.00092 : \.00012\)/);
@@ -139,10 +143,11 @@ test("actual GLB fills the opening cinematic stage instead of an editorial side 
 
 test("studio prioritizes the reference-backed wide camera and pastel daylight over the dark hero", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  const camera = readFileSync("src/components/experience/StudioWalkCamera.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const css = readFileSync("src/styles/studio-revival.css", "utf8");
-  assert.match(scene, /authoredDesktopTarget/);
-  assert.match(scene, /targetFov = portrait \? 64 : desktopCamera\?\.fov \?\? 55/);
+  assert.match(camera, /authoredDesktopTarget/);
+  assert.match(camera, /const fov = portrait \? 64 : desktopCamera\?\.fov \?\? 55/);
   assert.match(scene, /ambientLight intensity=\{\.49\}/);
   assert.match(scene, /THREE\.AdditiveBlending/);
   assert.match(room, /data-photo-mode=\{String\(photoMode\)\}/);
@@ -194,13 +199,13 @@ test("reference dressing uses modeled RGB fans, gamepads and trailing vines, not
 });
 
 test("reference composition keeps the workstation visible and intro in the left wall area", () => {
-  const scene=readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  const camera=readFileSync("src/components/experience/StudioWalkCamera.tsx","utf8");
   const runtime=readFileSync("src/components/experience/studio-room-runtime.ts","utf8");
   const css=readFileSync("src/styles/studio-revival.css","utf8");
-  assert.match(scene, /targetFov = portrait \? 64 : desktopCamera\?\.fov \?\? 55/);
+  assert.match(camera, /const fov = portrait \? 64 : desktopCamera\?\.fov \?\? 55/);
   assert.match(runtime, /Camera_HomeDesktop/);
-  assert.match(scene, /selected === "work" \? homeEye/);
-  assert.match(scene, /portraitDeskEye = useMemo\(\(\) => new THREE.Vector3\(-\.42,1\.65,1\.85\)/);
+  assert.match(camera, /selected === "work" \? homeEye/);
+  assert.match(camera, /portraitDeskEye = useMemo\(\(\) => new THREE.Vector3\(-0\.42, 1\.65, 1\.85\)/);
   assert.match(css, /Desktop first-view composition/);
   assert.match(css, /grid-column:1;grid-row:2;margin-top:0/);
   assert.match(css, /width:min\(315px,30%\)/);
