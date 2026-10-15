@@ -456,9 +456,14 @@ try {
     const intro = document.querySelector('.yor-world-hero__intro')?.getBoundingClientRect();
     if (!stage || !intro) return null;
     return {
-      stageWidth: Math.round(stage.width), viewportWidth: innerWidth,
+      stageLeft: Math.round(stage.left), stageWidth: Math.round(stage.width), viewportWidth: innerWidth,
       stageHeight: Math.round(stage.height), stageTop: Math.round(stage.top),
-      introBottom: Math.round(intro.bottom), referenceRoomReady:
+      introLeft: Math.round(intro.left), introRight: Math.round(intro.right),
+      introWidth: Math.round(intro.width),
+      overlapRatio: Math.max(0, Math.min(intro.right, stage.right) - Math.max(intro.left, stage.left)) *
+        Math.max(0, Math.min(intro.bottom, stage.bottom) - Math.max(intro.top, stage.top)) /
+        Math.max(1, stage.width * stage.height),
+      referenceRoomReady:
         document.querySelector('.yor-studio')?.dataset.sceneReady === 'true',
       sceneCanvas: stage.width > 0 &&
         document.querySelector('.yor-studio__viewport canvas') !== null,
@@ -468,8 +473,11 @@ try {
     referenceFraming.sceneCanvas &&
     referenceFraming.stageWidth >= referenceFraming.viewportWidth * .80 &&
     referenceFraming.stageHeight >= 600 &&
-    referenceFraming.introBottom <= referenceFraming.stageTop + 18,
-    `The workstation must be a wide, unobstructed art-directed hero, not a cropped split card: ${JSON.stringify(referenceFraming)}`);
+    referenceFraming.stageTop < 190 &&
+    referenceFraming.introWidth <= referenceFraming.stageWidth * .35 &&
+    referenceFraming.introRight <= referenceFraming.stageLeft + referenceFraming.stageWidth * .34 &&
+    referenceFraming.overlapRatio <= .14,
+    `The first view must show the workstation with the intro confined to its open left wall area: ${JSON.stringify(referenceFraming)}`);
   report.rendering.referenceFraming = referenceFraming;
   await capture(cdp, outputDir, "desktop-hero");
 

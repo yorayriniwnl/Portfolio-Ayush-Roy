@@ -4,6 +4,7 @@ import * as THREE from "three";
 import {
   createStudioRoom,
   identifyRoomObject,
+  readStudioCameraPreset,
   setStudioLights,
   StudioGreeting,
 } from "../src/components/experience/studio-room-runtime";
@@ -45,6 +46,29 @@ test("studio instances clone loader-cached nodes before changing lights, fixture
   assert.equal(second.door!.rotation.y, 0);
   assert.equal(cachedWorld.scene.getObjectByName("hex_panel_1")!.visible, true);
   assert.equal(first.group.getObjectByName("hex_panel_1")!.visible, false);
+});
+
+test("home camera presets come from the cloned authored scene and preserve camera orientation", () => {
+  const camera = new THREE.PerspectiveCamera(42, 4 / 3, .1, 50);
+  camera.name = "Camera_HomeDesktop";
+  camera.position.set(-2.15, 1.7, 1.55);
+  camera.lookAt(.1, 1.25, -1.3);
+  const details = new THREE.Group();
+  details.add(camera);
+  const cachedDetails = gltf(details);
+  const world = gltf();
+  const resident = gltf();
+  const fixture = gltf();
+
+  const result = createStudioRoom(world, resident, fixture, cachedDetails);
+  const preset = result.desktopCamera;
+  assert.ok(preset);
+  assert.notEqual(preset.position, camera.position);
+  assert.ok(preset.position.distanceTo(camera.position) < 1e-6);
+  const expectedDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
+  assert.ok(preset.direction.distanceTo(expectedDirection) < 1e-6);
+  assert.equal(preset.fov, 42);
+  assert.equal(readStudioCameraPreset(new THREE.Group(), "Camera_HomeDesktop"), null);
 });
 
 test("headset names do not turn the headset stand into an avatar hit target", () => {

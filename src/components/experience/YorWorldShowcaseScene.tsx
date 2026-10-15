@@ -10,7 +10,7 @@ import { StudioReferenceDressing } from "./StudioReferenceDressing";
 import { StudioDeskProps } from "./StudioDeskProps";
 
 import { createStudioRoom, identifyRoomObject, releaseStudioSkeletons, setStudioLights, StudioGreeting } from "./studio-room-runtime";
-import type { StudioObjectAction } from "./studio-room-runtime";
+import type { StudioCameraPreset, StudioObjectAction } from "./studio-room-runtime";
 export type { StudioObjectAction } from "./studio-room-runtime";
 
 /* Genuine, authored YOR WORLD scene, chair and animated resident, transplanted
@@ -22,7 +22,7 @@ const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,
   contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
 };
 
-function WorldCamera({ selected, introSequence, onIntroComplete }: { selected: StudioTarget; introSequence: number; onIntroComplete: () => void }) {
+function WorldCamera({ selected, introSequence, desktopCamera, onIntroComplete }: { selected: StudioTarget; introSequence: number; desktopCamera: StudioCameraPreset | null; onIntroComplete: () => void }) {
   const target = useRef(new THREE.Vector3(...CAMERA.work.look));
   const entryTime = useRef<number | null>(null);
   const { camera, size } = useThree();
@@ -34,6 +34,7 @@ function WorldCamera({ selected, introSequence, onIntroComplete }: { selected: S
   const deskLook = useMemo(() => new THREE.Vector3(...CAMERA.work.look), []);
   const portraitDeskEye = useMemo(() => new THREE.Vector3(-.42,1.65,1.85), []);
   const portraitDeskLook = useMemo(() => new THREE.Vector3(.20,1.26,-1.18), []);
+  const authoredDesktopTarget = useMemo(() => desktopCamera?.position.clone().addScaledVector(desktopCamera.direction, 4) ?? deskLook.clone(), [desktopCamera, deskLook]);
   useEffect(() => { entryTime.current = introSequence > 0 ? 0 : null; }, [introSequence]);
   // Mutable Three.js cameras live outside React state, as does the scene rig below.
   // eslint-disable-next-line react-hooks/immutability
@@ -41,7 +42,7 @@ function WorldCamera({ selected, introSequence, onIntroComplete }: { selected: S
     // Increase portrait horizontal coverage without moving the actual models.
     // Wide camera crops the chair on 390px phones; a wider portrait lens does not.
     if (camera instanceof THREE.PerspectiveCamera) {
-      const targetFov = portrait ? 64 : 55;
+      const targetFov = portrait ? 64 : desktopCamera?.fov ?? 55;
       if (camera.fov !== targetFov) {
         // eslint-disable-next-line react-hooks/immutability
         camera.fov = targetFov;
@@ -53,16 +54,20 @@ function WorldCamera({ selected, introSequence, onIntroComplete }: { selected: S
       entryTime.current = elapsed;
       const progress = THREE.MathUtils.clamp((elapsed - .75) / 3.7, 0, 1);
       const eased = progress * progress * (3 - 2 * progress);
-      camera.position.copy(doorEye).lerp(portrait ? portraitDeskEye : deskEye,eased);
-      target.current.copy(doorLook).lerp(portrait ? portraitDeskLook : deskLook,eased);
+      const homeEye = portrait ? portraitDeskEye : desktopCamera?.position ?? deskEye;
+      const homeLook = portrait ? portraitDeskLook : authoredDesktopTarget;
+      camera.position.copy(doorEye).lerp(homeEye,eased);
+      target.current.copy(doorLook).lerp(homeLook,eased);
       camera.lookAt(target.current);
       if (elapsed >= 5) { entryTime.current = null; onIntroComplete(); }
       return;
     }
     const weight = 1 - Math.exp(-2.4 * Math.min(delta,.05));
     const config = CAMERA[selected];
-    camera.position.lerp(portrait && selected === "work" ? portraitDeskEye : new THREE.Vector3(...config.eye),weight);
-    target.current.lerp(portrait && selected === "work" ? portraitDeskLook : new THREE.Vector3(...config.look),weight);
+    const homeEye = portrait ? portraitDeskEye : desktopCamera?.position ?? deskEye;
+    const homeLook = portrait ? portraitDeskLook : authoredDesktopTarget;
+    camera.position.lerp(selected === "work" ? homeEye : new THREE.Vector3(...config.eye),weight);
+    target.current.lerp(selected === "work" ? homeLook : new THREE.Vector3(...config.look),weight);
     camera.lookAt(target.current);
   });
   return null;
@@ -136,7 +141,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
     "/models/yor-world-fixture.glb",
     "/models/yor-world-workstation-details.glb",
   ]);
-  const { group, residentRoot, fixtureRoot, door, lightNodes, painting, blinds, signature } = useMemo(
+  const { group, residentRoot, fixtureRoot, door, lightNodes, painting, blinds, signature, desktopCamera } = useMemo(
     () => createStudioRoom(world, resident, fixture, workstationDetail),
     [world, resident, fixture, workstationDetail],
   );
@@ -239,7 +244,7 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
       <pointLight position={[0,2.05,-1.5]} color="#c881ff" intensity={lightsOn ? 2.2 : .14} distance={3.1} decay={2}/>
       <pointLight position={[-1.4,.72,-.65]} color="#50daff" intensity={lightsOn ? 3.0 : .2} distance={3.7} decay={2}/>
       <pointLight position={[1.35,1.98,.06]} color="#ffb5df" intensity={lightsOn ? 2.4 : .14} distance={3.4} decay={2}/>
-      <WorldCamera selected={selected} introSequence={introSequence} onIntroComplete={onIntroComplete}/>
+      <WorldCamera selected={selected} introSequence={introSequence} desktopCamera={desktopCamera} onIntroComplete={onIntroComplete}/>
       <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
       <StudioReferenceDressing lightsOn={lightsOn} onOpenComputer={() => onInteract("monitor")} onExplore={() => onSelect("lab")}/>
       <StudioDeskProps onOpen={() => onInteract("monitor")}/>

@@ -4,6 +4,23 @@ import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 
 export type StudioObjectAction = "monitor" | "painting" | "blinds" | "lights" | "avatar" | "door" | "skills";
 
+export type StudioCameraPreset = {
+  position: THREE.Vector3;
+  direction: THREE.Vector3;
+  fov: number;
+};
+
+export function readStudioCameraPreset(root: THREE.Object3D, name: string): StudioCameraPreset | null {
+  const node = root.getObjectByName(name);
+  if (!(node instanceof THREE.Camera)) return null;
+  node.updateWorldMatrix(true, false);
+  return {
+    position: node.getWorldPosition(new THREE.Vector3()),
+    direction: node.getWorldDirection(new THREE.Vector3()),
+    fov: node instanceof THREE.PerspectiveCamera ? node.fov : 55,
+  };
+}
+
 export function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): StudioObjectAction | null {
   const names: string[] = [];
   for (let node: THREE.Object3D | null = object; node && node !== root; node = node.parent) {
@@ -38,6 +55,7 @@ export function createStudioRoom(world: GLTF, resident: GLTF, fixture: GLTF, wor
   const dressing = clone(workstationDetail.scene);
   dressing.updateWorldMatrix(true, true);
   group.updateWorldMatrix(true, true);
+  const desktopCamera = readStudioCameraPreset(dressing, "Camera_HomeDesktop");
   for (const [legacyName, sourceName] of [
     ["helios-pc", "helios-pc"], ["pegboard_system", "controller-pegboard"], ["plants", "plants_group"],
   ]) {
@@ -59,7 +77,7 @@ export function createStudioRoom(world: GLTF, resident: GLTF, fixture: GLTF, wor
   if (signature) signature.visible = false;
   const blinds = Array.from({ length: 12 }, (_, i) => room.getObjectByName(`blind_slat_${i + 1}`))
     .filter((node): node is THREE.Object3D => Boolean(node)).map(node => ({ node, base: node.rotation.z }));
-  return { group, residentRoot, fixtureRoot, lightNodes, blinds, signature,
+  return { group, residentRoot, fixtureRoot, lightNodes, blinds, signature, desktopCamera,
     door: room.getObjectByName("door-hinge") ?? null, painting: room.getObjectByName("painting-pivot") ?? null };
 }
 
