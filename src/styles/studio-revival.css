@@ -210,6 +210,7 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
    reveal the actual shaded scene only after all production modules mount. */
 .yor-studio[data-scene-ready="true"] .yor-studio__fallback {opacity:0; pointer-events:none;}
 .yor-studio[data-scene-failed="true"] .yor-studio__fallback {opacity:1;}
+.yor-studio[data-scene-status="reduced-motion"] .yor-studio__fallback {opacity:1; pointer-events:auto; transition:none !important;}
 
 /* Small screens deserve the room, not a full viewport of introductory copy.
    Compact the prologue and move scene controls into a single economical row. */
@@ -394,7 +395,16 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   padding:0;display:flex;align-items:center;justify-content:space-between;
   color:#ece8ff;text-shadow:0 2px 15px #15122f;pointer-events:none;
 }
+.yor-world-hero__studio .yor-studio__topline > [role="status"] {
+  min-height:36px;display:inline-flex;align-items:center;gap:8px;
+  padding:7px 12px;border:1px solid rgba(240,232,255,.38);border-radius:999px;
+  background:rgba(13,16,38,.78);box-shadow:0 5px 18px rgba(14,12,39,.22);
+  backdrop-filter:blur(12px);font-size:9px;font-weight:750;letter-spacing:.08em;
+}
 .yor-world-hero__studio .yor-studio__topline button {pointer-events:auto;}
+.yor-studio__utilities button {background:rgba(13,16,38,.82);border-color:rgba(240,232,255,.45);color:#fff;box-shadow:0 5px 18px rgba(14,12,39,.2);}
+.yor-studio__utilities button:disabled {opacity:.55;cursor:not-allowed;}
+.yor-studio__utilities button:focus-visible {outline:3px solid #17162d;outline-offset:3px;box-shadow:0 0 0 6px #f0c0ff;}
 .yor-world-hero__studio .yor-studio__viewport {
   height:clamp(615px,76vh,850px);border-radius:19px;
   background:#777a9f; border:1px solid rgba(168,176,230,.45);
@@ -451,9 +461,9 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
     background:linear-gradient(180deg,rgba(5,10,27,.85) 0%,rgba(5,10,27,.85) 22%,rgba(5,10,27,.38) 44%,transparent 68%,rgba(5,10,27,.4) 100%);
   }
   .yor-world-hero__studio .yor-studio__topline {top:14px;left:13px;right:13px;gap:7px;flex-wrap:wrap;}
-  .yor-world-hero__studio .yor-studio__topline > span:first-child {font-size:8px;}
+  .yor-world-hero__studio .yor-studio__topline > [role="status"] {min-height:34px;padding:6px 9px;font-size:9px;}
   .yor-studio__utilities {margin-left:auto;gap:5px;justify-content:flex-end;}
-  .yor-studio__utilities button {min-height:37px;font-size:7px;padding:7px 9px;}
+  .yor-studio__utilities button {min-height:44px;font-size:9px;padding:7px 9px;}
   .yor-world-hero__studio .yor-studio__hud {left:12px;right:12px;bottom:11px;}
   .yor-world-hero__studio .yor-studio__bottomline {grid-template-columns:1fr;}
   .yor-world-hero__below {padding-top:20px;}

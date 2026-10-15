@@ -2,10 +2,11 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Component, useCallback, useEffect, useReducer, useRef, useState, type ReactNode } from "react";
 import type { StudioTarget } from "./StudioScene";
 import type { StudioObjectAction } from "./YorWorldShowcaseScene";
 import { recruiterProjects } from "@/content/project-registry";
+import { initialStudioLifecycle, studioIsActive, studioLifecycle, studioShouldMount, studioStatus } from "./studio-lifecycle";
 
 const Scene = dynamic(
   () => import("./YorWorldShowcaseScene").then((module) => module.YorWorldShowcaseScene),
@@ -44,12 +45,11 @@ const destinations: Record<StudioTarget, { number: string; title: string; label:
 
 export function StudioRoom() {
   const root = useRef<HTMLDivElement>(null);
+  const viewport = useRef<HTMLDivElement>(null);
   const consoleButton = useRef<HTMLButtonElement>(null);
   const consoleCloseButton = useRef<HTMLButtonElement>(null);
   const [selected, setSelected] = useState<StudioTarget>("work");
-  const [visible, setVisible] = useState(false);
-  const [allowed, setAllowed] = useState(true);
-  const [graphicsAvailable, setGraphicsAvailable] = useState(false);
+  const [lifecycle, dispatch] = useReducer(studioLifecycle, initialStudioLifecycle);
   const [lightsOn, setLightsOn] = useState(true);
   const [photoMode, setPhotoMode] = useState(false);
   const [blindsOpen, setBlindsOpen] = useState(true);
@@ -58,13 +58,28 @@ export function StudioRoom() {
   const [consoleOpen, setConsoleOpen] = useState(false);
   const [hoveredObject, setHoveredObject] = useState<StudioObjectAction | null>(null);
   const [introSequence, setIntroSequence] = useState(0);
-  const [roomReady, setRoomReady] = useState(false);
-  const [roomFailed, setRoomFailed] = useState(false);
-  const announceReady = useCallback(() => setRoomReady(true), []);
-  const reportFailed = useCallback(() => setRoomFailed(true), []);
+  const [introActive, setIntroActive] = useState(false);
+  const [greetingSequence, setGreetingSequence] = useState(0);
+  const { attempt } = lifecycle;
+  const announceReady = useCallback(() => dispatch({ type: "ready", attempt }), [attempt]);
+  const reportFailed = useCallback(() => {
+    dispatch({ type: "failed", attempt });
+    setIntroActive(false);
+    setHoveredObject(null);
+  }, [attempt]);
+  const finishIntro = useCallback(() => setIntroActive(false), []);
+  const skipIntro = useCallback(() => { setIntroSequence(0); setIntroActive(false); }, []);
   const toggleLights = useCallback(() => setLightsOn((value)=>!value), []);
-  const selectTarget = useCallback((target: StudioTarget) => { setSelected(target); setIntroSequence(0); setConsoleOpen(false); }, []);
-  const playIntro = useCallback(() => { setSelected("work"); setConsoleOpen(false); setIntroSequence((value) => value + 1); }, []);
+  const selectTarget = useCallback((target: StudioTarget) => {
+    setSelected(target);
+    skipIntro();
+    setConsoleOpen(false);
+    if (target === "about") setGreetingSequence((value) => value + 1);
+  }, [skipIntro]);
+  const playIntro = useCallback(() => {
+    setSelected("work"); setConsoleOpen(false);
+    setIntroSequence((value) => value + 1); setIntroActive(true);
+  }, []);
   const closeConsole = useCallback(() => { setConsoleOpen(false); window.requestAnimationFrame(() => consoleButton.current?.focus()); }, []);
   const activateObject = useCallback((object: StudioObjectAction) => {
     if (object === "lights") setLightsOn(current => !current);
@@ -73,18 +88,18 @@ export function StudioRoom() {
       setPaintingBeat(beat => beat + 1);
       setSecretFound(true);
       setSelected("lab");
-      setIntroSequence(0);
+      skipIntro();
       setConsoleOpen(false);
     }
     if (object === "monitor") {
       setSelected("work");
-      setIntroSequence(0);
+      skipIntro();
       setConsoleOpen(true);
     }
     if (object === "avatar") selectTarget("about");
     if (object === "door") selectTarget("contact");
     if (object === "skills") selectTarget("lab");
-  }, [selectTarget]);
+  }, [selectTarget, skipIntro]);
   useEffect(() => {
     if (!consoleOpen) return;
     const frame = window.requestAnimationFrame(() => consoleCloseButton.current?.focus());
@@ -104,11 +119,14 @@ export function StudioRoom() {
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setAllowed(!media.matches);
+    const update = () => {
+      dispatch({ type: "motion", allowed: !media.matches });
+      if (media.matches) { skipIntro(); setHoveredObject(null); }
+    };
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
-  }, []);
+  }, [skipIntro]);
 
   useEffect(() => {
     // WebGL can be absent even when motion is allowed (software rendering,
@@ -122,24 +140,34 @@ export function StudioRoom() {
     } catch {
       available = false;
     }
-    const frame = window.requestAnimationFrame(() => setGraphicsAvailable(available));
+    const frame = window.requestAnimationFrame(() => dispatch({ type: "graphics", available, attempt }));
     return () => window.cancelAnimationFrame(frame);
+  }, [attempt]);
+
+  useEffect(() => {
+    if (!viewport.current) return;
+    if (typeof IntersectionObserver === "undefined") {
+      const update = () => {
+        const bounds = viewport.current?.getBoundingClientRect();
+        dispatch({ type: "viewport", visible: Boolean(bounds && bounds.bottom > 0 && bounds.top < window.innerHeight && bounds.right > 0 && bounds.left < window.innerWidth) });
+      };
+      update();
+      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      return () => { window.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
+    }
+    const observer = new IntersectionObserver((entries) => {
+      dispatch({ type: "viewport", visible: entries.some((entry) => entry.isIntersecting && entry.intersectionRatio > 0) });
+    }, { threshold: 0 });
+    observer.observe(viewport.current);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    if (!root.current) return;
-    if (typeof IntersectionObserver === "undefined") {
-      const frame = window.requestAnimationFrame(() => setVisible(true));
-      return () => window.cancelAnimationFrame(frame);
-    }
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        setVisible(true);
-        observer.disconnect();
-      }
-    }, { rootMargin: "240px" });
-    observer.observe(root.current);
-    return () => observer.disconnect();
+    const update = () => dispatch({ type: "document", visible: !document.hidden });
+    update();
+    document.addEventListener("visibilitychange", update);
+    return () => document.removeEventListener("visibilitychange", update);
   }, []);
 
   // Scene-only mode lets the workstation art breathe; Escape restores its controls.
@@ -153,19 +181,30 @@ export function StudioRoom() {
   }, [photoMode]);
 
   const selectedItem = destinations[selected];
+  const shouldMount = studioShouldMount(lifecycle);
+  const active = studioIsActive(lifecycle);
+  const roomReady = shouldMount && lifecycle.ready;
+  const status = studioStatus(lifecycle);
+  const statusLabel = {
+    loading: "LOADING STUDIO", running: "ROOM ONLINE", paused: "STUDIO PAUSED",
+    unavailable: "STUDIO UNAVAILABLE", "reduced-motion": "STATIC STUDIO / REDUCED MOTION",
+  }[status];
   return (
-    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)} data-intro-sequence={introSequence} data-blinds-open={String(blindsOpen)} data-painting-beat={paintingBeat} data-console-open={String(consoleOpen)} data-secret-found={String(secretFound)} data-photo-mode={String(photoMode)}>
+    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(lifecycle.failed)} data-scene-status={status} data-scene-active={String(active)} data-intro-active={String(introActive)} data-greeting-sequence={greetingSequence} data-intro-sequence={introSequence} data-blinds-open={String(blindsOpen)} data-painting-beat={paintingBeat} data-console-open={String(consoleOpen)} data-secret-found={String(secretFound)} data-photo-mode={String(photoMode)}>
       <div className="yor-studio__topline">
-        <span><i className="yor-studio__pulse"/> ROOM ONLINE / STUDIO_001</span>
+        <span role="status"><i className="yor-studio__pulse" aria-hidden="true"/> {statusLabel} / STUDIO_001</span>
         <div className="yor-studio__utilities">
-          <button type="button" onClick={() => setLightsOn((current) => !current)}
+          <button type="button" disabled={!roomReady} onClick={() => setLightsOn((current) => !current)}
             aria-pressed={lightsOn} aria-label={lightsOn ? "Dim studio lights" : "Turn on studio lights"}>
             {lightsOn ? "✳ LIGHTS ON" : "☾ LIGHTS DIM"}
           </button>
-          <button type="button" onClick={playIntro} aria-label="Replay doorway entrance animation">↺ REPLAY ENTRY</button>
+          {status === "unavailable" && <button type="button" onClick={() => { skipIntro(); dispatch({ type: "retry" }); }}>RETRY 3D</button>}
+          {introActive && roomReady
+            ? <button type="button" onClick={skipIntro}>SKIP INTRO</button>
+            : <button type="button" disabled={!roomReady} onClick={playIntro} aria-label="Replay doorway entrance animation">↺ REPLAY ENTRY</button>}
         </div>
       </div>
-      <div className="yor-studio__viewport">
+      <div className="yor-studio__viewport" ref={viewport}>
         <div className="yor-studio__fallback" aria-hidden="true">
           <div className="yor-studio__fallback-light"/>
           <div className="yor-studio__fallback-window"/>
@@ -180,7 +219,7 @@ export function StudioRoom() {
           onClick={() => { if (!photoMode) { setConsoleOpen(false); setHoveredObject(null); } setPhotoMode(value => !value); }}>
           {photoMode ? "↙ EXIT SCENE VIEW" : "✧ FULL SCENE"}
         </button>
-        {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} onReady={announceReady}/></StudioErrorBoundary>}
+        {shouldMount && <StudioErrorBoundary key={attempt} onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} greetingSequence={greetingSequence} active={active} onReady={announceReady} onError={reportFailed} onIntroComplete={finishIntro}/></StudioErrorBoundary>}
         {hoveredObject && !consoleOpen && <div className="yor-studio__hover-label" aria-hidden="true">
           {hoveredObject === "monitor" ? "OPEN PROJECT LAUNCHER" : hoveredObject === "painting" ? "TILT WALL ART" :
             hoveredObject === "blinds" ? "TOGGLE WINDOW BLINDS" : hoveredObject === "lights" ? "TOGGLE STUDIO LIGHTS" :
@@ -198,14 +237,14 @@ export function StudioRoom() {
           <div className="yor-studio__console-foot"><span>06 SYSTEMS / DIRECT ACCESS</span><Link href="/projects">ALL PROJECTS ↗</Link></div>
         </section>}
         <div className="yor-studio__hud" aria-hidden="true">
-          <span>REAL 3D / WEBGL</span><span>CLICK OBJECTS · CHANGE CAMERA ANGLES ↗</span>
+          <span>{roomReady ? "INTERACTIVE STUDIO" : status === "loading" ? "PREPARING THE ROOM" : "STATIC STUDIO"}</span><span>{roomReady ? "CLICK OBJECTS · CHANGE CAMERA ANGLES ↗" : "OPEN WORKSTATION TO EXPLORE PROJECTS ↗"}</span>
         </div>
         <div className="yor-studio__corner yor-studio__corner--tl"/><div className="yor-studio__corner yor-studio__corner--br"/>
       </div>
       <div className="yor-studio__actions" aria-label="Interactive room controls">
         <button ref={consoleButton} type="button" onClick={() => activateObject("monitor")} aria-expanded={consoleOpen} aria-controls="yor-room-console"><span aria-hidden="true">⌘</span> OPEN WORKSTATION</button>
-        <button type="button" onClick={() => activateObject("blinds")} aria-pressed={!blindsOpen}><span aria-hidden="true">◪</span> BLINDS {blindsOpen ? "OPEN" : "CLOSED"}</button>
-        <button type="button" onClick={() => activateObject("painting")}><span aria-hidden="true">✳</span> TILT ART</button>
+        <button type="button" disabled={!roomReady} onClick={() => activateObject("blinds")} aria-pressed={!blindsOpen}><span aria-hidden="true">◪</span> BLINDS {blindsOpen ? "OPEN" : "CLOSED"}</button>
+        <button type="button" disabled={!roomReady} onClick={() => activateObject("painting")}><span aria-hidden="true">✳</span> TILT ART</button>
         <button type="button" onClick={() => activateObject("avatar")}><span aria-hidden="true">↗</span> GREET CREATOR</button>
         {secretFound && <span className="yor-studio__secret" role="status">✦ HIDDEN YOR MARK DISCOVERED</span>}
       </div>

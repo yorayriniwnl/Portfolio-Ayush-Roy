@@ -1,5 +1,6 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { dirname, join } from "node:path";
 
 /**
  * A risk-reviewed, tightly scoped exception for an upstream advisory that
@@ -20,7 +21,12 @@ const advisory = "GHSA-vfj7-8cjw-p6xm";
 const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
 const names = lock.packages ?? {};
 
-const npm = spawnSync("npm", ["audit", "--json", "--audit-level=high"], {
+// Invoke the npm CLI through Node. Windows cannot spawn .cmd shims directly.
+const npmArgs = ["audit", "--json", "--audit-level=high"];
+const npmCli = process.env.npm_execpath ?? join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js");
+const npm = spawnSync(existsSync(npmCli) ? process.execPath : process.platform === "win32" ? "cmd.exe" : "npm",
+  existsSync(npmCli) ? [npmCli, ...npmArgs]
+    : process.platform === "win32" ? ["/d", "/s", "/c", "npm.cmd audit --json --audit-level=high"] : npmArgs, {
   encoding: "utf8",
   timeout: 120000,
   maxBuffer: 20 * 1024 * 1024,

@@ -11,7 +11,7 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
   assert.match(hero, /<StudioRoom \/>/);
   assert.match(room, /<Scene onSelect=\{selectTarget\}/);
   const authored = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
-  assert.match(authored, /<Canvas camera=/);
+  assert.match(authored, /<Canvas frameloop=\{active \? "always" : "never"\}/);
   assert.ok(authored.includes("yor-world-room.glb"));
   assert.ok(authored.includes("yor-world-resident.glb"));
   assert.ok(authored.includes("yor-world-fixture.glb"));
@@ -21,26 +21,23 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
 });
 
 test("recovered objects have camera targets and physical interactions", () => {
-  const scene = readFileSync("src/components/experience/StudioScene.tsx", "utf8");
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
+  const runtime = readFileSync("src/components/experience/studio-room-runtime.ts", "utf8");
   for (const target of ["work", "about", "lab", "contact"]) {
-    assert.match(scene, new RegExp(`\\b${target}: \\{ position:`));
+    assert.match(scene, new RegExp(`\\b${target}: \\{ eye:`));
   }
-  assert.match(scene, /function CameraDirector/);
+  assert.match(scene, /function WorldCamera/);
   assert.match(scene, /camera\.position\.lerp/);
-  assert.match(scene, /onSelect\("about"\)/);
-  assert.match(scene, /onSelect\("lab"\)/);
-  assert.match(scene, /onSelect\("contact"\)/);
-  assert.match(scene, /onSelect\("work"\)/);
-  assert.match(scene, /const \[greeting, setGreeting\] = useState/);
-  assert.match(scene, /lightsOn \? 12 : \.5/);
-  assert.match(scene, /function StudioDoor/);
-  assert.match(scene, /hinge.current.rotation.y/);
-  assert.match(scene, /onToggleLights/);
-  assert.match(scene, /circleGeometry args=\{\[\.31,6\]\}/);
+  assert.match(runtime, /function identifyRoomObject/);
+  assert.match(runtime, /function setStudioLights/);
+  assert.match(runtime, /class StudioGreeting/);
+  assert.match(scene, /function StudioHexLights/);
+  assert.match(scene, /new THREE\.ShapeGeometry/);
+  assert.match(runtime, /oldFixture\.visible = false/);
   assert.match(room, /setLightsOn/);
   assert.match(room, /prefers-reduced-motion: reduce/);
-  assert.match(room, /graphicsAvailable/);
+  assert.match(room, /studioShouldMount\(lifecycle\)/);
   assert.match(room, /yor-studio__fallback/);
   assert.match(room, /aria-pressed=\{selected === target\}/);
 });
@@ -67,11 +64,14 @@ test("cinematic doorway entry remains replayable and camera controls can skip it
   assert.match(room, /Replay doorway entrance animation/);
   assert.match(room, /setIntroSequence\(0\)/);
   assert.match(room, /introSequence=\{introSequence\}/);
-  assert.match(authored, /function WorldCamera\(\{ selected, introSequence \}/);
+  assert.match(room, /data-intro-active=\{String\(introActive\)\}/);
+  assert.match(room, /SKIP INTRO/);
+  assert.match(room, /onIntroComplete=\{finishIntro\}/);
+  assert.match(authored, /function WorldCamera\(\{ selected, introSequence, onIntroComplete \}/);
   assert.match(authored, /entryTime\.current = introSequence > 0 \? 0 : null/);
   assert.match(authored, /camera\.position\.copy\(doorEye\)\.lerp\(portrait \? portraitDeskEye : deskEye,eased\)/);
   assert.match(authored, /doorwayOpening/);
-  assert.match(authored, /actions\.get\("turn_to_visitor"\)/);
+  assert.match(authored, /onIntroComplete\(\)/);
   assert.match(css, /\.yor-studio__utilities button:last-child \{ display:inline-flex/);
 });
 
@@ -79,12 +79,13 @@ test("Yor World object map drives real blinds and tilt with accessible DOM contr
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
   const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  const roomRuntime = readFileSync("src/components/experience/studio-room-runtime.ts", "utf8");
   for (const object of ["monitor", "painting", "blinds", "lights", "avatar", "door", "skills"]) {
-    assert.match(scene, new RegExp(`"${object}"`), `Scene must recognize ${object}`);
+    assert.match(roomRuntime, new RegExp(`return "${object}"`), `Scene must recognize ${object}`);
   }
-  assert.match(scene, /getObjectByName\("painting-pivot"\)/);
-  assert.match(scene, /getObjectByName\(`blind_slat_/);
-  assert.match(scene, /getObjectByName\("hidden-yor-mark"\)/);
+  assert.match(roomRuntime, /getObjectByName\("painting-pivot"\)/);
+  assert.match(roomRuntime, /getObjectByName\(`blind_slat_/);
+  assert.match(roomRuntime, /getObjectByName\("hidden-yor-mark"\)/);
   assert.match(scene, /blind\.node\.rotation\.z = THREE\.MathUtils\.damp/);
   assert.match(scene, /props\.painting\.rotation\.x = props\.paintingBase \+ impulse/);
   assert.match(scene, /props\.signature\.visible = paintingBeat > 0/);
@@ -114,13 +115,14 @@ test("the workstation launcher is evidence-first and dismissible from keyboard",
 
 test("actual GLB fills the opening cinematic stage instead of an editorial side card", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  const roomRuntime = readFileSync("src/components/experience/studio-room-runtime.ts","utf8");
   const css = readFileSync("src/styles/studio-revival.css","utf8");
   assert.match(scene,/work: \{ eye: \[-0\.82,1\.72,1\.50\]/);
   assert.match(scene,/gl\.toneMappingExposure=\.95/);
-  assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
+  assert.match(roomRuntime,/node\.intensity = intensity \* \(enabled \? \.00092 : \.00012\)/);
   assert.match(scene,/function StudioHexLights/);
   assert.match(scene,/new THREE.ShapeGeometry/);
-  assert.match(scene,/oldFixture.visible=false/);
+  assert.match(roomRuntime,/oldFixture\.visible = false/);
   assert.match(scene,/<StudioHexLights lightsOn=\{lightsOn\}/);
   assert.match(scene,/HEX_LIGHTS.map/);
   assert.match(scene,/<pointLight position=\{\[0,2\.05,-1\.5\]\}/);
@@ -148,16 +150,25 @@ test("studio prioritizes the reference-backed wide camera and pastel daylight ov
   assert.match(css, /\.yor-studio__photo-toggle/);
 });
 
+test("studio controls remain legible and keyboard-visible over the bright rendered room", () => {
+  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  assert.match(css, /yor-studio__topline > \[role="status"\]/);
+  assert.match(css, /background:rgba\(13,16,38,\.78\)/);
+  assert.match(css, /\.yor-studio__utilities button:disabled/);
+  assert.match(css, /\.yor-studio__utilities button:focus-visible/);
+});
+
 test("high-detail authored gaming props replace low-poly blockout groups without deleting controls", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  const roomRuntime = readFileSync("src/components/experience/studio-room-runtime.ts","utf8");
   const css = readFileSync("src/styles/studio-revival.css","utf8");
   assert.match(scene,/yor-world-workstation-details\.glb/);
   for(const node of ["helios-pc","controller-pegboard","plants_group"]) {
-    assert.ok(scene.includes('"' + node + '"'), "Missing authored dressing " + node);
+    assert.ok(roomRuntime.includes('"' + node + '"'), "Missing authored dressing " + node);
   }
-  assert.match(scene,/authoredDressing = workstationDetail\.scene\.clone\(true\)/);
-  assert.match(scene,/model\.attach\(detail\)/);
-  assert.match(scene,/controller-pegboard/);
+  assert.match(roomRuntime,/const dressing = clone\(workstationDetail\.scene\)/);
+  assert.match(roomRuntime,/group\.attach\(detail\)/);
+  assert.match(roomRuntime,/controller-pegboard/);
   assert.match(css,/Compact mobile introduction preceding the 3D room/);
   assert.match(css,/grid-column:1;grid-row:3/);
   assert.ok(statSync("public/models/yor-world-workstation-details.glb").size > 700_000);

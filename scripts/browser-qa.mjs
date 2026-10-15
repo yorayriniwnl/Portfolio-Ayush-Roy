@@ -473,6 +473,72 @@ try {
   report.rendering.referenceFraming = referenceFraming;
   await capture(cdp, outputDir, "desktop-hero");
 
+  activeScenario = "homepage studio render lifecycle, repeated greeting and reduced-motion recovery";
+  const greetingStart = await cdp.evaluate(`Number(document.querySelector('.yor-studio')?.dataset.greetingSequence || 0)`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(4)')?.click(); document.querySelector('.yor-studio__actions button:nth-child(4)')?.click(); true`);
+  const repeatedGreeting = await waitForCondition(cdp,
+    `Number(document.querySelector('.yor-studio')?.dataset.greetingSequence || 0) === ${greetingStart + 2}`,
+    { timeoutMs:2500, description:"repeated accessible creator-greeting controls queue two real scene greetings" });
+  assert(repeatedGreeting.value, "Each creator greeting input must reach the animated resident");
+
+  const rafBeforeOffscreen = await cdp.evaluate(`window.__qaRafCalls || 0`);
+  await cdp.evaluate(`window.scrollTo({top:document.documentElement.scrollHeight,left:0,behavior:'instant'}); true`);
+  const pausedOffscreen = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.sceneStatus === 'paused' && document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
+    { timeoutMs:5000, description:"loaded room pauses rendering offscreen without discarding its state" });
+  assert(pausedOffscreen.value, "Offscreen room did not preserve ready scene state while pausing");
+  await delay(900);
+  const rafWhileOffscreen = await cdp.evaluate(`window.__qaRafCalls || 0`);
+  assert(rafWhileOffscreen - rafBeforeOffscreen < 35,
+    `Offscreen room kept an animation loop running (${rafWhileOffscreen - rafBeforeOffscreen} callbacks)`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__viewport')?.scrollIntoView({block:'center',behavior:'instant'}); true`);
+  await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.sceneStatus === 'running' && document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
+    { timeoutMs:5000, description:"room resumes with its loaded state when visible again" });
+
+  await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+  const staticRoom = await waitForCondition(cdp,
+    `(() => { const room = document.querySelector('.yor-studio'); const fallback = room?.querySelector('.yor-studio__fallback'); const canvas = room?.querySelectorAll('.yor-studio__viewport canvas').length; const fallbackOpacity = fallback ? getComputedStyle(fallback).opacity : null; return room?.dataset.sceneStatus === 'reduced-motion' && room.dataset.sceneReady === 'false' && canvas === 0 && fallbackOpacity === '1' ? { status:room.dataset.sceneStatus, canvas, fallbackOpacity } : null; })()`,
+    { timeoutMs:5000, description:"changing motion preference after entry restores the authored static room" });
+  assert(staticRoom.value?.canvas === 0 && staticRoom.value.fallbackOpacity === "1",
+    "Reduced-motion change left an empty stage");
+  report.rendering.studioLifecycle = { repeatedGreeting:true, offscreenPaused:true,
+    callbacksWhileOffscreen:rafWhileOffscreen-rafBeforeOffscreen, visibleResume:true,
+    reducedMotionFallback:staticRoom.value };
+  await capture(cdp, outputDir, "desktop-studio-reduced-motion-fallback");
+  await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
+  const restoredRoom = await waitForCondition(cdp,
+    `Boolean(document.querySelector('.yor-studio')?.dataset.sceneStatus === 'running' && document.querySelector('.yor-studio__viewport canvas'))`,
+    { timeoutMs:30000, description:"room recovers from a live reduced-motion preference change" });
+  assert(restoredRoom.value, "3D room did not recover after motion preference returned to normal");
+  await capture(cdp, outputDir, "desktop-room-after-motion-roundtrip");
+
+  const contextLoss = await cdp.evaluate(`(() => {
+    const canvas=document.querySelector('.yor-studio__viewport canvas');
+    const context=canvas?.getContext('webgl2');
+    const extension=context?.getExtension('WEBGL_lose_context');
+    if (!extension) return false;
+    window.__qaStudioContextExtension=extension;
+    extension.loseContext();
+    return true;
+  })()`);
+  assert(contextLoss, "Browser did not expose the WebGL context-loss exercise");
+  const contextFallback = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.sceneStatus === 'unavailable' && document.querySelector('.yor-studio')?.dataset.sceneFailed === 'true'`,
+    { timeoutMs:7000, description:"live WebGL context loss switches the studio to its static fallback" });
+  assert(contextFallback.value, "WebGL context loss did not expose the honest fallback status");
+  await cdp.evaluate(`window.__qaStudioContextExtension?.restoreContext(); true`);
+  await delay(450);
+  const retryAvailable = await cdp.evaluate(`Boolean([...document.querySelectorAll('.yor-studio__utilities button')].find(button=>button.textContent.includes('RETRY 3D')))`);
+  assert(retryAvailable, "Graphics failure did not offer an explicit retry");
+  await cdp.evaluate(`([...document.querySelectorAll('.yor-studio__utilities button')].find(button=>button.textContent.includes('RETRY 3D')))?.click(); true`);
+  const contextRecovered = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.sceneStatus === 'running' && document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
+    { timeoutMs:30000, description:"retry reconstructs the complete studio after context loss" });
+  assert(contextRecovered.value, "WebGL retry failed to reconstruct the interactive studio");
+  report.rendering.studioLifecycle.contextLossRecovery = true;
+  await capture(cdp, outputDir, "desktop-room-after-context-recovery");
+
   activeScenario = "distraction-free full-scene room and Escape restoration";
   await cdp.evaluate(`document.querySelector('.yor-studio__photo-toggle')?.click(); true`);
   const focusMode = await waitForCondition(cdp,
