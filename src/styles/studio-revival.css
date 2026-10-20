@@ -666,7 +666,7 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
 }
 .yor-world-hero__studio .yor-studio__touch-pad {
   position:absolute;right:14px;bottom:45px;z-index:8;
-  display:grid;grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,42px);
+  display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);
   gap:2px;padding:5px;border:1px solid rgba(195,235,255,.45);border-radius:18px;
   background:rgba(12,20,43,.71);backdrop-filter:blur(14px);
   box-shadow:0 8px 28px rgba(0,0,0,.18);pointer-events:auto;
@@ -692,7 +692,7 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
 }
 @media (max-width:650px) {
   .yor-world-hero__studio .yor-studio__touch-pad {
-    right:9px;bottom:36px;grid-template-columns:repeat(3,34px);grid-template-rows:repeat(3,34px);
+    right:9px;bottom:36px;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);
     gap:2px;padding:4px;border-radius:13px;
   }
   .yor-world-hero__studio .yor-studio__touch-pad button {font-size:19px;border-radius:8px;}
