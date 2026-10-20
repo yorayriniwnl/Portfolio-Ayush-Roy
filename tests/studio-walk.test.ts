@@ -73,6 +73,6 @@ test("cross-room routes stay outside obstacles and do not cut diagonally through
 
 test("mobile movement buttons meet the 44px minimum target size", () => {
   const css=readFileSync("src/styles/studio-revival.css","utf8");
-  assert.match(css,/grid-template-columns:repeat\\(3,44px\\);grid-template-rows:repeat\\(3,44px\\)/);
-  assert.doesNotMatch(css,/grid-template-columns:repeat\\(3,34px\\)/);
+  assert.match(css,/grid-template-columns:repeat\(3,44px\);grid-template-rows:repeat\(3,44px\)/);
+  assert.doesNotMatch(css,/grid-template-columns:repeat\(3,34px\)/);
 });
