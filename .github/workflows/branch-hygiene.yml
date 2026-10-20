@@ -1,0 +1,102 @@
+# Runs once for the initial audited snapshot and after a future PR merges.
+# Never checks out PR code or runs branch-provided scripts.
+name: Safe merged branch hygiene
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/branch-hygiene.yml
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  prune:
+    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out trusted default branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+      - name: Prune only unchanged merged PR heads
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          EVENT_PR_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          set -euo pipefail
+
+          prune_if_unchanged() {
+            local number="$1" branch="$2" expected="$3" details current
+            case "$branch" in
+              ""|main|backup/*) echo "Preserved protected/backup branch: $branch"; return 0 ;;
+            esac
+            if [[ ! "$number" =~ ^[0-9]+$ || ! "$expected" =~ ^[0-9a-f]{40}$ || ! "$branch" =~ ^[a-zA-Z0-9._/-]+$ ]]; then
+              echo "Refusing invalid branch, PR, or SHA"; return 1
+            fi
+
+            # Both the original PR and its exact tip must match the deletion target.
+            details="$(gh api "repos/$REPO/pulls/$number")"
+            if ! jq -e --arg repo "$REPO" --arg branch "$branch" --arg sha "$expected" \
+              '.merged == true and .base.ref == "main" and .head.repo.full_name == $repo and .head.ref == $branch and .head.sha == $sha' \
+              <<<"$details" >/dev/null; then
+              echo "Preserved $branch: no exact verified merged PR"
+              return 0
+            fi
+
+            if ! current="$(gh api "repos/$REPO/git/ref/heads/$branch" --jq '.object.sha' 2>/dev/null)"; then
+              echo "Already absent: $branch"
+              return 0
+            fi
+            if [[ "$current" != "$expected" ]]; then
+              echo "Preserved diverged branch: $branch"
+              return 0
+            fi
+
+            # Server-side atomic lease: a concurrent push blocks deletion.
+            git push --force-with-lease="refs/heads/$branch:$expected" origin ":refs/heads/$branch"
+            echo "Removed merged PR #$number branch: $branch"
+          }
+
+          if [[ "$EVENT" == "pull_request" ]]; then
+            if [[ "$EVENT_PR_HEAD_REPO" != "$REPO" ]]; then
+              echo "Preserved branch from another repository"
+              exit 0
+            fi
+            prune_if_unchanged "$EVENT_PR_NUMBER" "$EVENT_PR_BRANCH" "$EVENT_PR_SHA"
+            exit 0
+          fi
+
+          # Audited on 2026-10-21: only unchanged, already-merged PR heads.
+          # Deliberately NOT included: main, backup/main-20260929,
+          # codex/studio-polish-20261015, design/editorial-reference-20261010,
+          # feat/reference-framed-pastel-room-20261011 (updated after PR #28).
+          while IFS='|' read -r number branch expected; do
+            [[ -n "$number" ]] || continue
+            prune_if_unchanged "$number" "$branch" "$expected"
+          done <<'AUDITED_BRANCHES'
+              20|design/editorial-portfolio-20261010|66e7a3c9bc9ef2064f70e7656b1eda3a3cf286f4
+              19|design/immersive-studio-20261008|f2fda557302b8909f4a9f99593624ebe3053092d
+              18|design/portfolio-home-reframe-20261008|4c1fd6bfd4ad34416b9932d482df5592af855500
+              22|feat/editorial-polish-20261010|e853241bb478de69284a5d94c3eda2c33d05020b
+              27|feat/immersive-full-room-art-direction-20261011|77195b25accb9a993495303040589ac2b5c28f00
+              23|feat/restore-immersive-3d-studio-20261010|44261c1368d439163212fedbbffcdfe10770b972
+              26|feat/room-wasd-click-walk-20261011|1b4ab1b34ab4960f1ba5df7c8e85f8d5fb6fa6c5
+              25|feat/3d-room-interaction-layer-20261011|f800edd6540e00e003dea301777ef4d479f098c3
+              24|feat/3d-studio-cinematic-entry-20261011|94af8f3eceec56a56a6899b7e3e137f5f79264f2
+              30|fix/portfolio-walkmesh-mobile-controls-20261021|d384351ffa0d560733280f9d5c1241ba79119a5b
+              29|fix/reference-studio-visual-qa-20261011|57e6256a7bf57bb5ec76742015eaf90080b612b9
+          AUDITED_BRANCHES
