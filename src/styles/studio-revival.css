@@ -259,12 +259,12 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   font:700 9px/1.25 var(--font-mono),monospace; letter-spacing:.045em;
   cursor:pointer; transition:background .18s ease,border-color .18s ease,transform .18s ease;
 }
-.yor-world-hero__studio .yor-studio__actions button:first-child {
+.yor-world-hero__studio .yor-studio__actions button:nth-child(2) {
   background:linear-gradient(135deg,#e6b9fe,#c0c8ff); color:#17152d; border-color:#e2cbfc;
 }
 .yor-world-hero__studio .yor-studio__actions button span {font-size:18px; line-height:1; font-weight:400;}
 .yor-world-hero__studio .yor-studio__actions button:hover { transform:translateY(-2px); border-color:#d7aaf6; background:#373459; }
-.yor-world-hero__studio .yor-studio__actions button:first-child:hover {background:#f1d8ff;color:#1a1933;}
+.yor-world-hero__studio .yor-studio__actions button:nth-child(2):hover {background:#f1d8ff;color:#1a1933;}
 .yor-world-hero__studio .yor-studio__actions button[aria-pressed="true"] {border-color:#95dfef; color:#a6f0fc;}
 .yor-world-hero__studio .yor-studio__secret {
   display:inline-flex; align-items:center; color:#b8f8dc; padding:9px 10px;
@@ -644,4 +644,57 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
 @media (min-width:801px) and (max-width:1050px) {
   .yor-world-hero__identity {grid-template-columns:minmax(0,1fr) minmax(240px,.95fr);}
   .editorial-home .yor-world-hero h1 {font-size:clamp(38px,4vw,48px);}
+}
+
+
+/* Free-roam mode: discoverable on desktop and touch, without trapping scrolling
+   or introducing an exclusive full-screen game interaction. */
+.yor-world-hero__studio .yor-studio__actions .yor-studio__walk-toggle {
+  color:#081e29; border:1px solid #b8f5ff;
+  background:linear-gradient(135deg,#a4effd,#c8f7fb);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.26);
+}
+.yor-world-hero__studio .yor-studio__actions .yor-studio__walk-toggle:hover,
+.yor-world-hero__studio .yor-studio__actions .yor-studio__walk-toggle[aria-pressed="true"]{
+  background:linear-gradient(135deg,#7fd9f0,#a6c8ff);color:#12203c;border-color:#e0fdff;
+}
+.yor-world-hero__studio .yor-studio__actions .yor-studio__walk-toggle:disabled {
+  background:#343d57;color:#98a0b8;border-color:#5a6081;cursor:not-allowed;opacity:.65;
+}
+.yor-studio[data-roaming="true"] .yor-studio__viewport canvas {
+  cursor:crosshair;touch-action:none;
+}
+.yor-world-hero__studio .yor-studio__touch-pad {
+  position:absolute;right:14px;bottom:45px;z-index:8;
+  display:grid;grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,42px);
+  gap:2px;padding:5px;border:1px solid rgba(195,235,255,.45);border-radius:18px;
+  background:rgba(12,20,43,.71);backdrop-filter:blur(14px);
+  box-shadow:0 8px 28px rgba(0,0,0,.18);pointer-events:auto;
+}
+.yor-world-hero__studio .yor-studio__touch-pad button {
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(191,217,252,.55);border-radius:10px;
+  background:rgba(224,216,255,.21);color:#fff;font:800 22px/1 var(--font-mono),monospace;
+  cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;
+}
+.yor-world-hero__studio .yor-studio__touch-pad button[aria-pressed="true"] {
+  background:#a5efff;color:#132743;border-color:#fff;
+}
+.yor-world-hero__studio .yor-studio__touch-forward{grid-column:2;grid-row:1;}
+.yor-world-hero__studio .yor-studio__touch-left{grid-column:1;grid-row:2;}
+.yor-world-hero__studio .yor-studio__touch-back{grid-column:2;grid-row:3;}
+.yor-world-hero__studio .yor-studio__touch-right{grid-column:3;grid-row:2;}
+.yor-world-hero__studio .yor-studio__touch-pad button:focus-visible {
+  outline:2px solid #fff;outline-offset:3px;
+}
+@media (min-width:900px) and (pointer:fine) {
+  .yor-world-hero__studio .yor-studio__touch-pad{display:none;}
+}
+@media (max-width:650px) {
+  .yor-world-hero__studio .yor-studio__touch-pad {
+    right:9px;bottom:36px;grid-template-columns:repeat(3,34px);grid-template-rows:repeat(3,34px);
+    gap:2px;padding:4px;border-radius:13px;
+  }
+  .yor-world-hero__studio .yor-studio__touch-pad button {font-size:19px;border-radius:8px;}
+  .yor-world-hero__studio .yor-studio__hud span:last-child {max-width:56%;text-align:right;}
 }

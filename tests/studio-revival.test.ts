@@ -67,7 +67,7 @@ test("cinematic doorway entry remains replayable and camera controls can skip it
   assert.match(room, /Replay doorway entrance animation/);
   assert.match(room, /setIntroSequence\(0\)/);
   assert.match(room, /introSequence=\{introSequence\}/);
-  assert.match(authored, /function WorldCamera\(\{ selected, introSequence \}/);
+  assert.match(authored, /function WorldCamera\(\{ selected, introSequence, roaming \}/);
   assert.match(authored, /entryTime\.current = introSequence > 0 \? 0 : null/);
   assert.match(authored, /camera\.position\.copy\(doorEye\)\.lerp\(portrait \? portraitDeskEye : deskEye,eased\)/);
   assert.match(authored, /doorwayOpening/);
@@ -197,4 +197,34 @@ test("the reference workstation includes lightweight modeled desk and floor acce
   assert.match(scene, /<StudioDeskProps onOpen=\{\(\) => onInteract\("monitor"\)\}\/>/);
   assert.match(details, /position=\{\[-1\.02,\.751,-\.99\]\}/);
   assert.match(details, /scale=\{\[\.055,\.04,\.043\]\}/);
+});
+
+test("room can be traversed by WASD, clicking the floor and mobile directional controls", () => {
+  const room=readFileSync("src/components/experience/StudioRoom.tsx","utf8");
+  const scene=readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
+  const camera=readFileSync("src/components/experience/StudioWalkCamera.tsx","utf8");
+  const walk=readFileSync("src/components/experience/StudioWalk.ts","utf8");
+  const css=readFileSync("src/styles/studio-revival.css","utf8");
+  assert.match(room,/data-roaming=\{String\(roaming\)\}/);
+  assert.match(room,/WALK THE ROOM/);
+  assert.match(room,/onWalkTo=\{walkToPoint\}/);
+  assert.match(room,/onWalkStep=\{reportWalk\}/);
+  assert.match(room,/yor-studio__touch-pad/);
+  assert.match(room,/setPointerCapture/);
+  assert.match(scene,/<planeGeometry args=\{\[3\.9,3\.35\]\}/);
+  assert.match(scene,/event\.ray\.intersectPlane/);
+  assert.match(scene,/onWalkTo\(\{x:event\.point\.x,z:event\.point\.z\}\)/);
+  assert.match(camera,/window\.addEventListener\("keydown",down\)/);
+  assert.match(camera,/canvas\.addEventListener\("pointerdown",startDrag\)/);
+  assert.match(scene,/gl\.domElement\.tabIndex=0/);
+  assert.match(camera,/if\(touchDirection==="forward"\)/);
+  assert.match(camera,/route\.current=walkRoute/);
+  assert.match(camera,/camera\.lookAt\(next\.x/);
+  assert.match(camera,/document\.activeElement/);
+  assert.match(walk,/export function isWalkable/);
+  assert.match(walk,/export function nearestWalkable/);
+  assert.match(walk,/export function slideWalk/);
+  assert.match(walk,/export function walkRoute/);
+  assert.match(css,/\.yor-studio__touch-pad/);
+  assert.match(css,/\[data-roaming="true"\]/);
 });

@@ -8,6 +8,8 @@ import * as THREE from "three";
 import type { StudioTarget } from "./StudioScene";
 import { StudioReferenceDressing } from "./StudioReferenceDressing";
 import { StudioDeskProps } from "./StudioDeskProps";
+import { StudioWalkCamera } from "./StudioWalkCamera";
+import type { WalkPoint, WalkDirection } from "./StudioWalk";
 
 export type StudioObjectAction = "monitor" | "painting" | "blinds" | "lights" | "avatar" | "door" | "skills";
 function identifyRoomObject(object: THREE.Object3D, root: THREE.Object3D): StudioObjectAction | null {
@@ -38,7 +40,7 @@ const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,
   contact: { eye: [-.08,1.53,.23], look: [-1.22,1.2,1.77] },
 };
 
-function WorldCamera({ selected, introSequence }: { selected: StudioTarget; introSequence: number }) {
+function WorldCamera({ selected, introSequence, roaming }: { selected: StudioTarget; introSequence: number; roaming:boolean }) {
   const target = useRef(new THREE.Vector3(...CAMERA.work.look));
   const entryTime = useRef<number | null>(null);
   const { camera, size } = useThree();
@@ -54,6 +56,7 @@ function WorldCamera({ selected, introSequence }: { selected: StudioTarget; intr
   // Mutable Three.js cameras live outside React state, as does the scene rig below.
   // eslint-disable-next-line react-hooks/immutability
   useFrame((_, delta) => {
+    if (roaming) return;
     // Increase portrait horizontal coverage without moving the actual models.
     // Wide camera crops the chair on 390px phones; a wider portrait lens does not.
     if (camera instanceof THREE.PerspectiveCamera) {
@@ -132,16 +135,22 @@ function StudioHexLights({ lightsOn, onExplore }: { lightsOn:boolean; onExplore:
   );
 }
 
-function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selected, lightsOn, blindsOpen, paintingBeat, introSequence, onReady }: {
+function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, onWalkTo, onWalkStep, selected, lightsOn, blindsOpen, paintingBeat, introSequence, roaming, paused, walkTarget, touchDirection, onReady }: {
   onSelect: (target:StudioTarget)=>void;
   onToggleLights:()=>void;
   onInteract:(action:StudioObjectAction)=>void;
   onHover:(action:StudioObjectAction | null)=>void;
+  onWalkTo:(point:WalkPoint)=>void;
+  onWalkStep:(point:WalkPoint)=>void;
   selected:StudioTarget;
   lightsOn:boolean;
   blindsOpen:boolean;
   paintingBeat:number;
   introSequence:number;
+  roaming:boolean;
+  paused:boolean;
+  walkTarget:(WalkPoint & {id:number}) | null;
+  touchDirection:WalkDirection | null;
   onReady:()=>void;
 }) {
   const [world, resident, fixture, workstationDetail] = useLoader(GLTFLoader, [
@@ -297,13 +306,21 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
   },[lightsOn,lightNodes]);
 
   const choose = (event:ThreeEvent<MouseEvent>) => {
+    if (event.delta > 7) return;
     const target = identifyRoomObject(event.object,group);
-    if (!target) return;
+    if (!target) {
+      const point=new THREE.Vector3();
+      if(event.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),point)) {
+        (event.nativeEvent.target as HTMLElement)?.focus?.({preventScroll:true});
+        onWalkTo({x:point.x,z:point.z});
+      }
+      return;
+    }
     event.stopPropagation();
     if (target === "lights") onToggleLights();
-    else if (target === "avatar") onSelect("about");
-    else if (target === "door") onSelect("contact");
-    else if (target === "skills") onSelect("lab");
+    else if (target === "avatar") { if(roaming) onInteract("avatar"); else onSelect("about"); }
+    else if (target === "door") { if(roaming) onInteract("door"); else onSelect("contact"); }
+    else if (target === "skills") { if(roaming) onInteract("skills"); else onSelect("lab"); }
     else onInteract(target);
   };
   const hover = (event:ThreeEvent<PointerEvent>) => {
@@ -322,10 +339,22 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
       <pointLight position={[0,2.05,-1.5]} color="#c881ff" intensity={lightsOn ? 2.2 : .14} distance={3.1} decay={2}/>
       <pointLight position={[-1.4,.72,-.65]} color="#50daff" intensity={lightsOn ? 3.0 : .2} distance={3.7} decay={2}/>
       <pointLight position={[1.35,1.98,.06]} color="#ffb5df" intensity={lightsOn ? 2.4 : .14} distance={3.4} decay={2}/>
-      <WorldCamera selected={selected} introSequence={introSequence}/>
+      <WorldCamera selected={selected} introSequence={introSequence} roaming={roaming}/>
+      <StudioWalkCamera roaming={roaming} paused={paused} walkTarget={walkTarget} touchDirection={touchDirection} onWalkStep={onWalkStep}/>
       <StudioHexLights lightsOn={lightsOn} onExplore={() => onSelect("lab")}/>
       <StudioReferenceDressing lightsOn={lightsOn} onOpenComputer={() => onInteract("monitor")} onExplore={() => onSelect("lab")}/>
       <StudioDeskProps onOpen={() => onInteract("monitor")}/>
+      {/* Invisible ground hit surface. Room meshes remain clickable above it. */}
+      <mesh rotation={[-Math.PI/2,0,0]} position={[0,.008,0]}
+        onClick={(event:ThreeEvent<MouseEvent>) => {
+          if(event.delta>7)return;
+          event.stopPropagation();
+          (event.nativeEvent.target as HTMLElement)?.focus?.({preventScroll:true});
+          onWalkTo({x:event.point.x,z:event.point.z});
+        }}>
+        <planeGeometry args={[3.9,3.35]}/>
+        <meshBasicMaterial transparent opacity={0} depthWrite={false}/>
+      </mesh>
       <primitive object={group} onClick={choose}
         onPointerOver={hover}
         onPointerOut={() => { document.body.style.cursor=""; onHover(null); }}/>
@@ -333,26 +362,34 @@ function AuthenticYorRoom({ onSelect, onInteract, onHover, onToggleLights, selec
   );
 }
 
-export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleLights, selected, lightsOn, blindsOpen, paintingBeat, introSequence, onReady }: {
+export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleLights, onWalkTo, onWalkStep, selected, lightsOn, blindsOpen, paintingBeat, introSequence, roaming, paused, walkTarget, touchDirection, onReady }: {
   onSelect:(target:StudioTarget)=>void;
   onToggleLights:()=>void;
   onInteract:(action:StudioObjectAction)=>void;
   onHover:(action:StudioObjectAction | null)=>void;
+  onWalkTo:(point:WalkPoint)=>void;
+  onWalkStep:(point:WalkPoint)=>void;
   selected:StudioTarget;
   lightsOn:boolean;
   blindsOpen:boolean;
   paintingBeat:number;
   introSequence:number;
+  roaming:boolean;
+  paused:boolean;
+  walkTarget:(WalkPoint & {id:number}) | null;
+  touchDirection:WalkDirection | null;
   onReady:()=>void;
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
     <Canvas camera={{position:[-0.82,1.72,1.50],fov:55,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
-      onCreated={({gl})=>{ gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.95; }}
+      onCreated={({gl})=>{ gl.domElement.tabIndex=0; gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.95; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
       <Suspense fallback={null}>
         <AuthenticYorRoom onSelect={onSelect} onInteract={onInteract} onHover={onHover} onToggleLights={onToggleLights}
+          onWalkTo={onWalkTo} onWalkStep={onWalkStep}
+          roaming={roaming} paused={paused} walkTarget={walkTarget} touchDirection={touchDirection}
           selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen}
           paintingBeat={paintingBeat} introSequence={introSequence} onReady={onReady}/>
       </Suspense>
