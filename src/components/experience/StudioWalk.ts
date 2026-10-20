@@ -12,6 +12,7 @@ const NX = Math.floor((WALK_BOUNDS.maxX - WALK_BOUNDS.minX) / STEP) + 1;
 const NZ = Math.floor((WALK_BOUNDS.maxZ - WALK_BOUNDS.minZ) / STEP) + 1;
 
 export function isWalkable(x: number, z: number): boolean {
+  if (!Number.isFinite(x) || !Number.isFinite(z)) return false;
   const {minX,maxX,minZ,maxZ}=WALK_BOUNDS;
   if (x < minX || x > maxX || z < minZ || z > maxZ) return false;
   // Desk, under-desk cabinets and seated character/chair: padded footprints.
@@ -21,8 +22,8 @@ export function isWalkable(x: number, z: number): boolean {
 }
 export function nearestWalkable(x: number, z: number): WalkPoint {
   const base = {
-    x: Math.max(WALK_BOUNDS.minX, Math.min(WALK_BOUNDS.maxX, x)),
-    z: Math.max(WALK_BOUNDS.minZ, Math.min(WALK_BOUNDS.maxZ, z)),
+    x: Math.max(WALK_BOUNDS.minX, Math.min(WALK_BOUNDS.maxX, Number.isFinite(x) ? x : 0)),
+    z: Math.max(WALK_BOUNDS.minZ, Math.min(WALK_BOUNDS.maxZ, Number.isFinite(z) ? z : .9)),
   };
   if (isWalkable(base.x,base.z)) return base;
   // Find closest open point rather than teleporting through the desk.
@@ -36,18 +37,36 @@ export function nearestWalkable(x: number, z: number): WalkPoint {
   return found;
 }
 export function slideWalk(position: WalkPoint, dx: number, dz: number): WalkPoint {
+  // Reject invalid displacements instead of corrupting the Three.js camera.
+  const start = isWalkable(position.x,position.z)
+    ? position : nearestWalkable(position.x,position.z);
+  if (!Number.isFinite(dx) || !Number.isFinite(dz)) return start;
   // Axis-separated resolution prevents pushing through the chair at diagonal angles.
+  position = start;
   const x=position.x+dx,z=position.z+dz;
   if(isWalkable(x,z)) return {x,z};
   if(isWalkable(x,position.z)) return {x,z:position.z};
   if(isWalkable(position.x,z)) return {x:position.x,z};
   return position;
 }
-const toCell = (p:WalkPoint) => ({
-  x:Math.round((p.x-WALK_BOUNDS.minX)/STEP),
-  z:Math.round((p.z-WALK_BOUNDS.minZ)/STEP)
-});
-const toWorld = (ix:number,iz:number):WalkPoint => ({x:WALK_BOUNDS.minX+ix*STEP,z:WALK_BOUNDS.minZ+iz*STEP});
+const toWorld = (ix:number,iz:number):WalkPoint =>
+  ({x:WALK_BOUNDS.minX+ix*STEP,z:WALK_BOUNDS.minZ+iz*STEP});
+
+// The room is not an exact multiple of STEP. Rounding directly at its walls
+// can produce NX/NZ (out-of-bounds) or a blocked desk/chair cell. Always
+// select the closest valid navigation cell instead.
+const toCell = (p:WalkPoint) => {
+  let bestX=0, bestZ=0, bestDistance=Infinity;
+  for (let iz=0; iz<NZ; iz++) for (let ix=0; ix<NX; ix++) {
+    const candidate=toWorld(ix,iz);
+    if (!isWalkable(candidate.x,candidate.z)) continue;
+    const distance=(candidate.x-p.x)**2+(candidate.z-p.z)**2;
+    if (distance<bestDistance) {
+      bestX=ix;bestZ=iz;bestDistance=distance;
+    }
+  }
+  return {x:bestX,z:bestZ};
+};
 export function walkRoute(start:WalkPoint, requested:WalkPoint):WalkPoint[] {
   const goal=nearestWalkable(requested.x,requested.z);
   const origin=nearestWalkable(start.x,start.z);
@@ -98,5 +117,6 @@ export function walkRoute(start:WalkPoint, requested:WalkPoint):WalkPoint[] {
       }
     }
   }
-  return [goal];
+  // An unreachable target must not turn into a wall-crossing direct route.
+  return [];
 }
