@@ -579,7 +579,7 @@ try {
     `document.querySelector('.yor-studio')?.dataset.blindsOpen === 'false' &&
     document.querySelector('.yor-studio__actions button:nth-child(3)')?.getAttribute('aria-pressed') === 'true'`,
     { timeoutMs:2500, description:"room blinds close through accessible button" });
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(3)')?.click(); true`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(4)')?.click(); true`);
   await waitForCondition(cdp,
     `Number(document.querySelector('.yor-studio')?.dataset.paintingBeat) === 1 &&
      document.querySelector('.yor-studio')?.dataset.secretFound === 'true'`,
