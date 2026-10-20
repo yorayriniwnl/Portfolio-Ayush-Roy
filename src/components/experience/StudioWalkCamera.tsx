@@ -1,24 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import type { StudioTarget } from "./StudioScene";
 import {
   WALK_EYE_HEIGHT, nearestWalkable, slideWalk, walkRoute,
   type WalkPoint, type WalkDirection,
 } from "./StudioWalk";
 
-const CAMERA: Record<StudioTarget, { eye: [number,number,number]; look: [number,number,number] }> = {
-  work: { eye:[1.15,1.78,1.36],look:[0,1.1,-.83] },
-  about: { eye:[1.12,1.5,.82],look:[.3,.88,-.36] },
-  lab: { eye:[.6,1.65,.68],look:[1.92,1.5,-.4] },
-  contact: { eye:[-.08,1.53,.23],look:[-1.22,1.2,1.77] },
-};
-
-export function StudioWalkCamera({ selected, introSequence, roaming, paused, walkTarget, touchDirection, onWalkStep }: {
-  selected: StudioTarget;
-  introSequence: number;
+export function StudioWalkCamera({ roaming, paused, walkTarget, touchDirection, onWalkStep }: {
   roaming: boolean;
   paused: boolean;
   walkTarget: (WalkPoint & {id:number}) | null;
@@ -26,23 +16,12 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
   onWalkStep: (position:WalkPoint) => void;
 }) {
   const { camera, gl, invalidate } = useThree();
-  const target = useRef(new THREE.Vector3(...CAMERA.work.look));
-  const entryTime = useRef<number | null>(null);
   const yaw = useRef(0);
   const pitch = useRef(-.2);
   const pressed = useRef(new Set<string>());
   const route = useRef<WalkPoint[]>([]);
   const dragging = useRef<{pointerId:number; x:number; y:number; total:number} | null>(null);
   const reportClock = useRef(0);
-  const initialPose = useMemo(() => ({
-    doorEye:new THREE.Vector3(...CAMERA.contact.eye),
-    doorLook:new THREE.Vector3(...CAMERA.contact.look),
-    deskEye:new THREE.Vector3(...CAMERA.work.eye),
-    deskLook:new THREE.Vector3(...CAMERA.work.look),
-  }), []);
-
-  useEffect(() => { entryTime.current = roaming ? null : introSequence > 0 ? 0 : null; }, [introSequence,roaming]);
-
   useEffect(() => {
     const canvas=gl.domElement;
     if (!roaming) {
@@ -195,22 +174,6 @@ export function StudioWalkCamera({ selected, introSequence, roaming, paused, wal
       }
       return;
     }
-    if(entryTime.current!==null){
-      const elapsed=entryTime.current+step;
-      entryTime.current=elapsed;
-      const progress=THREE.MathUtils.clamp((elapsed-.75)/3.7,0,1);
-      const eased=progress*progress*(3-2*progress);
-      camera.position.copy(initialPose.doorEye).lerp(initialPose.deskEye,eased);
-      target.current.copy(initialPose.doorLook).lerp(initialPose.deskLook,eased);
-      camera.lookAt(target.current);
-      if(elapsed>=5)entryTime.current=null;
-      return;
-    }
-    const weight=1-Math.exp(-2.4*step);
-    const config=CAMERA[selected];
-    camera.position.lerp(new THREE.Vector3(...config.eye),weight);
-    target.current.lerp(new THREE.Vector3(...config.look),weight);
-    camera.lookAt(target.current);
   });
   return null;
 }

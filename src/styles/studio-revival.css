@@ -346,6 +346,307 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   .yor-world-hero__studio .yor-studio__console-foot {margin-top:10px;padding-top:8px;}
 }
 
+/* Full-room art direction: visitors enter the actual 3D studio instead of
+   looking at a thumbnail wedged beside an oversized editorial heading.
+   Essential text and links remain real HTML above the GPU canvas. */
+.yor-world-hero {
+  background: radial-gradient(ellipse at 62% 10%,rgba(95,76,158,.38),transparent 58%),#070c1b;
+}
+.yor-world-hero__shell {
+  display:grid; grid-template-columns:minmax(0,1fr); row-gap:0;
+  width:min(1850px,100%);
+  padding:clamp(88px,7vw,110px) clamp(12px,2.3vw,40px) 38px;
+}
+.yor-world-hero__eyebrow {
+  grid-column:1;grid-row:1;position:relative;z-index:4;
+  border-color:rgba(187,194,241,.15);padding:0 13px 17px;
+}
+.yor-world-hero__intro {
+  grid-column:1;grid-row:2;align-self:center;justify-self:start;
+  position:relative;z-index:4; display:block; width:min(400px,35%);
+  padding:0; margin:0 0 160px clamp(20px,4.2vw,75px);
+  pointer-events:none;
+}
+.yor-world-hero__ornament {display:none;}
+.yor-world-hero__identity {position:relative;}
+.editorial-home .yor-world-hero h1 {
+  font-size:clamp(54px,5.2vw,88px);line-height:.99;
+  color:#fff;letter-spacing:-.08em;
+  text-shadow:0 10px 35px rgba(4,7,20,.48);
+}
+.editorial-home .yor-world-hero h1 em {color:#efbaff;}
+.yor-world-hero__welcome {margin-bottom:18px;color:#d2b1fc;}
+.yor-world-hero__description {
+  font-size:clamp(14px,1.2vw,17px);line-height:1.65;
+  max-width:345px;margin-top:21px;
+  color:#e0e5fb;text-shadow:0 2px 17px #0c0d24;
+}
+.yor-world-hero__ctas {margin-top:22px;gap:9px;pointer-events:auto;}
+.yor-world-hero__ctas a {min-height:47px;padding:12px 17px;gap:11px;font-size:10px;}
+.yor-world-hero__studio.machine-home {
+  grid-column:1;grid-row:2;min-width:0;margin-top:13px;padding-top:0;
+  position:relative;z-index:2;
+}
+.yor-world-hero__studio.machine-home:has([data-console-open="true"]) {z-index:9;}
+.yor-world-hero__studio .yor-studio {position:relative;}
+.yor-world-hero__studio .yor-studio__topline {
+  position:absolute;left:28px;right:28px;top:22px;z-index:5;
+  padding:0;display:flex;align-items:center;justify-content:space-between;
+  color:#ece8ff;text-shadow:0 2px 15px #15122f;pointer-events:none;
+}
+.yor-world-hero__studio .yor-studio__topline button {pointer-events:auto;}
+.yor-world-hero__studio .yor-studio__viewport {
+  height:clamp(615px,76vh,850px);border-radius:19px;
+  background:#777a9f; border:1px solid rgba(168,176,230,.45);
+  box-shadow:0 48px 110px rgba(0,0,0,.56),inset 0 0 65px rgba(40,27,98,.2);
+}
+.yor-world-hero__studio .yor-studio__viewport::after {
+  background:linear-gradient(90deg,
+    rgba(5,10,25,.96) 0%,
+    rgba(5,10,26,.93) 16%,
+    rgba(5,10,26,.71) 30%,
+    rgba(5,10,26,.13) 56%,
+    transparent 81%),
+    linear-gradient(0deg,rgba(9,10,28,.5),transparent 22%,transparent 78%,rgba(6,7,24,.24));
+  box-shadow:inset 0 0 90px rgba(10,7,42,.12);
+}
+.yor-world-hero__studio .yor-studio__fallback {
+  background:linear-gradient(135deg,#4e497c,#8f9bc2 65%,#7a889c);
+}
+.yor-world-hero__studio .yor-studio__hud {
+  left:26px;right:26px;bottom:20px;z-index:3;color:#f3f0ff;
+}
+.yor-world-hero__studio .yor-studio__corner {z-index:4;}
+.yor-world-hero__studio .yor-studio__actions {
+  position:relative;padding-top:14px;max-width:100%;
+}
+.yor-world-hero__studio .yor-studio__bottomline {
+  grid-template-columns:minmax(320px,.75fr) minmax(0,1.25fr);
+}
+.yor-world-hero__below {grid-column:1;grid-row:3;padding-top:33px;}
+@media (min-width:801px) and (max-width:1100px) {
+  .yor-world-hero__intro {width:min(360px,38%);margin-left:24px;}
+  .editorial-home .yor-world-hero h1 {font-size:clamp(48px,6vw,71px);}
+  .yor-world-hero__studio .yor-studio__viewport {height:clamp(590px,70vh,740px);}
+}
+@media (max-width:800px) {
+  .yor-world-hero__shell {padding:80px 10px 26px;grid-template-columns:minmax(0,1fr);}
+  .yor-world-hero__eyebrow {padding:0 10px 12px;gap:6px;}
+  .yor-world-hero__edition {margin-left:auto;flex-basis:auto;font-size:8px;}
+  .yor-world-hero__intro {
+    grid-column:1;grid-row:2;align-self:start;justify-self:start;
+    width:min(325px,calc(100% - 36px));padding:0;
+    margin:98px 0 0 24px;
+  }
+  .editorial-home .yor-world-hero h1 {font-size:clamp(46px,10vw,65px);line-height:.96;}
+  .yor-world-hero__welcome {margin-bottom:12px;font-size:9px;}
+  .yor-world-hero__description {margin-top:13px;font-size:12px;max-width:285px;line-height:1.46;}
+  .yor-world-hero__ctas {gap:8px;margin-top:16px;}
+  .yor-world-hero__ctas a {min-height:42px;font-size:9px;padding:9px 11px;gap:6px;}
+  .yor-world-hero__studio.machine-home {grid-column:1;grid-row:2;margin-top:9px;padding:0;}
+  .yor-world-hero__studio .yor-studio__viewport {
+    height:min(81svh,720px);min-height:560px;border-radius:12px;
+  }
+  .yor-world-hero__studio .yor-studio__viewport::after {
+    background:linear-gradient(180deg,rgba(5,10,27,.85) 0%,rgba(5,10,27,.85) 22%,rgba(5,10,27,.38) 44%,transparent 68%,rgba(5,10,27,.4) 100%);
+  }
+  .yor-world-hero__studio .yor-studio__topline {top:14px;left:13px;right:13px;gap:7px;flex-wrap:wrap;}
+  .yor-world-hero__studio .yor-studio__topline > span:first-child {font-size:8px;}
+  .yor-studio__utilities {margin-left:auto;gap:5px;justify-content:flex-end;}
+  .yor-studio__utilities button {min-height:37px;font-size:7px;padding:7px 9px;}
+  .yor-world-hero__studio .yor-studio__hud {left:12px;right:12px;bottom:11px;}
+  .yor-world-hero__studio .yor-studio__bottomline {grid-template-columns:1fr;}
+  .yor-world-hero__below {padding-top:20px;}
+}
+@media (max-width:420px) {
+  .yor-world-hero__intro {margin-left:16px;margin-top:101px;width:calc(100% - 40px);}
+  .editorial-home .yor-world-hero h1 {font-size:clamp(45px,11.7vw,55px);}
+  .yor-world-hero__description {max-width:250px;}
+  .yor-world-hero__studio .yor-studio__viewport {height:74svh;min-height:590px;}
+}
+
+
+/* Reference-aligned pastel workstation art pass, Oct 2026.
+   The original 3D geometry is already detailed: the old opaque cinematic
+   overlay was preventing visitors from seeing its whites and cyan accents. */
+.yor-world-hero__studio .yor-studio__viewport {
+  background:radial-gradient(ellipse at 48% 26%,#efe4fb 0%,#c3c7ec 50%,#868dc9 100%);
+  border:1px solid rgba(235,220,255,.62);
+  box-shadow:0 30px 85px rgba(12,15,42,.45),0 0 0 1px rgba(211,193,255,.12);
+}
+.yor-world-hero__studio .yor-studio__viewport::after {
+  background:linear-gradient(90deg,rgba(26,24,68,.15),transparent 25%,transparent 80%,rgba(39,22,89,.10)),
+    linear-gradient(0deg,rgba(19,21,69,.26),transparent 21%,transparent 86%,rgba(89,67,128,.07));
+  box-shadow:inset 0 0 55px rgba(99,88,167,.09);
+}
+.yor-world-hero__studio .yor-studio__fallback {
+  background:linear-gradient(135deg,#dcd4ed,#d0d9f4 55%,#a7c6ee);
+}
+.yor-world-hero__intro {
+  width:min(326px,31%);
+  margin:0 0 110px clamp(19px,3.2vw,56px);
+  padding:clamp(17px,2.1vw,27px);
+  border:1px solid rgba(244,225,255,.28);
+  border-radius:17px;
+  background:linear-gradient(140deg,rgba(18,20,54,.80),rgba(24,21,62,.68));
+  box-shadow:0 18px 56px rgba(21,15,67,.16);
+  backdrop-filter:blur(15px);
+}
+.editorial-home .yor-world-hero h1 {font-size:clamp(42px,4.1vw,69px);}
+.yor-world-hero__welcome {font-size:10px;margin-bottom:12px;}
+.yor-world-hero__description {font-size:clamp(12px,1.05vw,15px);margin-top:14px;line-height:1.48;}
+.yor-world-hero__ctas {margin-top:18px;}
+.yor-world-hero__ctas a {min-height:44px;}
+.yor-world-hero__studio .yor-studio__photo-toggle {
+  position:absolute;z-index:11;right:22px;top:76px;
+  min-height:44px;padding:10px 15px;
+  border:1px solid rgba(251,244,255,.82);border-radius:999px;
+  background:rgba(21,27,63,.69);color:#fff;
+  font:750 10px/1.2 var(--font-mono),monospace;
+  letter-spacing:.07em;cursor:pointer;
+  box-shadow:0 7px 22px rgba(19,18,66,.28);
+  backdrop-filter:blur(12px);
+}
+.yor-world-hero__studio .yor-studio__photo-toggle:hover,
+.yor-world-hero__studio .yor-studio__photo-toggle:focus-visible {
+  background:#393359;border-color:#fff;
+}
+.yor-world-hero__studio .yor-studio[data-photo-mode="true"] .yor-studio__photo-toggle {
+  top:18px;right:18px;background:rgba(21,27,63,.83);
+}
+.yor-world-hero:has(.yor-studio[data-photo-mode="true"]) .yor-world-hero__intro,
+.yor-world-hero__studio .yor-studio[data-photo-mode="true"] .yor-studio__topline,
+.yor-world-hero__studio .yor-studio[data-photo-mode="true"] .yor-studio__hud,
+.yor-world-hero__studio .yor-studio[data-photo-mode="true"] .yor-studio__actions,
+.yor-world-hero__studio .yor-studio[data-photo-mode="true"] .yor-studio__bottomline,
+.yor-world-hero__studio .yor-studio[data-photo-mode="true"] .yor-studio__hover-label,
+.yor-world-hero__studio .yor-studio[data-photo-mode="true"] .yor-studio__corner {
+  opacity:0;visibility:hidden;pointer-events:none;
+}
+@media (max-width:800px) {
+  .yor-world-hero__intro {
+    width:min(250px,68%);
+    margin:96px 0 0 15px;
+    padding:16px;
+    border-radius:12px;
+  }
+  .editorial-home .yor-world-hero h1 {font-size:clamp(36px,8vw,50px);}
+  .yor-world-hero__welcome {font-size:8px;margin-bottom:9px;}
+  .yor-world-hero__description {font-size:11px;line-height:1.37;margin-top:10px;}
+  .yor-world-hero__ctas {margin-top:12px;}
+  .yor-world-hero__ctas a {font-size:9px;min-height:42px;}
+  .yor-world-hero__studio .yor-studio__viewport::after {
+    background:linear-gradient(0deg,rgba(30,28,72,.27),transparent 23%,transparent 82%,rgba(35,28,84,.07));
+  }
+  .yor-world-hero__studio .yor-studio__photo-toggle {
+    top:auto;bottom:44px;right:11px;min-height:44px;padding:10px 12px;font-size:9px;
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .yor-world-hero__studio .yor-studio__photo-toggle {transition:none;}
+}
+
+
+/* Compact mobile introduction preceding the 3D room: never cover the
+   controller wall, workstation or chair with a text card on small screens. */
+@media (max-width:800px) {
+  .yor-world-hero__intro {
+    grid-column:1;grid-row:2;position:relative;
+    z-index:3; width:auto; max-width:none;
+    margin:12px 12px 12px;
+    padding:0; background:none; box-shadow:none; backdrop-filter:none;
+    border:0; border-radius:0; pointer-events:auto;
+  }
+  .editorial-home .yor-world-hero h1 {
+    font-size:clamp(32px,6.2vw,54px); line-height:1.02;
+  }
+  .yor-world-hero__welcome {margin-bottom:4px;}
+  .yor-world-hero__description {
+    max-width:460px; margin-top:7px;font-size:11px;line-height:1.4;
+  }
+  .yor-world-hero__ctas {margin-top:9px;}
+  .yor-world-hero__studio.machine-home {
+    grid-column:1;grid-row:3; margin-top:0;
+  }
+  .yor-world-hero__below {grid-column:1;grid-row:4;}
+  .yor-world-hero__studio .yor-studio__viewport {
+    height:clamp(490px,78svh,730px);
+    min-height:490px;
+  }
+}
+@media (max-width:420px) {
+  .yor-world-hero__intro {margin:10px 9px 12px;}
+  .editorial-home .yor-world-hero h1 {font-size:34px;}
+  .yor-world-hero__description {font-size:10px;}
+  .yor-world-hero__studio .yor-studio__viewport {height:70svh; min-height:490px;}
+}
+
+
+/* Second-stage art pass: foreground the actual monitor and chair instead of
+   letting an enormous editorial card consume the left half of the stage. */
+@media (min-width:801px) {
+  .yor-world-hero__intro {
+    align-self:start;
+    justify-self:start;
+    width:min(315px,30%);
+    margin:clamp(115px,14vh,158px) 0 0 clamp(14px,2.3vw,36px);
+    padding:15px 18px;
+    border-radius:15px;
+    background:linear-gradient(138deg,rgba(15,22,53,.78),rgba(26,23,59,.69));
+    box-shadow:0 15px 44px rgba(14,14,45,.18);
+    backdrop-filter:blur(11px);
+  }
+  .editorial-home .yor-world-hero h1 {
+    font-size:clamp(40px,3.3vw,51px);
+    line-height:.98;
+  }
+  .yor-world-hero__welcome {font-size:9px;margin-bottom:10px;}
+  .yor-world-hero__description {
+    max-width:none;font-size:12px;line-height:1.42;margin-top:12px;
+  }
+  .yor-world-hero__ctas {margin-top:13px;gap:6px;}
+  .yor-world-hero__ctas a {min-height:42px;font-size:9px;padding:10px 12px;gap:5px;}
+}
+
+
+/* Room-first editorial strip. Real portfolio links sit above the GLB stage
+   instead of obscuring the monitor, PC and shelves in the image. */
+@media (min-width:801px) {
+  .yor-world-hero__intro {
+    grid-column:1;grid-row:2;
+    width:100%;max-width:none;margin:14px 0 10px;padding:0 15px;
+    display:block;position:relative;z-index:3;
+    background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;
+    align-self:stretch;justify-self:stretch;pointer-events:auto;
+  }
+  .yor-world-hero__identity {
+    display:grid;grid-template-columns:minmax(0,1.2fr) minmax(290px,.8fr);
+    grid-template-rows:auto auto auto;
+    column-gap:clamp(20px,4vw,75px);
+    align-items:center;
+  }
+  .yor-world-hero__welcome {grid-column:1;grid-row:1;margin:0 0 5px;}
+  .editorial-home .yor-world-hero h1 {
+    grid-column:1;grid-row:2/span 2;
+    font-size:clamp(39px,3.8vw,62px);line-height:.98;
+  }
+  .yor-world-hero__description {
+    grid-column:2;grid-row:1/span 2;
+    max-width:430px;font-size:clamp(12px,1.05vw,15px);
+    margin:0;line-height:1.42;
+  }
+  .yor-world-hero__ctas {grid-column:2;grid-row:3;margin:8px 0 0;gap:9px;}
+  .yor-world-hero__studio.machine-home {
+    grid-column:1;grid-row:3;margin-top:0;
+  }
+  .yor-world-hero__below {grid-row:4;}
+}
+@media (min-width:801px) and (max-width:1050px) {
+  .yor-world-hero__identity {grid-template-columns:minmax(0,1fr) minmax(240px,.95fr);}
+  .editorial-home .yor-world-hero h1 {font-size:clamp(38px,4vw,48px);}
+}
+
+
 /* Free-roam mode: discoverable on desktop and touch, without trapping scrolling
    or introducing an exclusive full-screen game interaction. */
 .yor-world-hero__studio .yor-studio__actions .yor-studio__walk-toggle {

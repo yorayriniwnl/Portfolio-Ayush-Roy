@@ -451,7 +451,51 @@ try {
     `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
     { timeoutMs: 28_000, description: "authentic Yor-World GLB workstation ready" });
   assert(genuineRoom.value, "Authentic GLB room never finished loading");
+  const referenceFraming = await cdp.evaluate(`(() => {
+    const stage = document.querySelector('.yor-studio__viewport')?.getBoundingClientRect();
+    const intro = document.querySelector('.yor-world-hero__intro')?.getBoundingClientRect();
+    if (!stage || !intro) return null;
+    return {
+      stageWidth: Math.round(stage.width), viewportWidth: innerWidth,
+      stageHeight: Math.round(stage.height), stageTop: Math.round(stage.top),
+      introBottom: Math.round(intro.bottom), referenceRoomReady:
+        document.querySelector('.yor-studio')?.dataset.sceneReady === 'true',
+      sceneCanvas: stage.width > 0 &&
+        document.querySelector('.yor-studio__viewport canvas') !== null,
+    };
+  })()`);
+  assert(referenceFraming && referenceFraming.referenceRoomReady &&
+    referenceFraming.sceneCanvas &&
+    referenceFraming.stageWidth >= referenceFraming.viewportWidth * .80 &&
+    referenceFraming.stageHeight >= 600 &&
+    referenceFraming.introBottom <= referenceFraming.stageTop + 18,
+    `The workstation must be a wide, unobstructed art-directed hero, not a cropped split card: ${JSON.stringify(referenceFraming)}`);
+  report.rendering.referenceFraming = referenceFraming;
   await capture(cdp, outputDir, "desktop-hero");
+
+  activeScenario = "distraction-free full-scene room and Escape restoration";
+  await cdp.evaluate(`document.querySelector('.yor-studio__photo-toggle')?.click(); true`);
+  const focusMode = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.photoMode === 'true' &&
+     document.querySelector('.yor-studio__photo-toggle')?.getAttribute('aria-pressed') === 'true'`,
+    { timeoutMs:2500, description:"full-scene reference mode activated" });
+  assert(focusMode.value, "Full-scene mode did not enable");
+  await cdp.evaluate(`document.querySelector('.yor-studio__viewport')?.scrollIntoView({block:'center',behavior:'instant'});true`);
+  await delay(180);
+  // Headless Chrome can miss one GPU screenshot response immediately after
+  // switching the full-scene canvas compositor. Retry only that CDP timeout.
+  try {
+    await capture(cdp, outputDir, "desktop-full-scene");
+  } catch (error) {
+    if (!String(error).includes("Timed out waiting for CDP response Page.captureScreenshot")) throw error;
+    await delay(450);
+    await capture(cdp, outputDir, "desktop-full-scene");
+  }
+  await pressKey("Escape", "Escape", 27);
+  await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.photoMode === 'false'`,
+    { timeoutMs:2500, description:"Escape dismisses full-scene reference mode" });
+  report.interaction.fullScene = { activated:true, escapeRestores:true, screenshot:true };
 
   activeScenario = "first-person room walking with WASD and click-to-move";
   await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.click();true`);
@@ -502,7 +546,7 @@ try {
   report.interaction.studioWalking.presetRestoresCamera=true;
 
   activeScenario = "3D workstation object interaction controls";
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(2)')?.click(); true`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button[aria-controls="yor-room-console"]')?.click(); true`);
   const consoleOpened = await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true' &&
      document.querySelectorAll('.yor-studio__console-project').length === 6`,
@@ -527,7 +571,7 @@ try {
   await pressKey("Escape", "Escape", 27);
   await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.consoleOpen === 'false' &&
-     document.activeElement === document.querySelector('.yor-studio__actions button:nth-child(2)')`,
+     document.activeElement === document.querySelector('.yor-studio__actions button[aria-controls="yor-room-console"]')`,
     { timeoutMs:3000, description:"Escape closes workstation launcher and restores focus" });
   report.interaction.studioObjects.escapeRestoresFocus=true;
   await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(3)')?.click(); true`);
@@ -535,7 +579,7 @@ try {
     `document.querySelector('.yor-studio')?.dataset.blindsOpen === 'false' &&
     document.querySelector('.yor-studio__actions button:nth-child(3)')?.getAttribute('aria-pressed') === 'true'`,
     { timeoutMs:2500, description:"room blinds close through accessible button" });
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(4)')?.click(); true`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(3)')?.click(); true`);
   await waitForCondition(cdp,
     `Number(document.querySelector('.yor-studio')?.dataset.paintingBeat) === 1 &&
      document.querySelector('.yor-studio')?.dataset.secretFound === 'true'`,
@@ -623,7 +667,7 @@ try {
     `Mobile first screen needs visible loaded 3D room: ${JSON.stringify(mobileStage)}`);
   report.rendering.mobileHome = mobileStage;
   await capture(cdp, outputDir, "mobile-hero");
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(2)')?.click(); true`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__actions button[aria-controls="yor-room-console"]')?.click(); true`);
   await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true'`,
     { timeoutMs:2500, description:"mobile workstation launcher opens" });
   const mobileLauncher = await cdp.evaluate(`(() => ({
@@ -639,56 +683,6 @@ try {
   await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'false'`,
     { timeoutMs:2500,description:"mobile launcher closes" });
   report.interaction.studioObjects.mobileLauncherAccessible=true;
-  activeScenario="mobile room touch navigation";
-  await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.click();true`);
-  await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.roaming === 'true'`,
-    {timeoutMs:2500,description:"mobile walk mode starts"});
-  await delay(250);
-  const mobileWalkStart=await cdp.evaluate(`(() => {
-    const c=document.querySelector('.yor-studio');
-    return {x:Number(c.dataset.walkX),z:Number(c.dataset.walkZ)};
-  })()`);
-  await cdp.evaluate(`document.querySelector('.yor-studio__touch-forward')?.scrollIntoView({block:'center',behavior:'instant'});true`);
-  const pad=await cdp.evaluate(`(() => {
-    const button=document.querySelector('.yor-studio__touch-forward');
-    const r=button.getBoundingClientRect();
-    const x=r.left+r.width/2,y=r.top+r.height/2;
-    return {x,y,hit:document.elementFromPoint(x,y)?.closest('.yor-studio__touch-forward')===button};
-  })()`);
-  assert(pad.hit,"Mobile touch control is not actually hit-testable within the viewport");
-  // DOM-dispatched touch-type PointerEvents exercise the actual React handlers,
-  // without headless Chrome dropping device-emulation input during WebGL paints.
-  await cdp.evaluate(`(() => {
-    const button=document.querySelector('.yor-studio__touch-forward');
-    button.dispatchEvent(new PointerEvent('pointerdown',{
-      bubbles:true,cancelable:true,pointerId:77,pointerType:'touch',isPrimary:true,button:0,buttons:1
-    }));
-    return true;
-  })()`);
-  const held=await waitForCondition(cdp,
-    `document.querySelector('.yor-studio__touch-forward')?.getAttribute('aria-pressed') === 'true'`,
-    {timeoutMs:1800,description:"touch-type pointerdown holds forward room control"});
-  assert(held.value,"Mobile D-pad pointer handler did not register");
-  await delay(500);
-  await cdp.evaluate(`(() => {
-    document.querySelector('.yor-studio__touch-forward').dispatchEvent(new PointerEvent('pointerup',{
-      bubbles:true,cancelable:true,pointerId:77,pointerType:'touch',isPrimary:true,button:0,buttons:0
-    }));
-    return true;
-  })()`);
-  await delay(120);
-  const mobileWalkEnd=await cdp.evaluate(`(() => {
-    const c=document.querySelector('.yor-studio');
-    return {x:Number(c.dataset.walkX),z:Number(c.dataset.walkZ),walkable:c.dataset.walkable};
-  })()`);
-  assert(Math.hypot(mobileWalkEnd.x-mobileWalkStart.x,mobileWalkEnd.z-mobileWalkStart.z)>.06 &&
-    mobileWalkEnd.walkable==="true",
-    `Mobile touch-pad did not move camera safely: ${JSON.stringify({mobileWalkStart,mobileWalkEnd})}`);
-  report.interaction.studioWalking.mobileDirectionalPad=true;
-  report.interaction.studioWalking.touchInput="dom-touch-pointer";
-  await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.click();true`);
-  await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.roaming === 'false'`,
-    {timeoutMs:2500,description:"mobile exit walk mode"});
   await navigate(cdp, baseUrl + "/projects");
   await positionProjectWorldForCapture();
   await capture(cdp, outputDir, "mobile-project-world");

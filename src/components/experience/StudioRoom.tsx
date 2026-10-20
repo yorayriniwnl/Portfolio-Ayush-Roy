@@ -52,6 +52,7 @@ export function StudioRoom() {
   const [allowed, setAllowed] = useState(true);
   const [graphicsAvailable, setGraphicsAvailable] = useState(false);
   const [lightsOn, setLightsOn] = useState(true);
+  const [photoMode, setPhotoMode] = useState(false);
   const [blindsOpen, setBlindsOpen] = useState(true);
   const [paintingBeat, setPaintingBeat] = useState(0);
   const [secretFound, setSecretFound] = useState(false);
@@ -76,10 +77,10 @@ export function StudioRoom() {
     setIntroSequence((value) => value + 1);
   }, []);
   const toggleRoam = useCallback(() => {
-    setRoaming(current => !current);setWalkTarget(null);setTouchDirection(null);setIntroSequence(0);
+    setPhotoMode(false);setRoaming(current => !current);setWalkTarget(null);setTouchDirection(null);setIntroSequence(0);
   },[]);
   const walkToPoint = useCallback((point:WalkPoint) => {
-    setIntroSequence(0);setConsoleOpen(false);setRoaming(true);
+    setIntroSequence(0);setConsoleOpen(false);setPhotoMode(false);setRoaming(true);
     const id=++walkId.current;
     if(root.current)root.current.dataset.walkTargetId=String(id);
     setWalkTarget({...point,id});
@@ -178,9 +179,19 @@ export function StudioRoom() {
     return () => observer.disconnect();
   }, []);
 
+  // Scene-only mode lets the workstation art breathe; Escape restores its controls.
+  useEffect(() => {
+    if (!photoMode) return;
+    const exitPhotoMode = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPhotoMode(false);
+    };
+    window.addEventListener("keydown", exitPhotoMode);
+    return () => window.removeEventListener("keydown", exitPhotoMode);
+  }, [photoMode]);
+
   const selectedItem = destinations[selected];
   return (
-    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)} data-intro-sequence={introSequence} data-blinds-open={String(blindsOpen)} data-painting-beat={paintingBeat} data-console-open={String(consoleOpen)} data-secret-found={String(secretFound)} data-roaming={String(roaming)}>
+    <div className="yor-studio" ref={root} data-scene-ready={String(roomReady)} data-scene-failed={String(roomFailed)} data-intro-sequence={introSequence} data-blinds-open={String(blindsOpen)} data-painting-beat={paintingBeat} data-console-open={String(consoleOpen)} data-secret-found={String(secretFound)} data-photo-mode={String(photoMode)} data-roaming={String(roaming)}>
       <div className="yor-studio__topline">
         <span><i className="yor-studio__pulse"/> ROOM ONLINE / STUDIO_001</span>
         <div className="yor-studio__utilities">
@@ -191,7 +202,7 @@ export function StudioRoom() {
           <button type="button" onClick={playIntro} aria-label="Replay doorway entrance animation">↺ REPLAY ENTRY</button>
         </div>
       </div>
-      <div className="yor-studio__viewport" data-walkable-room aria-label="3D studio viewport. Use Walk Room, then WASD and mouse drag, or click the floor to travel.">
+      <div className="yor-studio__viewport" data-walkable-room aria-label="3D studio viewport. Click the floor to travel or enable walking with WASD.">
         <div className="yor-studio__fallback" aria-hidden="true">
           <div className="yor-studio__fallback-light"/>
           <div className="yor-studio__fallback-window"/>
@@ -200,14 +211,20 @@ export function StudioRoom() {
           <div className="yor-studio__fallback-drawer"/>
           <div className="yor-studio__fallback-lamp"/>
         </div>
-        {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} onWalkTo={walkToPoint} onWalkStep={reportWalk} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} roaming={roaming} paused={consoleOpen} walkTarget={walkTarget} touchDirection={touchDirection} onReady={announceReady}/></StudioErrorBoundary>}
+        <button type="button" className="yor-studio__photo-toggle"
+          aria-pressed={photoMode}
+          aria-label={photoMode ? "Exit distraction-free room view" : "View the full studio without interface overlays"}
+          onClick={() => { if (!photoMode) { setConsoleOpen(false); setHoveredObject(null); setRoaming(false); setTouchDirection(null); setWalkTarget(null); } setPhotoMode(value => !value); }}>
+          {photoMode ? "↙ EXIT SCENE VIEW" : "✧ FULL SCENE"}
+        </button>
+        {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} roaming={roaming} paused={consoleOpen} walkTarget={walkTarget} touchDirection={touchDirection} onWalkTo={walkToPoint} onWalkStep={reportWalk} onReady={announceReady}/></StudioErrorBoundary>}
         {hoveredObject && !consoleOpen && <div className="yor-studio__hover-label" aria-hidden="true">
           {hoveredObject === "monitor" ? "OPEN PROJECT LAUNCHER" : hoveredObject === "painting" ? "TILT WALL ART" :
             hoveredObject === "blinds" ? "TOGGLE WINDOW BLINDS" : hoveredObject === "lights" ? "TOGGLE STUDIO LIGHTS" :
             hoveredObject === "avatar" ? "GREET THE CREATOR" : hoveredObject === "door" ? "OPEN THE DOOR" : "EXPLORE THE LAB"}
         </div>}
         {consoleOpen && <section className="yor-studio__console" id="yor-room-console" role="dialog" aria-labelledby="yor-room-console-title" aria-describedby="yor-room-console-desc">
-          <div className="yor-studio__console-top"><span>YOR.OS / PROJECT LAUNCHER</span><button ref={consoleCloseButton} type="button" onClick={closeConsole} aria-label="Close workstation launcher">✕ CLOSE</button></div>
+          <div className="yor-studio__console-top"><span>YOR.OS / PROJECT LAUNCHER</span><button ref={consoleCloseButton} autoFocus type="button" onClick={closeConsole} aria-label="Close workstation launcher">✕ CLOSE</button></div>
           <h2 id="yor-room-console-title">Select a world<span>.</span></h2>
           <p id="yor-room-console-desc">Real projects, real engineering decisions. Open a case study to explore the evidence.</p>
           <div className="yor-studio__console-projects">
@@ -232,8 +249,7 @@ export function StudioRoom() {
           )}
         </div>}
         <div className="yor-studio__hud" aria-hidden="true">
-          <span>{roaming ? "FREE ROAM / FIRST PERSON" : "REAL 3D / WEBGL"}</span>
-          <span>{roaming ? "WASD MOVE · DRAG LOOK · CLICK FLOOR TO WALK" : "CLICK FLOOR TO WALK · INTERACT WITH OBJECTS ↗"}</span>
+          <span>{roaming ? "FREE ROAM / FIRST PERSON" : "REAL 3D / WEBGL"}</span><span>{roaming ? "WASD MOVE · DRAG LOOK · CLICK FLOOR TO WALK" : "CLICK FLOOR TO WALK · INTERACT WITH OBJECTS ↗"}</span>
         </div>
         <div className="yor-studio__corner yor-studio__corner--tl"/><div className="yor-studio__corner yor-studio__corner--br"/>
       </div>
