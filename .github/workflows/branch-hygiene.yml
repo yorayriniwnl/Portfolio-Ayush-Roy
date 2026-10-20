@@ -88,15 +88,15 @@ jobs:
             [[ -n "$number" ]] || continue
             prune_if_unchanged "$number" "$branch" "$expected"
           done <<'AUDITED_BRANCHES'
-              20|design/editorial-portfolio-20261010|66e7a3c9bc9ef2064f70e7656b1eda3a3cf286f4
-              19|design/immersive-studio-20261008|f2fda557302b8909f4a9f99593624ebe3053092d
-              18|design/portfolio-home-reframe-20261008|4c1fd6bfd4ad34416b9932d482df5592af855500
-              22|feat/editorial-polish-20261010|e853241bb478de69284a5d94c3eda2c33d05020b
-              27|feat/immersive-full-room-art-direction-20261011|77195b25accb9a993495303040589ac2b5c28f00
-              23|feat/restore-immersive-3d-studio-20261010|44261c1368d439163212fedbbffcdfe10770b972
-              26|feat/room-wasd-click-walk-20261011|1b4ab1b34ab4960f1ba5df7c8e85f8d5fb6fa6c5
-              25|feat/3d-room-interaction-layer-20261011|f800edd6540e00e003dea301777ef4d479f098c3
-              24|feat/3d-studio-cinematic-entry-20261011|94af8f3eceec56a56a6899b7e3e137f5f79264f2
-              30|fix/portfolio-walkmesh-mobile-controls-20261021|d384351ffa0d560733280f9d5c1241ba79119a5b
-              29|fix/reference-studio-visual-qa-20261011|57e6256a7bf57bb5ec76742015eaf90080b612b9
+          20|design/editorial-portfolio-20261010|66e7a3c9bc9ef2064f70e7656b1eda3a3cf286f4
+          19|design/immersive-studio-20261008|f2fda557302b8909f4a9f99593624ebe3053092d
+          18|design/portfolio-home-reframe-20261008|4c1fd6bfd4ad34416b9932d482df5592af855500
+          22|feat/editorial-polish-20261010|e853241bb478de69284a5d94c3eda2c33d05020b
+          27|feat/immersive-full-room-art-direction-20261011|77195b25accb9a993495303040589ac2b5c28f00
+          23|feat/restore-immersive-3d-studio-20261010|44261c1368d439163212fedbbffcdfe10770b972
+          26|feat/room-wasd-click-walk-20261011|1b4ab1b34ab4960f1ba5df7c8e85f8d5fb6fa6c5
+          25|feat/3d-room-interaction-layer-20261011|f800edd6540e00e003dea301777ef4d479f098c3
+          24|feat/3d-studio-cinematic-entry-20261011|94af8f3eceec56a56a6899b7e3e137f5f79264f2
+          30|fix/portfolio-walkmesh-mobile-controls-20261021|d384351ffa0d560733280f9d5c1241ba79119a5b
+          29|fix/reference-studio-visual-qa-20261011|57e6256a7bf57bb5ec76742015eaf90080b612b9
           AUDITED_BRANCHES
