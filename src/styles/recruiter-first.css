@@ -275,22 +275,43 @@
   .editorial-home .yor-world-hero h1 { font-size: clamp(41px, 9vw, 58px); }
   .yor-world-hero__fast-path-links { grid-template-columns: 1fr; }
   .yor-world-hero__fast-path-link {
-    min-height: 78px;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    padding: 14px 37px 14px 15px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 22px;
+    grid-template-rows: auto auto;
+    align-content: center;
+    min-height: 105px;
+    gap: 10px 8px;
+    padding: 15px 16px;
+    text-align: left;
   }
-  .yor-world-hero__fast-path-meta { font-size: 9px; max-width: 22ch; }
-  .yor-world-hero__fast-path-link strong { margin-left: auto; text-align: right; }
-  .yor-world-hero__fast-path-arrow { bottom: auto; top: 12px; right: 12px; font-size: 16px; }
+  .yor-world-hero__fast-path-meta {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    font-size: 9px;
+    max-width: none;
+    line-height: 1.55;
+  }
+  .yor-world-hero__fast-path-link strong {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 0;
+    font-size: 21px;
+    text-align: left;
+  }
+  .yor-world-hero__fast-path-arrow {
+    position: static;
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    align-self: end;
+    font-size: 22px;
+  }
   .yor-world-hero__studio-heading { padding-block: 18px; }
   .editorial-home .yor-world-hero__studio-heading h2 { font-size: 25px; }
   .yor-world-hero__studio .yor-studio__viewport { min-height: 490px; height: min(72svh, 640px); }
 }
 @media (max-width: 390px) {
-  .yor-world-hero__fast-path-link { align-items: flex-start; flex-direction: column; }
-  .yor-world-hero__fast-path-link strong { margin: 0; text-align: left; }
+  .yor-world-hero__fast-path-link strong { font-size: 20px; }
   .yor-world-hero__ctas .yor-world-hero__tertiary { padding-inline: 11px; }
 }
 @media (prefers-reduced-motion: reduce) {
