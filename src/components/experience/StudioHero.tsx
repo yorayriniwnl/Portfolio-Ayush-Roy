@@ -33,14 +33,15 @@ export function StudioHero() {
               <Link href="/resume" className="yor-world-hero__secondary">View résumé <span aria-hidden="true">↗</span></Link>
             </div>
             <p className="yor-world-hero__proof">06 documented projects <span aria-hidden="true">/</span> Open-source evidence <span aria-hidden="true">/</span> Graduating 2027</p>
+            <a href="#studio" className="yor-world-hero__studio-jump">Or explore the interactive 3D studio <span aria-hidden="true">↓</span></a>
           </div>
-          <div className="yor-world-hero__feature" aria-label="Featured engineering projects">
+          <nav className="yor-world-hero__feature" aria-label="Featured engineering projects">
             <p className="yor-world-hero__feature-label">START HERE / FEATURED SYSTEMS</p>
             <Link href="/projects/candidatex" className="yor-world-hero__feature-item"><span>01 / CAPABILITY INTELLIGENCE</span><strong>CandidateX</strong><small>Role-aware assessment using multi-source evidence <span aria-hidden="true">↗</span></small></Link>
             <Link href="/projects/helios" className="yor-world-hero__feature-item"><span>02 / REAL-TIME SYSTEMS</span><strong>Yor Helios</strong><small>Streaming anomaly-detection architecture <span aria-hidden="true">↗</span></small></Link>
             <Link href="/projects/zenith" className="yor-world-hero__feature-item"><span>03 / ENERGY SOFTWARE</span><strong>Yor Zenith</strong><small>Energy planning and interactive analysis <span aria-hidden="true">↗</span></small></Link>
             <Link href="/projects" className="yor-world-hero__feature-all">View all six case studies <span aria-hidden="true">↗</span></Link>
-          </div>
+          </nav>
         </div>
         <div id="studio" className="yor-world-hero__studio machine-home">
           <div className="yor-world-hero__studio-heading"><div><p>THE EXPERIMENTAL SIDE</p><h2>Step inside the studio.</h2></div><span>Interactive 3D / Optional experience</span></div>
