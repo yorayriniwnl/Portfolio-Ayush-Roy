@@ -11,8 +11,10 @@ test("editorial social preview is a generated PNG matching the homepage instead 
   assert.match(card, /ImageResponse/);
   assert.match(card, /contentType = "image\/png"/);
   assert.match(card, /width: 1200, height: 630/);
-  assert.match(card, /Full Stack/);
-  assert.match(card, /Developer\./);
+  assert.match(card, /Building systems/);
+  assert.match(card, /Making them matter/);
+  assert.match(card, /Backend and Full-Stack Engineer/);
+  assert.doesNotMatch(card, /Full Stack Developer/);
 });
 
 test("project showcase supports deliberate mobile swipes while preserving keyboard and touch navigation", () => {

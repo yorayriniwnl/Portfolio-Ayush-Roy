@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Ayush Roy Full Stack Developer editorial portfolio",
+        alt: "Ayush Roy engineering portfolio with evidence-backed software projects",
       },
     ],
   },
