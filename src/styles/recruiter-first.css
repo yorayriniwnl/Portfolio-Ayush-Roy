@@ -1,0 +1,50 @@
+/* Recruiter-first homepage. Scoped overrides loaded after legacy studio styles. */
+.yor-world-hero--recruiter { background: #0c111b; color:#f6f3ec; }
+.yor-world-hero--recruiter .yor-world-hero__shell { display:block; width:min(1460px,100%); padding:clamp(104px,10vw,152px) clamp(22px,5vw,82px) 48px; }
+.yor-world-hero--recruiter .yor-world-hero__eyebrow { color:#bfc6cd; border-bottom:1px solid #ffffff27; padding-bottom:18px; font-size:11px; }
+.yor-world-hero--recruiter .yor-world-hero__led { background:#c7eaa4; box-shadow:0 0 0 5px #c7eaa421; }
+.yor-world-hero--recruiter .yor-world-hero__edition { color:#aab5c3; }
+.yor-world-hero--recruiter .yor-world-hero__intro { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(290px,.65fr); gap:clamp(30px,5vw,90px); align-items:center; padding:clamp(70px,8vw,126px) 0 clamp(90px,9vw,142px); }
+.yor-world-hero--recruiter .yor-world-hero__welcome { color:#c7eaa4; font-size:11px; line-height:1.65; letter-spacing:.09em; margin:0 0 28px; }
+.editorial-home .yor-world-hero--recruiter h1 { font-size:clamp(62px,6.7vw,110px); line-height:1; letter-spacing:-.075em; max-width:11ch; }
+.editorial-home .yor-world-hero--recruiter h1 em { color:#c7eaa4; letter-spacing:-.075em; }
+.yor-world-hero--recruiter .yor-world-hero__description { color:#c6cdd8; max-width:610px; font-size:clamp(16px,1.4vw,19px); line-height:1.75; margin-top:30px; }
+.yor-world-hero--recruiter .yor-world-hero__ctas { margin-top:36px; }
+.yor-world-hero--recruiter .yor-world-hero__ctas a { min-height:52px; border-radius:8px; font-size:13px; }
+.yor-world-hero--recruiter .yor-world-hero__primary { color:#131a16!important; background:#c7eaa4; border-color:#c7eaa4; }
+.yor-world-hero--recruiter .yor-world-hero__secondary { color:#f6f3ec!important; border-color:#ffffff66; }
+.yor-world-hero--recruiter .yor-world-hero__proof { display:flex; flex-wrap:wrap; gap:11px; margin:31px 0 0; color:#aab5c3; font-size:12px; line-height:1.7; }
+.yor-world-hero--recruiter .yor-world-hero__proof span { color:#c7eaa4; }
+.yor-world-hero__feature { border:1px solid #ffffff2d; background:#141c27; padding:clamp(22px,2.5vw,35px); border-radius:16px; min-width:0; }
+.yor-world-hero__feature-label { color:#c7eaa4; font:700 10px/1.4 var(--font-mono),monospace; letter-spacing:.12em; margin:0 0 15px; }
+.yor-world-hero__feature-item { display:flex; flex-direction:column; gap:8px; padding:23px 0; border-bottom:1px solid #ffffff27; text-decoration:none; transition:transform .2s; }
+.yor-world-hero__feature-item:hover { transform:translateX(5px); }
+.yor-world-hero__feature-item > span { color:#aeb9c6; font:700 10px/1.4 var(--font-mono),monospace; letter-spacing:.07em; }
+.yor-world-hero__feature-item strong { color:#f8f6ee; font-size:clamp(25px,2.7vw,37px); line-height:1.12; letter-spacing:-.05em; }
+.yor-world-hero__feature-item small { color:#b7c2cc; font-size:12px; line-height:1.55; }
+.yor-world-hero__feature-item small span { color:#c7eaa4; }
+.yor-world-hero__feature-all { display:flex; justify-content:space-between; gap:16px; margin-top:24px; font-size:13px; font-weight:700; color:#c7eaa4; }
+.yor-world-hero__studio-heading { display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:14px; margin:0 0 25px; }
+.yor-world-hero__studio-heading p { color:#c7eaa4; font:700 10px/1.5 var(--font-mono),monospace; letter-spacing:.14em; margin:0 0 10px; }
+.editorial-home .yor-world-hero__studio-heading h2 { margin:0; font-size:clamp(36px,4vw,62px); letter-spacing:-.06em; }
+.yor-world-hero__studio-heading > span { color:#abb6c5; font-size:12px; }
+.yor-world-hero--recruiter .yor-world-hero__studio.machine-home { display:block; padding:0; background:none; scroll-margin-top:95px; }
+.yor-world-hero--recruiter .yor-world-hero__studio .yor-studio__viewport { height:clamp(390px,42vw,630px); }
+.yor-world-hero--recruiter .yor-world-hero__below { padding-top:38px; }
+.yor-world-hero--recruiter .yor-world-hero__below b,.yor-world-hero--recruiter .yor-world-hero__below a { color:#c7eaa4; }
+@media(max-width:950px) {
+ .yor-world-hero--recruiter .yor-world-hero__intro { grid-template-columns:1fr; padding:65px 0 90px; gap:48px; }
+ .yor-world-hero--recruiter .yor-world-hero__feature { max-width:700px; }
+ .editorial-home .yor-world-hero--recruiter h1 { font-size:clamp(58px,9vw,94px); }
+}
+@media(max-width:650px) {
+ .yor-world-hero--recruiter .yor-world-hero__shell { padding:94px 20px 30px; }
+ .yor-world-hero--recruiter .yor-world-hero__intro { padding:40px 0 72px; gap:32px; }
+ .editorial-home .yor-world-hero--recruiter h1 { font-size:clamp(49px,11vw,72px); }
+ .yor-world-hero--recruiter .yor-world-hero__description { font-size:15px; line-height:1.7; }
+ .yor-world-hero--recruiter .yor-world-hero__ctas a { font-size:12px; min-height:48px; }
+ .yor-world-hero--recruiter .yor-world-hero__proof { font-size:11px; }
+ .yor-world-hero__feature { padding:22px; }
+ .yor-world-hero--recruiter .yor-world-hero__studio .yor-studio__viewport { height:clamp(360px,105vw,490px); }
+}
+@media(prefers-reduced-motion:reduce) { .yor-world-hero__feature-item { transition:none; } .yor-world-hero__feature-item:hover { transform:none; } }
