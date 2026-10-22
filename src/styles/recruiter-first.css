@@ -128,3 +128,14 @@ body:has(.yor-world-hero--recruiter) header nav a:last-child:hover { background:
  .editorial-home { scroll-behavior:auto; }
  .editorial-home :is(a,button) { transition:none; }
 }
+
+/* Dedicated experimental section follows the project case study showcase. */
+.yor-world-studio-section { background:radial-gradient(ellipse at 72% 8%,rgba(102,126,90,.15),transparent 52%),#111923; border-top:1px solid rgba(255,255,255,.08); }
+.yor-world-studio-section.yor-world-hero--recruiter .yor-world-hero__shell {
+  padding-top:clamp(66px,8vw,118px); padding-bottom:clamp(72px,8vw,120px);
+}
+.yor-world-studio-section .yor-world-hero__studio-heading { margin-bottom:28px; }
+.yor-world-studio-section .yor-world-hero__studio-heading h2 { max-width:16ch; }
+@media(max-width:650px) {
+ .yor-world-studio-section.yor-world-hero--recruiter .yor-world-hero__shell { padding-top:74px; padding-bottom:78px; }
+}
