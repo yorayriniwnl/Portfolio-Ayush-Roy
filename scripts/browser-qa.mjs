@@ -432,8 +432,17 @@ try {
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "editorial homepage visible" });
-  // The original interactive room is back. It is the homepage's only GPU
-  // surface, distinct from the persistent project-world renderer.
+  // The portfolio is now recruiter-first. Capture the real initial viewport,
+  // then deliberately visit the below-the-fold 3D experience. The scene must
+  // stay lazy until it approaches the viewport.
+  await capture(cdp, outputDir, "desktop-hero");
+  const reachedStudio = await cdp.evaluate(`(() => {
+    const studio = document.getElementById('studio');
+    if (!studio) return false;
+    studio.scrollIntoView({ block: 'start', behavior: 'instant' });
+    return true;
+  })()`);
+  assert(reachedStudio, "Homepage lost the optional 3D studio section");
   const studioCanvas = await waitForCondition(cdp,
     `document.querySelector('.yor-studio__viewport canvas') ? true : null`,
     { timeoutMs: 18_000, description: "restored WebGL studio canvas" });
@@ -471,7 +480,7 @@ try {
     referenceFraming.introBottom <= referenceFraming.stageTop + 18,
     `The workstation must be a wide, unobstructed art-directed hero, not a cropped split card: ${JSON.stringify(referenceFraming)}`);
   report.rendering.referenceFraming = referenceFraming;
-  await capture(cdp, outputDir, "desktop-hero");
+  await capture(cdp, outputDir, "desktop-studio");
 
   activeScenario = "distraction-free full-scene room and Escape restoration";
   await cdp.evaluate(`document.querySelector('.yor-studio__photo-toggle')?.click(); true`);
@@ -649,6 +658,14 @@ try {
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "mobile editorial homepage" });
   assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas').length === 0`), "Mobile homepage mounted redundant 3D");
+  await capture(cdp, outputDir, "mobile-hero");
+  const mobileStudioLocated = await cdp.evaluate(`(() => {
+    const studio = document.getElementById('studio');
+    if (!studio) return false;
+    studio.scrollIntoView({ block:'start', behavior:'instant' });
+    return true;
+  })()`);
+  assert(mobileStudioLocated, "Mobile homepage lost its optional studio");
   const mobileRoomReady = await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
     { timeoutMs: 28_000, description: "authentic Yor-World 3D room ready on mobile" });
@@ -664,9 +681,9 @@ try {
   })()`);
   assert(mobileStage && mobileStage.top < 570 && mobileStage.visiblePixels >= 240 &&
     mobileStage.canvases === 1 && mobileStage.loaded === "true",
-    `Mobile first screen needs visible loaded 3D room: ${JSON.stringify(mobileStage)}`);
+    `Mobile studio should load when visited, not require first-screen GPU work: ${JSON.stringify(mobileStage)}`);
   report.rendering.mobileHome = mobileStage;
-  await capture(cdp, outputDir, "mobile-hero");
+  await capture(cdp, outputDir, "mobile-studio");
   await cdp.evaluate(`document.querySelector('.yor-studio__actions button[aria-controls="yor-room-console"]')?.click(); true`);
   await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true'`,
     { timeoutMs:2500, description:"mobile workstation launcher opens" });
@@ -706,7 +723,7 @@ try {
   await waitForCondition(cdp, `document.querySelector('button[aria-controls="mobile-nav"]')?.getAttribute('aria-expanded') === 'true'`, { timeoutMs: 2500, description: "Enter opens the mobile menu" });
   const menuOpened = await cdp.evaluate(`({ expanded: document.querySelector('button[aria-controls="mobile-nav"]')?.getAttribute('aria-expanded'), focus: document.activeElement?.textContent?.trim() })`);
   assert(menuOpened.expanded === "true", "Keyboard Enter did not open the mobile menu");
-  assert(menuOpened.focus === "About", `Opening the menu did not focus its first link: ${menuOpened.focus}`);
+  assert(menuOpened.focus === "Work", `Opening the menu did not focus its first link: ${menuOpened.focus}`);
   await pressKey("Escape", "Escape", 27);
   await delay(100);
   const menuClosed = await cdp.evaluate(`({ expanded: document.querySelector('button[aria-controls="mobile-nav"]')?.getAttribute('aria-expanded'), focus: document.activeElement?.getAttribute('aria-label') })`);

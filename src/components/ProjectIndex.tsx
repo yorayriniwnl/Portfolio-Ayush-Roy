@@ -14,7 +14,7 @@ export function ProjectIndex({ projects }: { projects: readonly Project[] }) {
           <span className="technical">YOR / SELECTED ENGINEERING WORK</span>
           <h1 id="projects-title" className="display">Projects<br /><em>with receipts.</em></h1>
           <p className="projects-index-deck" data-essential-copy>Six canonical project worlds. Each case study keeps the work, evidence, contribution boundary, and limitations in the same frame.</p>
-          <div className="projects-index-proof" aria-label="Project index rules">
+          <div className="projects-index-proof" role="group" aria-label="Project index facts">
             <span><b>{String(projectCount).padStart(2, "0")}</b> canonical case studies</span>
             <span><b>01</b> source of truth</span>
             <span><b>0</b> fabricated deployments</span>

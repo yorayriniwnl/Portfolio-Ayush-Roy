@@ -45,7 +45,7 @@ export function EditorialSkills() {
 
   return (
     <section id="skills" className="editorial-skills editorial-section editorial-wrap" aria-labelledby="editorial-skills-title">
-      <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 02 / THE TOOLBOX</div>
+      <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 03 / THE TOOLBOX</div>
       <div className="editorial-skills__heading">
         <h2 id="editorial-skills-title" data-essential-copy>The periodic table <em>of my stack.</em></h2>
         <p>Different tools, one goal: building something useful. Pick an element to see how it fits into the work.</p>
@@ -120,7 +120,7 @@ export function EditorialWork({ projects }: { projects: EditorialProject[] }) {
 
   return (
     <section id="projects" className="editorial-projects editorial-section editorial-wrap" aria-labelledby="editorial-projects-title" data-experience-section="projects">
-      <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 03 / SELECTED PROJECTS</div>
+      <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 01 / SELECTED PROJECTS</div>
       <div className="editorial-projects__heading"><h2 id="editorial-projects-title" data-essential-copy>Things I&apos;ve <em>built.</em></h2><Link href="/projects">View all case studies ↗</Link></div>
       <div className="editorial-projects__stage" tabIndex={0} onKeyDown={onKeyDown} onTouchStart={onSwipeStart} onTouchEnd={onSwipeEnd} onTouchCancel={() => { swipeStart.current = null; }}
         role="region" aria-roledescription="carousel" aria-label="Selected engineering projects">
