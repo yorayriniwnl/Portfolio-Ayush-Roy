@@ -51,7 +51,7 @@
   line-height: 1.01;
   letter-spacing: -.072em;
   margin: 0;
-  max-width: 11.7ch;
+  max-width: none;
   color: #fcfaff;
   text-shadow: none;
   overflow-wrap: normal;
@@ -239,7 +239,7 @@
   }
   .yor-world-hero__welcome { margin: 0 0 13px; font-size: 9px; }
   .editorial-home .yor-world-hero h1 {
-    max-width: 11.7ch;
+    max-width: none;
     font-size: clamp(44px, 8.9vw, 70px);
     line-height: 1.04;
   }
