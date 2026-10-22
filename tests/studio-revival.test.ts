@@ -228,3 +228,15 @@ test("room can be traversed by WASD, clicking the floor and mobile directional c
   assert.match(css,/\.yor-studio__touch-pad/);
   assert.match(css,/\[data-roaming="true"\]/);
 });
+
+
+test("the optional studio exposes an honest accessible fallback when WebGL or motion is unavailable", () => {
+  const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
+  const css = readFileSync("src/styles/recruiter-first.css", "utf8");
+  assert.match(room, /graphicsChecked/);
+  assert.match(room, /role="status"/);
+  assert.match(room, /Motion-reduced mode: the animated 3D scene is paused/);
+  assert.match(room, /Interactive WebGL is unavailable/);
+  assert.match(room, /<Link href="\/projects">all case studies<\/Link>/);
+  assert.match(css, /yor-studio__availability/);
+});
