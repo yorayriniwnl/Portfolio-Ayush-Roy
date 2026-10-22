@@ -48,3 +48,83 @@
  .yor-world-hero--recruiter .yor-world-hero__studio .yor-studio__viewport { height:clamp(360px,105vw,490px); }
 }
 @media(prefers-reduced-motion:reduce) { .yor-world-hero__feature-item { transition:none; } .yor-world-hero__feature-item:hover { transform:none; } }
+
+/* Shared editorial design language: warm paper, pine ink, and a single lime accent. */
+.editorial-home {
+  --ed-bg: #f5f4ef;
+  --ed-paper: #eef2ed;
+  --ed-ink: #182623;
+  --ed-muted: #4e5b5a;
+  --ed-stroke: rgba(24,38,35,.20);
+  --ed-lime: #c7eaa4;
+  --ed-accent: #a2c382;
+}
+.editorial-home :is(section[id], #studio) { scroll-margin-top: 92px; }
+.editorial-home :is(a,button,[tabindex="0"]):focus-visible { outline:3px solid #5b8d54; outline-offset:4px; }
+.yor-world-hero--recruiter :is(a,button):focus-visible { outline-color:#c7eaa4; }
+.yor-world-hero--recruiter .yor-world-hero__studio-jump {
+  display:inline-flex; gap:12px; align-items:center; min-height:44px; margin-top:19px;
+  color:#d9ecc7; font-size:13px; font-weight:650; text-underline-offset:5px;
+  text-decoration:underline;
+}
+.yor-world-hero--recruiter .yor-world-hero__studio-jump:hover { color:#fff; }
+.yor-world-hero--recruiter .yor-world-hero__feature-item:focus-visible,
+.yor-world-hero--recruiter .yor-world-hero__feature-all:focus-visible { border-radius:5px; }
+.editorial-about { background:#f7f7f3; }
+.editorial-about__body p { color:#425451; }
+.editorial-about__note { background:#dce8d5; color:#1b2d25; border-radius:12px; }
+.editorial-kicker__dot { background:#658d54; box-shadow:0 0 0 5px rgba(101,141,84,.13); }
+.editorial-skills { background:#e9eee8; }
+.editorial-skills__filters button { border-color:#9daa9f; color:#24352d; min-height:44px; }
+.editorial-skills__filters button.is-active,.editorial-skills__filters button:hover { background:#1e342a; border-color:#1e342a; color:#fff; }
+.editorial-element { background:#d9e1d9; color:#22352d; }
+.editorial-element--languages { background:#20382f; color:#fcfff9; }
+.editorial-element--frontend { background:#3f5849; color:#fcfff9; }
+.editorial-element--backend { background:#b5cbb6; color:#182b21; }
+.editorial-element--data { background:#c7d9c4; color:#203427; }
+.editorial-element--tooling { background:#e2e9de; color:#24372b; }
+.editorial-element.is-selected { outline-color:#50794a; box-shadow:0 12px 28px #182b2030; }
+.editorial-projects { background:#f5f6f2; }
+.editorial-projects__stage { background:#fff; border-color:#1b362025; box-shadow:0 20px 65px rgba(23,46,27,.09); }
+.editorial-projects__rail { background:#eef2eb; }
+.editorial-projects__story { background:#fff; }
+.editorial-projects__meta { color:#53645c; }
+.editorial-projects__purpose { color:#344c41; }
+.editorial-projects__outcome { color:#52625c; }
+.editorial-projects__tags span { border-color:#b7c7b6; background:#eef4ec; color:#25402b; }
+.editorial-projects__controls button { min-width:44px; min-height:44px; border-color:#9cac9d; }
+.editorial-projects__controls button:hover { background:#1c392a; color:#fff; }
+.editorial-projects__dots button.is-active::after { background:#527e4b; }
+.editorial-pill { border-radius:8px; }
+.editorial-pill--dark { background:#1d382c; }
+.editorial-pill--dark:hover { background:#355c3c; }
+.editorial-experience { background:#f9f9f6; }
+.editorial-moments { background:#dce9d8; }
+.editorial-moments__grid strong span { color:#58724e; }
+.editorial-contact { background:#101b19; color:#f8f9f4; }
+.editorial-contact h2 em { color:#c7eaa4; }
+.editorial-contact__arrow { background:#c7eaa4; color:#182621!important; }
+.editorial-contact__arrow:hover { background:#e3f7cc; }
+body:has(.yor-world-hero--recruiter) header { background:rgba(12,17,27,.96); }
+body:has(.yor-world-hero--recruiter) header nav a:last-child {
+  color:#142419; background:#c7eaa4; border-color:#c7eaa4;
+}
+body:has(.yor-world-hero--recruiter) header nav a:last-child:hover { background:#e0f4cf; }
+@media (max-width:650px) {
+ .editorial-section { padding-block:clamp(72px,13vw,90px); }
+ .editorial-home h2 { overflow-wrap:break-word; }
+ .editorial-projects__story { padding-bottom:74px; }
+ .editorial-projects__art { min-height:250px; }
+ .editorial-projects__controls { padding-top:10px; }
+ .editorial-skills__matrix { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+ .editorial-element { min-height:106px; }
+ .editorial-element__name { font-size:11px; }
+ .editorial-element__index { font-size:10px; }
+ .yor-world-hero--recruiter .yor-world-hero__feature-item { padding:19px 0; }
+ .yor-world-hero--recruiter .yor-world-hero__studio-heading > span { font-size:12px; }
+ .yor-world-hero--recruiter .yor-world-hero__studio-jump { font-size:12px; }
+}
+@media (prefers-reduced-motion:reduce) {
+ .editorial-home { scroll-behavior:auto; }
+ .editorial-home :is(a,button) { transition:none; }
+}
