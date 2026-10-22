@@ -1,34 +1,85 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Ayush Roy | Full Stack Developer portfolio";
+export const alt = "Ayush Roy, Backend and Full-Stack Engineer. Building systems. Making them matter.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /**
- * Social cards match the light editorial homepage.
- * This is generated at the edge without downloading external imagery.
+ * Social share card mirrors the live site's dark studio identity, while
+ * retaining a readable, text-first preview when shared without any WebGL.
  */
 export default function OpenGraphImage() {
   return new ImageResponse(
     (
-      <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%", padding: "58px 66px", background: "linear-gradient(118deg, #f6f3e9 0%, #f4f2e8 53%, #e9edc8 100%)", color: "#25262e", fontFamily: "Arial, sans-serif", position: "relative", overflow: "hidden" }}>
-        <div style={{ display: "flex", position: "absolute", top: "65px", right: "-27px", fontSize: "370px", fontWeight: 900, lineHeight: 1, color: "#e5e4d6", letterSpacing: "-30px" }}>YOR</div>
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%", position: "relative" }}>
-          <div style={{ display: "flex", fontSize: 18, letterSpacing: 2, fontWeight: 700 }}>✳ &nbsp; YOR / AYUSH ROY</div>
-          <div style={{ display: "flex", fontSize: 15, letterSpacing: 2, color: "#606360", fontWeight: 700 }}>PORTFOLIO / 2026</div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          padding: "58px 66px 48px",
+          overflow: "hidden",
+          background: "linear-gradient(123deg, #080d18 0%, #121629 55%, #1a1735 100%)",
+          color: "#f7f4fb",
+          fontFamily: "Arial, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            right: "-42px",
+            top: "93px",
+            width: "480px",
+            height: "480px",
+            borderRadius: "50%",
+            border: "1px solid rgba(212, 181, 255, .2)",
+            background: "linear-gradient(145deg, rgba(170, 143, 242, .15), rgba(88, 208, 218, .04))",
+            display: "flex",
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            right: "41px",
+            top: "190px",
+            fontSize: 180,
+            fontWeight: 900,
+            letterSpacing: -24,
+            color: "rgba(232, 201, 255, .13)",
+          }}
+        >
+          YOR
         </div>
-        <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", marginBottom: "auto", position: "relative" }}>
-          <div style={{ display: "flex", fontSize: 17, letterSpacing: 3, color: "#646658", marginBottom: 32 }}>BACKEND THINKING. FRONTEND WITH FEELING.</div>
-          <div style={{ display: "flex", fontSize: 114, fontWeight: 800, lineHeight: 1, letterSpacing: -7 }}>Full Stack</div>
-          <div style={{ display: "flex", fontSize: 107, lineHeight: 1.08, letterSpacing: -6, fontFamily: "Georgia, serif" }}>Developer.</div>
-          <div style={{ display: "flex", maxWidth: 800, fontSize: 21, lineHeight: 1.45, marginTop: 26, color: "#555954" }}>Full-stack products, practical engineering, and six evidence-backed project stories.</div>
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", width: "100%" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", width: 12, height: 12, borderRadius: 6, background: "#b0ead4" }} />
+            <div style={{ display: "flex", fontSize: 17, letterSpacing: 2.6, fontWeight: 700 }}>YOR / AYUSH ROY</div>
+          </div>
+          <div style={{ display: "flex", fontSize: 15, letterSpacing: 2.1, color: "#c5b3e0", fontWeight: 700 }}>ENGINEERING PORTFOLIO</div>
         </div>
-        <div style={{ display: "flex", flexDirection: "row", width: "100%", justifyContent: "space-between", borderTop: "1px solid #bfbdaf", paddingTop: 18, position: "relative", fontSize: 15, letterSpacing: 1.5, color: "#61655c" }}>
-          <div style={{ display: "flex" }}>PYTHON / TYPESCRIPT / APPLIED AI</div>
-          <div style={{ display: "flex" }}>YORAYRINIWNL.IN &nbsp; ↗</div>
+
+        <div style={{ display: "flex", flexDirection: "column", position: "relative", marginTop: "auto", marginBottom: "auto" }}>
+          <div style={{ display: "flex", color: "#b1ead5", fontSize: 18, fontWeight: 700, letterSpacing: 3, marginBottom: 30 }}>
+            BACKEND / FULL-STACK / APPLIED ML
+          </div>
+          <div style={{ display: "flex", fontSize: 86, lineHeight: 1, letterSpacing: -5.2, fontWeight: 800 }}>Building systems.</div>
+          <div style={{ display: "flex", fontSize: 82, lineHeight: 1.13, letterSpacing: -4.4, color: "#e4b9fb", fontFamily: "Georgia, serif", fontStyle: "italic" }}>
+            Making them matter.
+          </div>
+          <div style={{ display: "flex", marginTop: 28, maxWidth: 890, color: "#c4c9df", fontSize: 22, lineHeight: 1.4 }}>
+            Evidence-driven tools, real-time products, and thoughtful interactive experiences.
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", width: "100%", borderTop: "1px solid rgba(238, 228, 255, .22)", paddingTop: 20 }}>
+          <div style={{ display: "flex", fontSize: 14, letterSpacing: 1.8, fontWeight: 700, color: "#b6bee1" }}>SELECTED WORK / CASE STUDIES / SOURCE CODE</div>
+          <div style={{ display: "flex", fontSize: 17, letterSpacing: 1.3, fontWeight: 800, color: "#efdcfc" }}>YORAYRINIWNL.IN ↗</div>
         </div>
       </div>
     ),
-    { ...size }
+    { ...size },
   );
 }
