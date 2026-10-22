@@ -21,9 +21,10 @@ export function EditorialHome() {
   return (
     <main id="main" className="editorial-home">
       <StudioHero />
+      <EditorialWork projects={portfolioCards} />
 
       <section id="about" className="editorial-about editorial-section editorial-wrap" aria-labelledby="editorial-about-title" data-experience-section="about">
-        <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 01 / GET TO KNOW ME</div>
+        <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 02 / GET TO KNOW ME</div>
         <div className="editorial-about__grid">
           <h2 id="editorial-about-title" data-essential-copy>Hi, I&apos;m <em>Ayush.</em></h2>
           <div className="editorial-about__body">
@@ -36,7 +37,6 @@ export function EditorialHome() {
       </section>
 
       <EditorialSkills />
-      <EditorialWork projects={portfolioCards} />
 
       <section id="experience" className="editorial-experience editorial-section editorial-wrap" aria-labelledby="editorial-experience-title">
         <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 04 / THE JOURNEY</div>
