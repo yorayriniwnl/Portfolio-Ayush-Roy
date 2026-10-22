@@ -21,9 +21,10 @@ export function EditorialHome() {
   return (
     <main id="main" className="editorial-home">
       <StudioHero />
+      <EditorialWork projects={portfolioCards} />
 
       <section id="about" className="editorial-about editorial-section editorial-wrap" aria-labelledby="editorial-about-title" data-experience-section="about">
-        <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 01 / GET TO KNOW ME</div>
+        <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 02 / THE PERSON</div>
         <div className="editorial-about__grid">
           <h2 id="editorial-about-title" data-essential-copy>Hi, I&apos;m <em>Ayush.</em></h2>
           <div className="editorial-about__body">
@@ -36,7 +37,6 @@ export function EditorialHome() {
       </section>
 
       <EditorialSkills />
-      <EditorialWork projects={portfolioCards} />
 
       <section id="experience" className="editorial-experience editorial-section editorial-wrap" aria-labelledby="editorial-experience-title">
         <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 04 / THE JOURNEY</div>
@@ -49,12 +49,12 @@ export function EditorialHome() {
       </section>
 
       <section id="moments" className="editorial-moments editorial-section editorial-wrap" aria-labelledby="editorial-moments-title">
-        <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 05 / AT A GLANCE</div>
-        <h2 id="editorial-moments-title" data-essential-copy>Proud <em>moments.</em></h2>
+        <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 05 / PROOF, NOT PROMISES</div>
+        <h2 id="editorial-moments-title" data-essential-copy>Evidence <em>in context.</em></h2>
         <div className="editorial-moments__grid">
-          <div><strong>06<span>↗</span></strong><p>documented projects</p></div>
-          <div><strong>03<span>+</span></strong><p>engineering disciplines</p></div>
-          <div><strong>2027<span>↗</span></strong><p>expected graduation</p></div>
+          <div><strong>{String(recruiterProjects.length).padStart(2, "0")}<span>↗</span></strong><p>source-backed engineering case studies</p></div>
+          <div><strong>12<span>↗</span></strong><p>technical capability dimensions in CandidateX</p></div>
+          <div><strong>107<span>↗</span></strong><p>images in the AI-forensics evaluation holdout</p></div>
         </div>
       </section>
 
