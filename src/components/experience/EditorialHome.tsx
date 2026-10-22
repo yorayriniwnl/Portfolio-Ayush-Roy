@@ -2,7 +2,7 @@ import Link from "next/link";
 import { profile } from "@/content/profile";
 import { recruiterProjects } from "@/content/project-registry";
 import { EditorialSkills, EditorialWork } from "./EditorialInteractive";
-import { StudioHero } from "./StudioHero";
+import { StudioExperience, StudioHero } from "./StudioHero";
 
 const verifiedLiveCount = recruiterProjects.filter((project) => project.availability.live === "verified").length;
 
@@ -24,6 +24,7 @@ export function EditorialHome() {
     <main id="main" className="editorial-home">
       <StudioHero />
       <EditorialWork projects={portfolioCards} />
+      <StudioExperience />
 
       <section id="about" className="editorial-about editorial-section editorial-wrap" aria-labelledby="editorial-about-title" data-experience-section="about">
         <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 02 / GET TO KNOW ME</div>
