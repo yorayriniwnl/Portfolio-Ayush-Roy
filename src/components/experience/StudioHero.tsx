@@ -38,7 +38,7 @@ export function StudioHero() {
             </div>
           </div>
 
-          <div className="yor-world-hero__fast-path" aria-label="Featured engineering case studies">
+          <nav className="yor-world-hero__fast-path" aria-label="Featured engineering case studies">
             <div className="yor-world-hero__fast-path-label">
               <span>START WITH THE WORK</span>
               <strong>Selected engineering</strong>
@@ -52,7 +52,7 @@ export function StudioHero() {
                 </Link>
               ))}
             </div>
-          </div>
+          </nav>
         </div>
 
         <div id="studio" className="yor-world-hero__studio machine-home">
