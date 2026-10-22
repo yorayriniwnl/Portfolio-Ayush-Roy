@@ -52,9 +52,9 @@ export function EditorialHome() {
         <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 05 / PROOF, NOT PROMISES</div>
         <h2 id="editorial-moments-title" data-essential-copy>Evidence <em>in context.</em></h2>
         <div className="editorial-moments__grid">
-          <div><strong>{String(recruiterProjects.length).padStart(2, "0")}<span>↗</span></strong><p>source-backed engineering case studies</p></div>
-          <div><strong>12<span>↗</span></strong><p>technical capability dimensions in CandidateX</p></div>
-          <div><strong>107<span>↗</span></strong><p>images in the AI-forensics evaluation holdout</p></div>
+          <div><Link href="/projects"><strong>{String(recruiterProjects.length).padStart(2, "0")}<span>↗</span></strong><p>source-backed engineering case studies</p></Link></div>
+          <div><Link href="/projects/candidatex"><strong>12<span>↗</span></strong><p>technical capability dimensions in CandidateX</p></Link></div>
+          <div><Link href="/projects/ai-vs-real"><strong>107<span>↗</span></strong><p>images in the AI-forensics evaluation holdout</p></Link></div>
         </div>
       </section>
 
