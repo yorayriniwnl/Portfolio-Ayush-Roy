@@ -1,0 +1,514 @@
+/* The interactive 3D studio on /lab (src/components/experience/StudioRoom.tsx).
+   Consolidated from the earlier homepage art passes: the layout values are the
+   ones those passes resolved to, and every interface color now comes from the
+   shared navy + lime palette. The room itself (WebGL scene and its CSS fallback
+   illustration) keeps its own pastel art direction. */
+.studio-frame {
+  --studio-panel: var(--graphite);
+  --studio-panel-strong: var(--surface-alt);
+  --studio-line: rgba(198, 205, 216, .2);
+  --studio-line-strong: rgba(198, 205, 216, .4);
+  --studio-overlay: rgba(12, 17, 27, .8);
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--paper);
+  scroll-margin-top: 90px;
+}
+.studio-frame:has([data-console-open="true"]) { z-index: 9; }
+.studio-frame .yor-studio { position: relative; width: 100%; min-width: 0; }
+.studio-frame :is(button, a):focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+
+/* Status line and utilities, overlaid on the top edge of the room. */
+.studio-frame .yor-studio__topline {
+  position: absolute;
+  top: 22px;
+  right: 28px;
+  left: 28px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--paper);
+  font: 10px/1.4 var(--font-mono);
+  letter-spacing: .12em;
+  text-shadow: 0 2px 12px rgba(12, 17, 27, .8);
+  pointer-events: none;
+}
+.studio-frame .yor-studio__topline > span:first-child { display: inline-flex; align-items: center; gap: 9px; }
+.studio-frame .yor-studio__topline button { pointer-events: auto; }
+.studio-frame .yor-studio__pulse {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 0 4px rgba(199, 234, 164, .16);
+}
+.studio-frame .yor-studio__utilities { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+.studio-frame .yor-studio__utilities button {
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 1px solid var(--studio-line-strong);
+  border-radius: 999px;
+  background: var(--studio-overlay);
+  color: var(--paper);
+  font: 700 11px/1.25 var(--font-mono);
+  letter-spacing: .05em;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+.studio-frame .yor-studio__utilities button:hover { border-color: var(--signal); }
+.studio-frame .yor-studio__utilities button[aria-pressed="true"] { border-color: var(--line-hot); color: var(--signal); }
+
+/* The stage. */
+.studio-frame .yor-studio__viewport {
+  position: relative;
+  width: 100%;
+  height: clamp(615px, 76vh, 850px);
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--studio-line);
+  border-radius: 19px;
+  background: radial-gradient(ellipse at 48% 26%, #efe4fb 0%, #c3c7ec 50%, #868dc9 100%);
+  box-shadow: 0 30px 85px rgba(3, 6, 12, .45);
+}
+.studio-frame .yor-studio__viewport::after {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(12, 17, 27, .3), transparent 21%, transparent 86%, rgba(12, 17, 27, .08));
+}
+.studio-frame .yor-studio__viewport canvas {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+}
+.yor-studio[data-roaming="true"] .yor-studio__viewport canvas { cursor: crosshair; touch-action: none; }
+
+/* Static room illustration: shown while the scene loads, when WebGL is
+   unavailable, and for visitors who prefer reduced motion. */
+.studio-frame .yor-studio__fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, #dcd4ed, #d0d9f4 55%, #a7c6ee);
+}
+.studio-frame .yor-studio__fallback::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: radial-gradient(ellipse at 40% 42%, rgba(239, 182, 255, .65), transparent 60%);
+}
+.studio-frame .yor-studio__fallback-light {
+  position: absolute;
+  top: 8%;
+  left: 31%;
+  width: 48%;
+  height: 65%;
+  background: radial-gradient(ellipse, rgba(240, 153, 102, .24), transparent 68%);
+  filter: blur(12px);
+}
+.studio-frame .yor-studio__fallback-window {
+  position: absolute;
+  top: 11%;
+  right: 10%;
+  width: 28%;
+  height: 40%;
+  border: 14px solid #f5f5fd;
+  background: linear-gradient(140deg, #b9d4f4, #8bb7dc);
+  box-shadow: 0 0 35px rgba(64, 190, 226, .3);
+}
+.studio-frame .yor-studio__fallback-monitor {
+  position: absolute;
+  top: 32%;
+  left: 17%;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  width: 58%;
+  height: 35%;
+  padding: 6%;
+  border: 13px solid #f3f2fc;
+  border-bottom-width: 17px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #2c3b7f, #8156ab);
+  box-shadow: 13px 24px 31px rgba(63, 46, 113, .27);
+  color: #f4d1ff;
+  transform: perspective(900px) rotateY(-13deg);
+}
+.studio-frame .yor-studio__fallback-monitor b { font: 750 clamp(23px, 4vw, 55px)/1 var(--font-display); letter-spacing: -.08em; }
+.studio-frame .yor-studio__fallback-monitor span { color: #d7ecff; font: 600 10px/1.5 var(--font-mono); letter-spacing: .1em; }
+.studio-frame .yor-studio__fallback-desk {
+  position: absolute;
+  top: 70%;
+  left: 5%;
+  width: 92%;
+  height: 9%;
+  background: #eee9e3;
+  box-shadow: 0 80px 0 -20px #f8f7fc, 0 0 0 6px #d8d5dc;
+  transform: skewX(-12deg);
+}
+.studio-frame .yor-studio__fallback-drawer {
+  position: absolute;
+  top: 77%;
+  left: 13%;
+  width: 14%;
+  height: 23%;
+  background: linear-gradient(90deg, #fff, #d4d8ed);
+}
+.studio-frame .yor-studio__fallback-lamp {
+  position: absolute;
+  top: 24%;
+  left: 6%;
+  width: 22%;
+  height: 10%;
+  border-radius: 50% 50% 15% 15%;
+  background: #fee7b0;
+  box-shadow: 0 0 45px rgba(255, 220, 140, .6);
+  transform: rotate(-32deg);
+}
+.yor-studio[data-scene-ready="true"] .yor-studio__fallback { opacity: 0; pointer-events: none; }
+.yor-studio[data-scene-failed="true"] .yor-studio__fallback { opacity: 1; }
+
+/* Overlays inside the stage. */
+.studio-frame .yor-studio__hud {
+  position: absolute;
+  right: 26px;
+  bottom: 20px;
+  left: 26px;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--paper);
+  font: 10px/1.4 var(--font-mono);
+  letter-spacing: .1em;
+  text-shadow: 0 2px 12px rgba(12, 17, 27, .85);
+  pointer-events: none;
+}
+.studio-frame .yor-studio__corner {
+  position: absolute;
+  z-index: 4;
+  width: 16px;
+  height: 16px;
+  border-color: var(--signal);
+  border-style: solid;
+  pointer-events: none;
+}
+.studio-frame .yor-studio__corner--tl { top: 13px; left: 13px; border-width: 1px 0 0 1px; }
+.studio-frame .yor-studio__corner--br { right: 13px; bottom: 13px; border-width: 0 1px 1px 0; }
+.studio-frame .yor-studio__hover-label {
+  position: absolute;
+  top: 18px;
+  left: 21px;
+  z-index: 6;
+  padding: 9px 12px;
+  border: 1px solid var(--line-hot);
+  border-radius: 7px;
+  background: var(--studio-overlay);
+  color: var(--signal);
+  font: 700 10px/1.25 var(--font-mono);
+  letter-spacing: .1em;
+  box-shadow: 0 12px 35px rgba(3, 6, 12, .3);
+  pointer-events: none;
+}
+.studio-frame .yor-studio__photo-toggle {
+  position: absolute;
+  top: 76px;
+  right: 22px;
+  z-index: 11;
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid var(--studio-line-strong);
+  border-radius: 999px;
+  background: var(--studio-overlay);
+  color: var(--paper);
+  font: 750 11px/1.2 var(--font-mono);
+  letter-spacing: .07em;
+  cursor: pointer;
+  box-shadow: 0 7px 22px rgba(3, 6, 12, .3);
+  backdrop-filter: blur(12px);
+}
+.studio-frame .yor-studio__photo-toggle:hover,
+.studio-frame .yor-studio__photo-toggle:focus-visible { border-color: var(--signal); background: rgba(12, 17, 27, .92); }
+.studio-frame .yor-studio[data-photo-mode="true"] .yor-studio__photo-toggle { top: 18px; right: 18px; }
+.studio-frame .yor-studio[data-photo-mode="true"] :is(.yor-studio__topline, .yor-studio__hud, .yor-studio__actions, .yor-studio__bottomline, .yor-studio__hover-label, .yor-studio__corner) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Touch walking pad. */
+.studio-frame .yor-studio__touch-pad {
+  position: absolute;
+  right: 14px;
+  bottom: 45px;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(3, 44px);
+  gap: 2px;
+  padding: 5px;
+  border: 1px solid var(--studio-line-strong);
+  border-radius: 18px;
+  background: var(--studio-overlay);
+  box-shadow: 0 8px 28px rgba(3, 6, 12, .25);
+  backdrop-filter: blur(14px);
+  pointer-events: auto;
+}
+.studio-frame .yor-studio__touch-pad button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--studio-line-strong);
+  border-radius: 10px;
+  background: rgba(198, 205, 216, .12);
+  color: var(--paper);
+  font: 800 22px/1 var(--font-mono);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.studio-frame .yor-studio__touch-pad button[aria-pressed="true"] { border-color: var(--signal); background: var(--signal); color: var(--signal-ink); }
+.studio-frame .yor-studio__touch-forward { grid-column: 2; grid-row: 1; }
+.studio-frame .yor-studio__touch-left { grid-column: 1; grid-row: 2; }
+.studio-frame .yor-studio__touch-back { grid-column: 2; grid-row: 3; }
+.studio-frame .yor-studio__touch-right { grid-column: 3; grid-row: 2; }
+
+/* Room controls below the stage. */
+.studio-frame .yor-studio__actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+  max-width: 100%;
+  padding: 14px 0 2px;
+  border-bottom: 1px solid var(--line);
+}
+.studio-frame .yor-studio__actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--studio-line);
+  border-radius: 9px;
+  background: var(--studio-panel);
+  color: var(--paper);
+  font: 700 11px/1.25 var(--font-mono);
+  letter-spacing: .045em;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+.studio-frame .yor-studio__actions button span { font-size: 18px; font-weight: 400; line-height: 1; }
+.studio-frame .yor-studio__actions button:hover { border-color: var(--signal); background: var(--studio-panel-strong); }
+.studio-frame .yor-studio__actions button[aria-pressed="true"] { border-color: var(--line-hot); color: var(--signal); }
+.studio-frame .yor-studio__actions .yor-studio__walk-toggle { border-color: var(--signal); background: var(--signal); color: var(--signal-ink); }
+.studio-frame .yor-studio__actions .yor-studio__walk-toggle:hover,
+.studio-frame .yor-studio__actions .yor-studio__walk-toggle[aria-pressed="true"] { border-color: #d6f0bb; background: #d6f0bb; color: var(--signal-ink); }
+.studio-frame .yor-studio__actions .yor-studio__walk-toggle:disabled { border-color: var(--studio-line); background: var(--studio-panel); color: var(--muted); cursor: not-allowed; opacity: .7; }
+.studio-frame .yor-studio__secret {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 10px;
+  color: var(--signal);
+  font: 700 11px var(--font-mono);
+  letter-spacing: .06em;
+}
+.studio-frame .yor-studio__bottomline {
+  display: grid;
+  grid-template-columns: minmax(320px, .75fr) minmax(0, 1.25fr);
+  gap: 15px;
+  margin-top: 15px;
+}
+.studio-frame .yor-studio__locations { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.studio-frame .yor-studio__locations button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  min-height: 72px;
+  padding: 10px;
+  border: 1px solid var(--studio-line);
+  border-radius: 12px;
+  background: var(--studio-panel);
+  color: var(--titanium);
+  font: 700 11px var(--font-mono);
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: color .2s ease, background .2s ease, border-color .2s ease;
+}
+.studio-frame .yor-studio__locations button span { color: var(--signal); font-size: 11px; }
+.studio-frame .yor-studio__locations button:hover,
+.studio-frame .yor-studio__locations button.is-active { border-color: var(--signal); background: var(--studio-panel-strong); color: var(--paper); }
+.studio-frame .yor-studio__description {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-width: 0;
+  padding: 17px 24px;
+  border: 1px solid var(--studio-line);
+  border-radius: 12px;
+  background: var(--studio-panel);
+}
+.studio-frame .yor-studio__description > div { min-width: 0; }
+.studio-frame .yor-studio__description > div > span { color: var(--signal); font: 10px/1.5 var(--font-mono); letter-spacing: .12em; }
+.studio-frame .yor-studio__description strong { display: block; margin-top: 4px; color: var(--paper); font: 600 clamp(16px, 1.6vw, 22px)/1.3 var(--font-display); }
+.studio-frame .yor-studio__description p { max-width: 510px; margin: 5px 0 0; color: var(--titanium); font: 13px/1.5 var(--font-body); }
+.studio-frame .yor-studio__description a {
+  flex: 0 0 auto;
+  max-width: 180px;
+  padding: 8px;
+  border-bottom: 1px solid var(--signal);
+  color: var(--paper);
+  font: 11px/1.5 var(--font-mono);
+  letter-spacing: .04em;
+}
+.studio-frame .yor-studio__description a span { color: var(--signal); }
+.studio-frame .yor-studio__access-note { margin: 14px 0 0; color: var(--muted); font: 13px/1.6 var(--font-body); }
+
+/* Workstation launcher (dialog over the stage). */
+.studio-frame .yor-studio__console {
+  position: absolute;
+  inset: clamp(12px, 4%, 34px);
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: clamp(19px, 3vw, 37px);
+  border: 1px solid var(--line-hot);
+  border-radius: 15px;
+  background: rgba(12, 17, 27, .96);
+  box-shadow: 0 12px 90px rgba(3, 6, 12, .72);
+  color: var(--paper);
+  backdrop-filter: blur(20px);
+}
+.studio-frame :is(.yor-studio__console-top, .yor-studio__console-foot) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  color: var(--muted);
+  font: 750 11px/1.3 var(--font-mono);
+  letter-spacing: .12em;
+}
+.studio-frame .yor-studio__console-top button {
+  min-height: 44px;
+  padding: 10px 17px;
+  border: 1px solid var(--studio-line-strong);
+  border-radius: 30px;
+  background: rgba(198, 205, 216, .06);
+  color: var(--paper);
+  font: 750 11px/1.2 var(--font-mono);
+  cursor: pointer;
+}
+.studio-frame .yor-studio__console-top button:hover { border-color: var(--signal); }
+.studio-frame .yor-studio__console h2 {
+  margin: clamp(12px, 2vw, 26px) 0 3px;
+  color: var(--paper);
+  font: 760 clamp(32px, 4.3vw, 62px)/1.05 var(--font-display);
+  letter-spacing: -.055em;
+}
+.studio-frame .yor-studio__console h2 span { color: var(--signal); }
+.studio-frame .yor-studio__console p { max-width: 55ch; margin: 8px 0 19px; color: var(--titanium); font-size: 14px; line-height: 1.55; }
+.studio-frame .yor-studio__console-projects { display: grid; flex: 1; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.studio-frame .yor-studio__console-project {
+  display: grid;
+  grid-template-columns: 24px 1fr 18px;
+  align-items: center;
+  gap: 9px;
+  min-height: 67px;
+  padding: 12px 13px;
+  border: 1px solid var(--studio-line);
+  border-radius: 8px;
+  background: var(--studio-panel);
+  color: var(--paper);
+  transition: background .2s ease, border-color .2s ease;
+}
+.studio-frame .yor-studio__console-project:hover { border-color: var(--signal); background: var(--studio-panel-strong); color: var(--paper); }
+.studio-frame .yor-studio__console-project > span:first-child { color: var(--signal); font: 700 11px var(--font-mono); }
+.studio-frame .yor-studio__console-project > span:nth-child(2) { min-width: 0; }
+.studio-frame .yor-studio__console-project b { display: block; font: 720 clamp(13px, 1.1vw, 15px)/1.35 var(--font-display); }
+.studio-frame .yor-studio__console-project small {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--muted);
+  font: 650 11px/1.3 var(--font-mono);
+  letter-spacing: .02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.studio-frame .yor-studio__console-project > span:last-child { color: var(--signal); font-size: 17px; }
+.studio-frame .yor-studio__console-foot { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 10px; }
+.studio-frame .yor-studio__console-foot a { padding-bottom: 3px; border-bottom: 1px solid var(--signal); color: var(--paper); }
+
+/* Responsive ------------------------------------------------------------- */
+@media (min-width: 801px) and (max-width: 1100px) {
+  .studio-frame .yor-studio__viewport { height: clamp(590px, 70vh, 740px); }
+}
+@media (min-width: 900px) and (pointer: fine) {
+  .studio-frame .yor-studio__touch-pad { display: none; }
+}
+@media (max-width: 900px) {
+  .studio-frame .yor-studio { max-width: 760px; margin-top: 25px; }
+}
+@media (max-width: 800px) {
+  .studio-frame .yor-studio__viewport { height: clamp(490px, 78svh, 730px); min-height: 490px; border-radius: 12px; }
+  .studio-frame .yor-studio__topline { top: 14px; right: 13px; left: 13px; flex-wrap: wrap; gap: 7px; }
+  .studio-frame .yor-studio__topline > span:first-child { font-size: 10px; letter-spacing: 0; }
+  .studio-frame .yor-studio__utilities { flex-wrap: nowrap; justify-content: flex-end; gap: 5px; margin-left: auto; }
+  .studio-frame .yor-studio__utilities button { min-height: 44px; padding: 7px 10px; font-size: 10px; white-space: nowrap; }
+  .studio-frame .yor-studio__hud { right: 12px; bottom: 11px; left: 12px; }
+  .studio-frame .yor-studio__photo-toggle { top: auto; right: 11px; bottom: 44px; padding: 10px 12px; font-size: 10px; }
+  .studio-frame .yor-studio__bottomline { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 650px) {
+  .studio-frame .yor-studio__hud { font-size: 9px; }
+  .studio-frame .yor-studio__hud span:last-child { max-width: 56%; text-align: right; }
+  .studio-frame .yor-studio__hover-label { display: none; }
+  .studio-frame .yor-studio__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .studio-frame .yor-studio__actions button { padding: 8px 9px; font-size: 10px; }
+  .studio-frame .yor-studio__secret { grid-column: 1 / -1; min-height: 30px; }
+  .studio-frame .yor-studio__locations button { min-height: 61px; padding: 8px; font-size: 10px; }
+  .studio-frame .yor-studio__description { align-items: flex-start; gap: 12px; padding: 15px; }
+  .studio-frame .yor-studio__description strong { font-size: 16px; }
+  .studio-frame .yor-studio__description a { font-size: 10px; }
+  .studio-frame .yor-studio__touch-pad { right: 9px; bottom: 36px; padding: 4px; border-radius: 13px; }
+  .studio-frame .yor-studio__touch-pad button { border-radius: 8px; font-size: 19px; }
+  .studio-frame .yor-studio__console { inset: 8px; padding: 16px; border-radius: 9px; }
+  .studio-frame .yor-studio__console h2 { margin-top: 10px; font-size: 31px; }
+  .studio-frame .yor-studio__console p { margin-bottom: 11px; font-size: 13px; }
+  .studio-frame .yor-studio__console-projects { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  .studio-frame .yor-studio__console-project { min-height: 48px; gap: 7px; padding: 7px 10px; }
+  .studio-frame .yor-studio__console-project b { font-size: 13px; }
+  .studio-frame .yor-studio__console-project small { margin-top: 1px; font-size: 10px; }
+  .studio-frame .yor-studio__console-foot { margin-top: 10px; padding-top: 8px; }
+}
+@media (max-width: 430px) {
+  .studio-frame .yor-studio__viewport { height: 70svh; min-height: 490px; }
+  .studio-frame .yor-studio__description { flex-direction: column; }
+  .studio-frame .yor-studio__description a { width: fit-content; max-width: none; }
+  .studio-frame .yor-studio__fallback-monitor { padding: 6% 4%; }
+  .studio-frame .yor-studio__locations button { min-height: 55px; }
+  .studio-frame .yor-studio__topline { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-frame * { transition-duration: .01ms !important; }
+}

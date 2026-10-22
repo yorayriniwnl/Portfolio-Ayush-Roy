@@ -1,0 +1,18 @@
+/* Case-study and project-index copy: legible body text and comfortable targets. */
+.case-summary, .case-copy, .projects-index-deck, .project-world__purpose {
+  color:var(--titanium);
+}
+.case-hero .case-summary { font-size:clamp(16px,1.32vw,19px); line-height:1.78; }
+.case-meta .meta-row dt { color:var(--muted); }
+.case-meta .meta-row dd { color:var(--paper); }
+.case-toc-inner a { min-height:44px; display:inline-flex; align-items:center; }
+.case-body .case-section { scroll-margin-top:145px; }
+.project-world__purpose { line-height:1.8; }
+.project-world__title-link:focus-visible,
+.project-world__actions a:focus-visible,
+.case-toc-inner a:focus-visible { outline:3px solid var(--signal); outline-offset:4px; }
+@media(max-width:650px) {
+ .case-hero .case-title { overflow-wrap:anywhere; }
+ .case-summary, .case-copy { font-size:15px; line-height:1.7; }
+ .case-toc-inner a { white-space:nowrap; }
+}

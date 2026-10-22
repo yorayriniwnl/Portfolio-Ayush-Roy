@@ -24,7 +24,7 @@ export function ProjectIndex({ projects }: { projects: readonly Project[] }) {
 
       <section className="container projects-index-list" aria-labelledby="selected-projects-title">
         <div className="projects-index-heading">
-          <div><span className="technical">01 / THE SELECTED SET</span><h2 id="selected-projects-title">Read the<br /><em>engineering.</em></h2></div>
+          <div><span className="technical">01 / THE SELECTED SET</span><h2 id="selected-projects-title">Read the<br />engineering.</h2></div>
           <p>Open a project for the architecture, validation evidence, and limitations. Verified source and live routes remain explicit.</p>
         </div>
         <ol className="project-world-list" aria-label="Selected engineering project worlds">

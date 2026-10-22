@@ -17,26 +17,17 @@ test("editorial social preview is a generated PNG matching the homepage instead 
   assert.doesNotMatch(card, /Full Stack Developer/);
 });
 
-test("project showcase supports deliberate mobile swipes while preserving keyboard and touch navigation", () => {
-  const component = readFileSync("src/components/experience/EditorialInteractive.tsx", "utf8");
-  const css = readFileSync("src/styles/editorial.css", "utf8");
-  assert.match(component, /onTouchStart=\{onSwipeStart\}/);
-  assert.match(component, /onTouchEnd=\{onSwipeEnd\}/);
-  assert.match(component, /onTouchCancel=/);
-  assert.match(component, /Math\.abs\(dx\) >= 65/);
-  assert.match(component, /Math\.abs\(dx\) > Math\.abs\(dy\) \* 1\.35/);
-  assert.match(component, /ArrowRight/);
-  assert.match(component, /ArrowLeft/);
-  assert.match(css, /\.editorial-projects__stage \{ touch-action: pan-y/);
-  assert.match(css, /\.editorial-projects__dots button \{[^}]*width: 44px; height: 44px;/);
+test("homepage work list is plain, crawlable links rather than a carousel", () => {
+  const home = readFileSync("src/components/Home.tsx", "utf8");
+  assert.doesNotMatch(home, /aria-roledescription="carousel"|onTouchStart|useState/);
+  assert.match(home, /href=\{`\/projects\/\$\{project\.slug\}`\}/);
+  assert.match(home, /<Link className="home-text-link" href="\/projects">All six case studies<\/Link>/);
 });
 
-test("editorial polish respects reduced motion and uses the public email from profile data", () => {
-  const page = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
-  const css = readFileSync("src/styles/editorial.css", "utf8");
+test("homepage uses the public email from profile data and respects reduced motion", () => {
+  const page = readFileSync("src/components/Home.tsx", "utf8");
+  const css = readFileSync("src/styles/home.css", "utf8");
   assert.match(page, /mailto:\$\{profile\.email\}/);
   assert.doesNotMatch(page, /mailto:ayushroy\.dev@gmail\.com/);
-  assert.match(css, /@media \(prefers-reduced-motion: no-preference\)/);
-  assert.match(css, /animation-timeline: view\(\)/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
 });

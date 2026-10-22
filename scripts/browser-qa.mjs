@@ -431,18 +431,20 @@ try {
   await setViewport(cdp, 1440, 900);
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
   await navigate(cdp, baseUrl);
-  await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "editorial homepage visible" });
-  // The portfolio is now recruiter-first. Capture the real initial viewport,
-  // then deliberately visit the below-the-fold 3D experience. The scene must
-  // stay lazy until it approaches the viewport.
+  await waitForCondition(cdp, `Boolean(document.querySelector('.home h1'))`, { description: "homepage visible" });
+  // The homepage is recruiter-first and never mounts WebGL. Capture it, then
+  // visit the optional 3D studio, which lives in the Lab and stays lazy until
+  // it approaches the viewport.
   await capture(cdp, outputDir, "desktop-hero");
+  assert(await cdp.evaluate(`document.querySelectorAll('canvas').length === 0`), "Homepage mounted a canvas; the 3D studio belongs in the Lab");
+  await navigate(cdp, `${baseUrl}/lab`);
   const reachedStudio = await cdp.evaluate(`(() => {
     const studio = document.getElementById('studio');
     if (!studio) return false;
     studio.scrollIntoView({ block: 'start', behavior: 'instant' });
     return true;
   })()`);
-  assert(reachedStudio, "Homepage lost the optional 3D studio section");
+  assert(reachedStudio, "Lab lost the optional 3D studio section");
   const studioCanvas = await waitForCondition(cdp,
     `document.querySelector('.yor-studio__viewport canvas') ? true : null`,
     { timeoutMs: 18_000, description: "restored WebGL studio canvas" });
@@ -454,7 +456,7 @@ try {
     controls: document.querySelectorAll('.yor-studio__locations button').length
   })`);
   assert(homeGpu.studioCanvases === 1 && homeGpu.projectCanvases === 0 && homeGpu.sceneLayers === 0,
-    `Homepage has missing or duplicate GPU layers: ${JSON.stringify(homeGpu)}`);
+    `Lab studio has missing or duplicate GPU layers: ${JSON.stringify(homeGpu)}`);
   assert(homeGpu.controls === 4, "Studio camera presets are incomplete");
   const genuineRoom = await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
@@ -462,7 +464,7 @@ try {
   assert(genuineRoom.value, "Authentic GLB room never finished loading");
   const referenceFraming = await cdp.evaluate(`(() => {
     const stage = document.querySelector('.yor-studio__viewport')?.getBoundingClientRect();
-    const intro = document.querySelector('.yor-world-hero__intro')?.getBoundingClientRect();
+    const intro = document.querySelector('#studio-title')?.getBoundingClientRect();
     if (!stage || !intro) return null;
     return {
       stageWidth: Math.round(stage.width), viewportWidth: innerWidth,
@@ -621,9 +623,8 @@ try {
   assert(introCanceled.value, "Selecting another camera did not cancel the intro");
   report.interaction.studioCinematic.skipByCameraPreset = true;
   await clickAtSelector('.yor-studio__locations button:nth-child(1)');
-  const boardReady = await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-skills__matrix'))`, { description: "interactive technology keyboard" });
-  report.rendering.home = { ...homeGpu, skillsReady: Boolean(boardReady.value), restoredInteractiveStudio: true };
-  report.performance.samples.push({ path: "/", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
+  report.rendering.labStudio = { ...homeGpu, restoredInteractiveStudio: true };
+  report.performance.samples.push({ path: "/lab", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
 
   await clickAtSelector('a[href="/projects"]');
   await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { timeoutMs: 8000, description: "client navigation to project index" });
@@ -656,16 +657,17 @@ try {
 
   await setViewport(cdp, 390, 844);
   await navigate(cdp, baseUrl);
-  await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "mobile editorial homepage" });
-  assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas').length === 0`), "Mobile homepage mounted redundant 3D");
+  await waitForCondition(cdp, `Boolean(document.querySelector('.home h1'))`, { description: "mobile homepage" });
+  assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas, canvas').length === 0`), "Mobile homepage mounted redundant 3D");
   await capture(cdp, outputDir, "mobile-hero");
+  await navigate(cdp, `${baseUrl}/lab`);
   const mobileStudioLocated = await cdp.evaluate(`(() => {
     const studio = document.getElementById('studio');
     if (!studio) return false;
     studio.scrollIntoView({ block:'start', behavior:'instant' });
     return true;
   })()`);
-  assert(mobileStudioLocated, "Mobile homepage lost its optional studio");
+  assert(mobileStudioLocated, "Mobile Lab lost its optional studio");
   const mobileRoomReady = await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
     { timeoutMs: 28_000, description: "authentic Yor-World 3D room ready on mobile" });
@@ -682,7 +684,7 @@ try {
   assert(mobileStage && mobileStage.top < 570 && mobileStage.visiblePixels >= 240 &&
     mobileStage.canvases === 1 && mobileStage.loaded === "true",
     `Mobile studio should load when visited, not require first-screen GPU work: ${JSON.stringify(mobileStage)}`);
-  report.rendering.mobileHome = mobileStage;
+  report.rendering.mobileLabStudio = mobileStage;
   await capture(cdp, outputDir, "mobile-studio");
   await cdp.evaluate(`document.querySelector('.yor-studio__actions button[aria-controls="yor-room-console"]')?.click(); true`);
   await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true'`,
@@ -759,27 +761,9 @@ try {
   assert(touchedProject === "true", "Touch selection did not activate the selected project world");
   await cdp.send("Input.dispatchTouchEvent", { type: "touchCancel", touchPoints: [] });
 
-  // Validate a real swipe on the reference-inspired carousel at mobile size,
-  // rather than merely checking that React has a touch handler attached.
-  await navigate(cdp, baseUrl);
-  const editorialTouch = await cdp.evaluate(`(async () => {
-    const stage = document.querySelector('.editorial-projects__stage');
-    if (!stage) return null;
-    stage.scrollIntoView({ block: 'start', behavior: 'instant' });
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    const rect = stage.getBoundingClientRect();
-    const selected = Array.from(document.querySelectorAll('.editorial-projects__dots button')).findIndex((button) => button.classList.contains('is-active'));
-    return { x: Math.min(innerWidth - 35, rect.left + rect.width * .72), y: Math.max(135, Math.min(innerHeight - 130, rect.top + 180)), selected };
-  })()`);
-  assert(editorialTouch && editorialTouch.selected === 0, "Editorial work carousel was not at its initial project");
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: editorialTouch.x, y: editorialTouch.y, id: 1 }] });
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: editorialTouch.x - 105, y: editorialTouch.y + 3, id: 1 }] });
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
-  await waitForCondition(cdp, `document.querySelector('.editorial-projects__dots button:nth-child(2)')?.classList.contains('is-active')`, { timeoutMs: 2500, description: "editorial carousel advances after left swipe" });
-  report.interaction.editorialSwipe = { tested: true, nextProjectSelected: true, touchTargetPx: 44 };
   await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
   report.interaction.keyboard = { skipLinkFirst: true, menuEnter: true, escapeDismissal: true, focusRestored: true };
-  report.interaction.touch = { projectWorldSelection: true, editorialSwipe: true };
+  report.interaction.touch = { projectWorldSelection: true };
 
   activeScenario = "custom cursor accessibility and asset fallback";
   await setViewport(cdp, 1440, 900);
@@ -934,14 +918,14 @@ try {
   report.interaction.routeCleanup = { repeatedRoutes: repeated };
 
   const reducedMotionHome = report.performance.samples.find((sample) => sample.path === "/" && sample.viewport === "1440x900");
-  const renderedHome = report.performance.samples.find((sample) => sample.path === "/" && sample.viewport === "1440x900-rendered");
+  const renderedHome = report.performance.samples.find((sample) => sample.path === "/lab" && sample.viewport === "1440x900-rendered");
   if (reducedMotionHome && renderedHome) {
     const baselineScripts = new Set(reducedMotionHome.javascriptResources.map((resource) => resource.path));
     const lazySceneResources = renderedHome.javascriptResources.filter((resource) => !baselineScripts.has(resource.path));
     report.performance.threeSceneIncrementalTransfer = {
       bytes: lazySceneResources.reduce((sum, resource) => sum + resource.transferBytes, 0),
       resources: lazySceneResources,
-      attribution: "Same-origin JavaScript resources present after scene initialization and absent from the reduced-motion homepage sample at 1440x900.",
+      attribution: "Same-origin JavaScript resources present after the Lab studio scene initialized and absent from the reduced-motion homepage sample at 1440x900 (includes the Lab route chunk).",
       caveat: "Production chunk filenames are hashed; this identifies the lazy scene bundle by controlled route/preference comparison, not by filename. Transfer timing reflects this warmed local browser context.",
     };
   } else {

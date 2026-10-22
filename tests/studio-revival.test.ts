@@ -2,13 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, statSync } from "node:fs";
 
-test("actual recovered WebGL workspace powers the homepage, never a static imitation", () => {
-  const homepage = readFileSync("src/components/experience/EditorialHome.tsx", "utf8");
-  const hero = readFileSync("src/components/experience/StudioHero.tsx", "utf8");
+test("actual recovered WebGL workspace powers the Lab studio, never a static imitation", () => {
+  const lab = readFileSync("src/components/Lab.tsx", "utf8");
+  const home = readFileSync("src/components/Home.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const runtime = readFileSync("src/experience/ExperienceRuntime.tsx", "utf8");
-  assert.match(homepage, /<StudioHero \/>/);
-  assert.match(hero, /<StudioRoom \/>/);
+  assert.match(lab, /<div id="studio" className="studio-frame">\s*<StudioRoom \/>/);
+  assert.doesNotMatch(home, /StudioRoom/, "the homepage links to the studio instead of loading it");
   assert.match(room, /<Scene onSelect=\{selectTarget\}/);
   const authored = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
   assert.match(authored, /<Canvas camera=/);
@@ -17,7 +17,6 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
   assert.ok(authored.includes("yor-world-fixture.glb"));
   assert.match(authored, /<AuthenticYorRoom onSelect=\{onSelect\} onInteract=\{onInteract\} onHover=\{onHover\} onToggleLights=\{onToggleLights\}/);
   assert.match(runtime, /pathname !== "\/" && <ExperienceSceneLayer/);
-  assert.doesNotMatch(hero, /Illustrated engineer portrait/);
 });
 
 test("recovered objects have camera targets and physical interactions", () => {
@@ -45,23 +44,23 @@ test("recovered objects have camera targets and physical interactions", () => {
   assert.match(room, /aria-pressed=\{selected === target\}/);
 });
 
-test("new scene preserves direct HTML project/resume navigation and small-screen design", () => {
-  const hero = readFileSync("src/components/experience/StudioHero.tsx", "utf8");
-  const css = readFileSync("src/styles/studio-revival.css", "utf8");
-  assert.match(hero, /href="#projects"/);
-  assert.match(hero, /href="\/resume"/);
-  assert.match(css, /max-width:650px/);
-  assert.match(css, /prefers-reduced-motion:reduce/);
-  assert.match(css, /\.yor-world-hero__studio \.yor-studio__viewport/);
+test("studio keeps real HTML routes to the work and a small-screen design", () => {
+  const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
+  const css = readFileSync("src/styles/studio.css", "utf8");
+  assert.match(room, /href: "#games"/, "the studio's lab destination points at the experiments on the same page");
+  assert.match(room, /href="\/projects"/);
+  assert.match(css, /@media \(max-width: 650px\)/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(css, /\.studio-frame \.yor-studio__viewport/);
   assert.match(css, /min-height: 42px/);
 });
 
 test("cinematic doorway entry remains replayable and camera controls can skip it", () => {
-  const hero = readFileSync("src/components/experience/StudioHero.tsx", "utf8");
+  const home = readFileSync("src/components/Home.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const authored = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
-  const css = readFileSync("src/styles/studio-revival.css", "utf8");
-  assert.match(hero, /href="#studio"/);
+  const css = readFileSync("src/styles/studio.css", "utf8");
+  assert.ok(home.includes('href="/lab#studio"'), "the homepage link lands on the studio and replays its entrance");
   assert.match(room, /window\.addEventListener\("hashchange", handleStudioLink\)/);
   assert.match(room, /setIntroSequence\(\(value\) => value \+ 1\)/);
   assert.match(room, /Replay doorway entrance animation/);
@@ -72,13 +71,13 @@ test("cinematic doorway entry remains replayable and camera controls can skip it
   assert.match(authored, /camera\.position\.copy\(doorEye\)\.lerp\(portrait \? portraitDeskEye : deskEye,eased\)/);
   assert.match(authored, /doorwayOpening/);
   assert.match(authored, /actions\.get\("turn_to_visitor"\)/);
-  assert.match(css, /\.yor-studio__utilities button:last-child \{ display:inline-flex/);
+  assert.doesNotMatch(css, /\.yor-studio__utilities button:last-child \{ display: ?none/, "the replay control stays available on touch screens");
 });
 
 test("Yor World object map drives real blinds and tilt with accessible DOM controls", () => {
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
-  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  const css = readFileSync("src/styles/studio.css", "utf8");
   for (const object of ["monitor", "painting", "blinds", "lights", "avatar", "door", "skills"]) {
     assert.match(scene, new RegExp(`"${object}"`), `Scene must recognize ${object}`);
   }
@@ -99,7 +98,7 @@ test("Yor World object map drives real blinds and tilt with accessible DOM contr
 
 test("the workstation launcher is evidence-first and dismissible from keyboard", () => {
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
-  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  const css = readFileSync("src/styles/studio.css", "utf8");
   assert.match(room, /recruiterProjects\.map/);
   assert.match(room, /href=\{`\/projects\/\$\{project\.slug\}`\}/);
   assert.match(room, /aria-labelledby="yor-room-console-title"/);
@@ -109,12 +108,12 @@ test("the workstation launcher is evidence-first and dismissible from keyboard",
   assert.match(room, /consoleButton\.current\?\.focus/);
   assert.match(room, /data-console-open=\{String\(consoleOpen\)\}/);
   assert.match(css, /yor-studio__console-projects/);
-  assert.match(css, /@media \(max-width:650px\)/);
+  assert.match(css, /@media \(max-width: 650px\)/);
 });
 
 test("actual GLB fills the opening cinematic stage instead of an editorial side card", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
-  const css = readFileSync("src/styles/studio-revival.css","utf8");
+  const css = readFileSync("src/styles/studio.css","utf8");
   assert.match(scene,/work: \{ eye: \[-0\.82,1\.72,1\.50\]/);
   assert.match(scene,/gl\.toneMappingExposure=\.95/);
   assert.match(scene,/node\.intensity = intensity \* \(lightsOn \? \.00092 : \.00012\)/);
@@ -124,33 +123,30 @@ test("actual GLB fills the opening cinematic stage instead of an editorial side 
   assert.match(scene,/<StudioHexLights lightsOn=\{lightsOn\}/);
   assert.match(scene,/HEX_LIGHTS.map/);
   assert.match(scene,/<pointLight position=\{\[0,2\.05,-1\.5\]\}/);
-  assert.match(css,/Full-room art direction:/);
-  assert.match(css,/\.yor-world-hero__intro \{[\s\S]*?grid-column:1;grid-row:2;align-self:center/);
-  assert.match(css,/\.yor-world-hero__studio\.machine-home \{[\s\S]*?grid-column:1;grid-row:2/);
-  assert.match(css,/\.yor-world-hero__studio \.yor-studio__viewport \{[\s\S]*?height:clamp\(615px,76vh,850px\)/);
-  assert.match(css,/\.yor-world-hero__studio\.machine-home:has\(\[data-console-open="true"\]\)/);
-  assert.match(css,/@media \(max-width:800px\)/);
-  assert.match(css,/height:min\(81svh,720px\)/);
+  assert.match(css,/\.studio-frame \.yor-studio__viewport \{[\s\S]*?height: clamp\(615px, 76vh, 850px\)/);
+  assert.match(css,/\.studio-frame:has\(\[data-console-open="true"\]\)/);
+  assert.match(css,/@media \(max-width: 800px\)/);
+  assert.match(css,/height: clamp\(490px, 78svh, 730px\)/);
 });
 
 test("studio prioritizes the reference-backed wide camera and pastel daylight over the dark hero", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
-  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  const css = readFileSync("src/styles/studio.css", "utf8");
   assert.match(scene, /look: \[0\.04,1\.30,-1\.23\]/);
   assert.match(scene, /ambientLight intensity=\{\.49\}/);
   assert.match(scene, /THREE\.AdditiveBlending/);
   assert.match(room, /data-photo-mode=\{String\(photoMode\)\}/);
   assert.match(room, /Exit distraction-free room view/);
   assert.match(room, /event\.key === "Escape"\) setPhotoMode\(false\)/);
-  assert.match(css, /Reference-aligned pastel workstation art pass/);
+  assert.match(css, /radial-gradient\(ellipse at 48% 26%, #efe4fb/, "the stage keeps the room's pastel daylight");
   assert.match(css, /\.yor-studio\[data-photo-mode="true"\]/);
   assert.match(css, /\.yor-studio__photo-toggle/);
 });
 
 test("high-detail authored gaming props replace low-poly blockout groups without deleting controls", () => {
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
-  const css = readFileSync("src/styles/studio-revival.css","utf8");
+  const css = readFileSync("src/styles/studio.css","utf8");
   assert.match(scene,/yor-world-workstation-details\.glb/);
   for(const node of ["helios-pc","controller-pegboard","plants_group"]) {
     assert.ok(scene.includes('"' + node + '"'), "Missing authored dressing " + node);
@@ -158,15 +154,14 @@ test("high-detail authored gaming props replace low-poly blockout groups without
   assert.match(scene,/authoredDressing = workstationDetail\.scene\.clone\(true\)/);
   assert.match(scene,/model\.attach\(detail\)/);
   assert.match(scene,/controller-pegboard/);
-  assert.match(css,/Compact mobile introduction preceding the 3D room/);
-  assert.match(css,/grid-column:1;grid-row:3/);
+  assert.match(css,/\.yor-studio\[data-scene-ready="true"\] \.yor-studio__fallback/);
   assert.ok(statSync("public/models/yor-world-workstation-details.glb").size > 700_000);
 });
 
 test("reference dressing uses modeled RGB fans, gamepads and trailing vines, not flat image overlays", () => {
   const detail = readFileSync("src/components/experience/StudioReferenceDressing.tsx", "utf8");
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
-  const css = readFileSync("src/styles/studio-revival.css", "utf8");
+  const css = readFileSync("src/styles/studio.css", "utf8");
   assert.match(detail, /function GlowingFan/);
   assert.match(detail, /function Controller/);
   assert.match(detail, /function HangingVine/);
@@ -176,16 +171,15 @@ test("reference dressing uses modeled RGB fans, gamepads and trailing vines, not
   assert.match(detail, /onExplore/);
   assert.match(scene, /<StudioReferenceDressing lightsOn=\{lightsOn\}/);
   assert.match(scene, /\[-\.57,2\.38,"#dfaeff"\]/);
-  assert.match(css, /Second-stage art pass:/);
+  assert.match(css, /\.yor-studio__secret/);
 });
 
 test("reference composition keeps the whole workstation visible without covering desktop content", () => {
   const scene=readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
-  const css=readFileSync("src/styles/studio-revival.css","utf8");
+  const css=readFileSync("src/styles/studio.css","utf8");
   assert.match(scene, /targetFov = portrait \? 64 : 55/);
   assert.match(scene, /portraitDeskEye = useMemo\(\(\) => new THREE.Vector3\(-\.42,1\.65,1\.85\)/);
-  assert.match(css, /Room-first editorial strip/);
-  assert.match(css, /grid-column:1;grid-row:3;margin-top:0/);
+  assert.match(css, /\.yor-studio__hud/);
 });
 
 test("the reference workstation includes lightweight modeled desk and floor accessories", () => {
@@ -204,7 +198,7 @@ test("room can be traversed by WASD, clicking the floor and mobile directional c
   const scene=readFileSync("src/components/experience/YorWorldShowcaseScene.tsx","utf8");
   const camera=readFileSync("src/components/experience/StudioWalkCamera.tsx","utf8");
   const walk=readFileSync("src/components/experience/StudioWalk.ts","utf8");
-  const css=readFileSync("src/styles/studio-revival.css","utf8");
+  const css=readFileSync("src/styles/studio.css","utf8");
   assert.match(room,/data-roaming=\{String\(roaming\)\}/);
   assert.match(room,/WALK THE ROOM/);
   assert.match(room,/onWalkTo=\{walkToPoint\}/);

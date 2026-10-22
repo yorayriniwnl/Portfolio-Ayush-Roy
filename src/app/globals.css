@@ -2,8 +2,7 @@
 
 @import "../styles/tokens.css";
 @import "../styles/machine.css";
-@import "../styles/home-refresh.css";
 
-@import "../styles/editorial.css";
-@import "../styles/studio-revival.css";
-@import "../styles/recruiter-first.css";
+@import "../styles/home.css";
+@import "../styles/studio.css";
+@import "../styles/evidence.css";

@@ -144,7 +144,7 @@ test("production browser audit verifies one renderer instance survives eligible 
 
 test("essential copy markers cover each retained content surface", () => {
   for (const file of [
-    "src/components/experience/MachineHero.tsx",
+    "src/components/Home.tsx",
     "src/components/ProjectIndex.tsx",
     "src/components/CaseStudy.tsx",
     "src/app/resume/page.tsx",

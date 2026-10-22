@@ -33,8 +33,8 @@ const destinations: Record<StudioTarget, { number: string; title: string; label:
   },
   lab: {
     number: "03", title: "Off the clock", label: "EXPERIMENTS + PLAY",
-    description: "The wall art leads to my lab: prototypes, experiments and less serious ideas.",
-    href: "/lab", cta: "ENTER THE LAB",
+    description: "The wall art points to the rest of the lab: prototypes, game rooms and less serious ideas.",
+    href: "#games", cta: "SEE THE EXPERIMENTS",
   },
   contact: {
     number: "04", title: "An open door", label: "SAY HELLO",

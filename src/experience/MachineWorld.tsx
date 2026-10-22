@@ -11,6 +11,7 @@ import { PortfolioWorld } from "./worlds/PortfolioWorld";
 import { TalksWorld } from "./worlds/TalksWorld";
 import { ZenithWorld } from "./worlds/ZenithWorld";
 import type { Point3, WorldProps } from "./worlds/shared";
+import { SIGNAL_DEEP } from "./palette";
 
 const worlds: Record<ProjectId, ComponentType<WorldProps>> = {
   candidatex: CandidateXWorld,
@@ -103,7 +104,7 @@ export const MachineWorld = memo(function MachineWorld({
     <group ref={root}>
       <ambientLight intensity={0.32} />
       <directionalLight position={[-3, 4, 5]} intensity={2.5} color="#c6c9c8" />
-      <directionalLight position={[2.8, -1, -1]} intensity={0.8} color="#5d0710" />
+      <directionalLight position={[2.8, -1, -1]} intensity={0.8} color={SIGNAL_DEEP} />
       <MachineCore stateRef={stateRef} quality={quality} />
       {(Object.keys(worlds) as ProjectId[]).map((projectId) => (
         <ProjectWorld

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import * as THREE from "three/webgpu";
 import { MachineMaterial, type WorldProps } from "./shared";
+import { SIGNAL } from "../palette";
 
 export function HeliosWorld({ quality, demo }: WorldProps) {
   const anomalySelected = demo?.choice === 1;
@@ -28,7 +29,7 @@ export function HeliosWorld({ quality, demo }: WorldProps) {
       </mesh>
       <mesh position={signalPosition}>
         <sphereGeometry args={[anomalySelected ? 0.105 : 0.075, quality === "high" ? 18 : 10, 8]} />
-        <MachineMaterial tint="#ff1728" roughness={0.24} metalness={0.54} />
+        <MachineMaterial tint={SIGNAL} roughness={0.24} metalness={0.54} />
       </mesh>
       <mesh position={[-0.34, 0.11, 0]}>
         <sphereGeometry args={[0.033, 10, 8]} />
@@ -40,7 +41,7 @@ export function HeliosWorld({ quality, demo }: WorldProps) {
       </mesh>
       <mesh position={[signalPosition[0], signalPosition[1], signalPosition[2] - 0.1]}>
         <ringGeometry args={[0.11, 0.13, quality === "high" ? 32 : 18]} />
-        <MachineMaterial tint="#ff1728" opacity={0.55} transparent wireframe />
+        <MachineMaterial tint={SIGNAL} opacity={0.55} transparent wireframe />
       </mesh>
     </group>
   );

@@ -36,12 +36,12 @@ GitHub Actions runs dependency auditing, tests, lint, content, asset, typecheck,
 
 `npm run qa:browser` requires a production build and Chrome, Chromium, or Edge; set `CHROMIUM_PATH` if the browser is not in a standard installation path. It checks eight recruiter routes at ten viewport sizes, source/live resolvers, legacy redirects, accessibility, navigation, reduced motion, graphics fallback, and the custom cursor. Reports and screenshots are written to `artifacts/browser-qa/`.
 
-The root layout owns one persistent machine scene across the homepage, project index, and canonical case studies. The scene loads after browser idle time; reduced motion and graphics failures preserve static artwork and server-rendered content. Resume and Lab do not mount a scene. The optional desktop cursor retains the native pointer on touch devices, text controls, reduced motion, or image-loading failure.
+The root layout owns one persistent machine scene for the project index and canonical case studies. The scene loads after browser idle time; reduced motion and graphics failures preserve static artwork and server-rendered content. The homepage and résumé never mount WebGL. The Lab hosts the separate interactive 3D studio, which loads only as it approaches the viewport. The optional desktop cursor retains the native pointer on touch devices, text controls, reduced motion, or image-loading failure.
 
 Routes:
 
-- `/` : recruiter-first YOR homepage with engineering evidence, selected systems, about, and contact
-- `/lab` : explicitly experimental YOR game-room and media concepts, separated from the recruiter path
+- `/` : recruiter-first homepage, fully server-rendered: hero, three projects with checkable results, about, and contact
+- `/lab` : the interactive 3D studio plus explicitly experimental game-room and media concepts, separated from the recruiter path
 - `/resume` : résumé and professional profile
 - `/projects` : recruiter-facing index containing only the six CV projects
 - `/projects/[slug]` : canonical engineering case study
@@ -80,6 +80,8 @@ The Yor Talks case study also includes a keyboard-operable path explorer. Each b
 Case studies also show the strongest code-authored visuals from their public repositories: architecture diagrams, dashboard states, alert flows, mobile evidence, and model pipelines. Each image is copied locally, tied to a pinned source commit, captioned as visual explanation, and linked back to the exact GitHub asset. The portfolio does not copy ambiguous stock photos or raw dataset images.
 
 The homepage keeps the recruiter path clear while making experimental work discoverable through the dedicated Lab.
+
+Every route shares one palette defined in `src/styles/tokens.css` (navy surfaces, warm paper text, one lime accent); WebGL scenes read the same accent from `src/experience/palette.ts`. Figures mirrored from other repositories keep their original colors so they match their pinned source.
 
 ## Evidence policy
 
