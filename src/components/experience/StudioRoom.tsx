@@ -47,6 +47,7 @@ export function StudioRoom() {
   const root = useRef<HTMLDivElement>(null);
   const consoleButton = useRef<HTMLButtonElement>(null);
   const consoleCloseButton = useRef<HTMLButtonElement>(null);
+  const restoreLauncherFocus = useRef(false);
   const [selected, setSelected] = useState<StudioTarget>("work");
   const [visible, setVisible] = useState(false);
   const [inViewport, setInViewport] = useState(false);
@@ -94,7 +95,15 @@ export function StudioRoom() {
       root.current.dataset.walkable=String(isWalkable(position.x,position.z));
     }
   },[]);
-  const closeConsole = useCallback(() => { setConsoleOpen(false); window.requestAnimationFrame(() => consoleButton.current?.focus()); }, []);
+  const closeConsole = useCallback(() => {
+    restoreLauncherFocus.current = true;
+    setConsoleOpen(false);
+  }, []);
+  useEffect(() => {
+    if (consoleOpen || !restoreLauncherFocus.current) return;
+    restoreLauncherFocus.current = false;
+    consoleButton.current?.focus({ preventScroll: true });
+  }, [consoleOpen]);
   const activateObject = useCallback((object: StudioObjectAction) => {
     if (object === "lights") setLightsOn(current => !current);
     if (object === "blinds") setBlindsOpen(current => !current);
