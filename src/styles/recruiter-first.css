@@ -174,3 +174,22 @@ body:has(.yor-world-hero--recruiter) header nav a:last-child:hover { background:
  .editorial-home .yor-world-hero--recruiter h1 { font-size:clamp(48px,11vw,70px); }
  .yor-world-hero--recruiter .yor-world-hero__description { font-size:15px; }
 }
+
+/* Evidence pages: maintain their authored project art, but make the words legible. */
+.case-summary, .case-copy, .projects-index-deck, .project-world__purpose {
+  color:#c3c9c8;
+}
+.case-hero .case-summary { font-size:clamp(16px,1.32vw,19px); line-height:1.78; }
+.case-meta .meta-row dt { color:#b2bbc0; }
+.case-meta .meta-row dd { color:#edf0ed; }
+.case-toc-inner a { min-height:44px; display:inline-flex; align-items:center; }
+.case-body .case-section { scroll-margin-top:145px; }
+.project-world__purpose { line-height:1.8; }
+.project-world__title-link:focus-visible,
+.project-world__actions a:focus-visible,
+.case-toc-inner a:focus-visible { outline:3px solid #c7eaa4; outline-offset:4px; }
+@media(max-width:650px) {
+ .case-hero .case-title { overflow-wrap:anywhere; }
+ .case-summary, .case-copy { font-size:15px; line-height:1.7; }
+ .case-toc-inner a { white-space:nowrap; }
+}
