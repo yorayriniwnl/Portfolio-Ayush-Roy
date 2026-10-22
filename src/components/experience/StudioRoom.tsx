@@ -51,6 +51,7 @@ export function StudioRoom() {
   const [visible, setVisible] = useState(false);
   const [allowed, setAllowed] = useState(true);
   const [graphicsAvailable, setGraphicsAvailable] = useState(false);
+  const [graphicsChecked, setGraphicsChecked] = useState(false);
   const [lightsOn, setLightsOn] = useState(true);
   const [photoMode, setPhotoMode] = useState(false);
   const [blindsOpen, setBlindsOpen] = useState(true);
@@ -159,7 +160,10 @@ export function StudioRoom() {
     } catch {
       available = false;
     }
-    const frame = window.requestAnimationFrame(() => setGraphicsAvailable(available));
+    const frame = window.requestAnimationFrame(() => {
+      setGraphicsAvailable(available);
+      setGraphicsChecked(true);
+    });
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
@@ -280,6 +284,14 @@ export function StudioRoom() {
           <Link href={selectedItem.href} aria-label={selectedItem.cta}>{selectedItem.cta} <span aria-hidden="true">↗</span></Link>
         </div>
       </div>
+      {(!allowed || (graphicsChecked && !graphicsAvailable) || roomFailed) && (
+        <p className="yor-studio__availability" role="status">
+          {!allowed
+            ? "Motion-reduced mode: the animated 3D scene is paused."
+            : "Interactive WebGL is unavailable on this device or browser."}
+          {" "}The accessible project links above and <Link href="/projects">all case studies</Link> are still available.
+        </p>
+      )}
       <p className="yor-studio__access-note">Click anywhere on the floor to walk there. Use Walk the Room and <b>W / A / S / D</b> to move, drag your mouse or finger to look, and <b>Shift</b> to move faster. <b>Escape</b> exits walk mode. On mobile, use the directional pad. Room objects and all project links remain interactive.</p>
     </div>
   );
