@@ -658,6 +658,14 @@ try {
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "mobile editorial homepage" });
   assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas').length === 0`), "Mobile homepage mounted redundant 3D");
+  await capture(cdp, outputDir, "mobile-hero");
+  const mobileStudioLocated = await cdp.evaluate(`(() => {
+    const studio = document.getElementById('studio');
+    if (!studio) return false;
+    studio.scrollIntoView({ block:'start', behavior:'instant' });
+    return true;
+  })()`);
+  assert(mobileStudioLocated, "Mobile homepage lost its optional studio");
   const mobileRoomReady = await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
     { timeoutMs: 28_000, description: "authentic Yor-World 3D room ready on mobile" });
@@ -673,9 +681,9 @@ try {
   })()`);
   assert(mobileStage && mobileStage.top < 570 && mobileStage.visiblePixels >= 240 &&
     mobileStage.canvases === 1 && mobileStage.loaded === "true",
-    `Mobile first screen needs visible loaded 3D room: ${JSON.stringify(mobileStage)}`);
+    `Mobile studio should load when visited, not require first-screen GPU work: ${JSON.stringify(mobileStage)}`);
   report.rendering.mobileHome = mobileStage;
-  await capture(cdp, outputDir, "mobile-hero");
+  await capture(cdp, outputDir, "mobile-studio");
   await cdp.evaluate(`document.querySelector('.yor-studio__actions button[aria-controls="yor-room-console"]')?.click(); true`);
   await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true'`,
     { timeoutMs:2500, description:"mobile workstation launcher opens" });
