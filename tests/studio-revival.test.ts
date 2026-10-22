@@ -11,7 +11,7 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
   assert.match(hero, /<StudioRoom \/>/);
   assert.match(room, /<Scene onSelect=\{selectTarget\}/);
   const authored = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
-  assert.match(authored, /<Canvas camera=/);
+  assert.match(authored, /<Canvas [^>]*camera=/);
   assert.ok(authored.includes("yor-world-room.glb"));
   assert.ok(authored.includes("yor-world-resident.glb"));
   assert.ok(authored.includes("yor-world-fixture.glb"));
@@ -227,4 +227,14 @@ test("room can be traversed by WASD, clicking the floor and mobile directional c
   assert.match(walk,/export function walkRoute/);
   assert.match(css,/\.yor-studio__touch-pad/);
   assert.match(css,/\[data-roaming="true"\]/);
+});
+
+
+test("offscreen studio suspends its GPU render loop without unloading the scene", () => {
+  const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  assert.match(room, /setInViewport\(nearViewport\)/);
+  assert.match(room, /if \(nearViewport\) setVisible\(true\)/);
+  assert.match(room, /paused=\{consoleOpen \|\| !inViewport\}/);
+  assert.match(scene, /frameloop=\{paused \? "demand" : "always"\}/);
 });

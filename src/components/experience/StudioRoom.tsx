@@ -49,6 +49,7 @@ export function StudioRoom() {
   const consoleCloseButton = useRef<HTMLButtonElement>(null);
   const [selected, setSelected] = useState<StudioTarget>("work");
   const [visible, setVisible] = useState(false);
+  const [inViewport, setInViewport] = useState(false);
   const [allowed, setAllowed] = useState(true);
   const [graphicsAvailable, setGraphicsAvailable] = useState(false);
   const [lightsOn, setLightsOn] = useState(true);
@@ -166,14 +167,13 @@ export function StudioRoom() {
   useEffect(() => {
     if (!root.current) return;
     if (typeof IntersectionObserver === "undefined") {
-      const frame = window.requestAnimationFrame(() => setVisible(true));
+      const frame = window.requestAnimationFrame(() => { setVisible(true); setInViewport(true); });
       return () => window.cancelAnimationFrame(frame);
     }
     const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        setVisible(true);
-        observer.disconnect();
-      }
+      const nearViewport = entries.some((entry) => entry.isIntersecting);
+      setInViewport(nearViewport);
+      if (nearViewport) setVisible(true);
     }, { rootMargin: "240px" });
     observer.observe(root.current);
     return () => observer.disconnect();
@@ -217,7 +217,7 @@ export function StudioRoom() {
           onClick={() => { if (!photoMode) { setConsoleOpen(false); setHoveredObject(null); setRoaming(false); setTouchDirection(null); setWalkTarget(null); } setPhotoMode(value => !value); }}>
           {photoMode ? "↙ EXIT SCENE VIEW" : "✧ FULL SCENE"}
         </button>
-        {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} roaming={roaming} paused={consoleOpen} walkTarget={walkTarget} touchDirection={touchDirection} onWalkTo={walkToPoint} onWalkStep={reportWalk} onReady={announceReady}/></StudioErrorBoundary>}
+        {allowed && visible && graphicsAvailable && !roomFailed && <StudioErrorBoundary onError={reportFailed}><Scene onSelect={selectTarget} onInteract={activateObject} onHover={setHoveredObject} onToggleLights={toggleLights} selected={selected} lightsOn={lightsOn} blindsOpen={blindsOpen} paintingBeat={paintingBeat} introSequence={introSequence} roaming={roaming} paused={consoleOpen || !inViewport} walkTarget={walkTarget} touchDirection={touchDirection} onWalkTo={walkToPoint} onWalkStep={reportWalk} onReady={announceReady}/></StudioErrorBoundary>}
         {hoveredObject && !consoleOpen && <div className="yor-studio__hover-label" aria-hidden="true">
           {hoveredObject === "monitor" ? "OPEN PROJECT LAUNCHER" : hoveredObject === "painting" ? "TILT WALL ART" :
             hoveredObject === "blinds" ? "TOGGLE WINDOW BLINDS" : hoveredObject === "lights" ? "TOGGLE STUDIO LIGHTS" :

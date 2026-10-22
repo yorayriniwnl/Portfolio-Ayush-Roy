@@ -382,7 +382,7 @@ export function YorWorldShowcaseScene({ onSelect, onInteract, onHover, onToggleL
 }) {
   useEffect(() => () => { document.body.style.cursor=""; },[]);
   return (
-    <Canvas camera={{position:[-0.82,1.72,1.50],fov:55,near:.08,far:30}}
+    <Canvas frameloop={paused ? "demand" : "always"} camera={{position:[-0.82,1.72,1.50],fov:55,near:.08,far:30}}
       dpr={[1,1.5]} gl={{antialias:true,powerPreference:"high-performance"}}
       onCreated={({gl})=>{ gl.domElement.tabIndex=0; gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.95; }}
       aria-label="Authentic interactive YOR World gaming studio with desk, resident, light panels, door and workstation">
