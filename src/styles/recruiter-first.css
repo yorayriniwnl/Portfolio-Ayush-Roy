@@ -210,6 +210,20 @@
 .yor-world-hero__studio .yor-studio__viewport {
   height: clamp(480px, 55vw, 720px);
 }
+.yor-world-hero__studio .yor-studio__availability {
+  margin: 16px 0 0;
+  padding: 13px 16px;
+  border-left: 3px solid #c5c4fa;
+  background: rgba(204, 197, 255, .075);
+  color: #e2e6f9;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.yor-world-hero__studio .yor-studio__availability a {
+  color: #e4c5ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .yor-world-hero__below {
   grid-column: 1;
   grid-row: 4;
