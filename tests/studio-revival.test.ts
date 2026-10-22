@@ -48,7 +48,7 @@ test("recovered objects have camera targets and physical interactions", () => {
 test("new scene preserves direct HTML project/resume navigation and small-screen design", () => {
   const hero = readFileSync("src/components/experience/StudioHero.tsx", "utf8");
   const css = readFileSync("src/styles/studio-revival.css", "utf8");
-  assert.match(hero, /href="#projects"/);
+  assert.match(hero, /href="\/projects"/);
   assert.match(hero, /href="\/resume"/);
   assert.match(css, /max-width:650px/);
   assert.match(css, /prefers-reduced-motion:reduce/);
