@@ -432,8 +432,17 @@ try {
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "editorial homepage visible" });
-  // The original interactive room is back. It is the homepage's only GPU
-  // surface, distinct from the persistent project-world renderer.
+  // The portfolio is now recruiter-first. Capture the real initial viewport,
+  // then deliberately visit the below-the-fold 3D experience. The scene must
+  // stay lazy until it approaches the viewport.
+  await capture(cdp, outputDir, "desktop-hero");
+  const reachedStudio = await cdp.evaluate(`(() => {
+    const studio = document.getElementById('studio');
+    if (!studio) return false;
+    studio.scrollIntoView({ block: 'start', behavior: 'instant' });
+    return true;
+  })()`);
+  assert(reachedStudio, "Homepage lost the optional 3D studio section");
   const studioCanvas = await waitForCondition(cdp,
     `document.querySelector('.yor-studio__viewport canvas') ? true : null`,
     { timeoutMs: 18_000, description: "restored WebGL studio canvas" });
@@ -471,7 +480,7 @@ try {
     referenceFraming.introBottom <= referenceFraming.stageTop + 18,
     `The workstation must be a wide, unobstructed art-directed hero, not a cropped split card: ${JSON.stringify(referenceFraming)}`);
   report.rendering.referenceFraming = referenceFraming;
-  await capture(cdp, outputDir, "desktop-hero");
+  await capture(cdp, outputDir, "desktop-studio");
 
   activeScenario = "distraction-free full-scene room and Escape restoration";
   await cdp.evaluate(`document.querySelector('.yor-studio__photo-toggle')?.click(); true`);
