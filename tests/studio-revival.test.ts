@@ -11,7 +11,7 @@ test("actual recovered WebGL workspace powers the homepage, never a static imita
   assert.match(hero, /<StudioRoom \/>/);
   assert.match(room, /<Scene onSelect=\{selectTarget\}/);
   const authored = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
-  assert.match(authored, /<Canvas camera=/);
+  assert.match(authored, /<Canvas [^>]*camera=/);
   assert.ok(authored.includes("yor-world-room.glb"));
   assert.ok(authored.includes("yor-world-resident.glb"));
   assert.ok(authored.includes("yor-world-fixture.glb"));
