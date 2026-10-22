@@ -698,3 +698,42 @@ body:has(.yor-world-hero) nav[id="mobile-nav"] a { color:#f7f3ff; }
   .yor-world-hero__studio .yor-studio__touch-pad button {font-size:19px;border-radius:8px;}
   .yor-world-hero__studio .yor-studio__hud span:last-child {max-width:56%;text-align:right;}
 }
+
+
+/* Engineering-first intro refinements: legible profile links and touch targets. */
+.yor-world-hero__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  align-items: center;
+  margin-top: 17px;
+  color: #dcdaf2;
+  font: 600 12px/1.5 var(--font-body), sans-serif;
+}
+.yor-world-hero__socials a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  border-bottom: 1px solid rgba(220, 218, 242, .45);
+  text-decoration: none;
+}
+.yor-world-hero__socials a:hover { color: #f1cbff; border-color: currentColor; }
+.yor-world-hero__socials a:focus-visible {
+  outline: 3px solid #f1cbff;
+  outline-offset: 4px;
+}
+@media (min-width: 801px) {
+  .yor-world-hero__socials {
+    grid-column: 2;
+    grid-row: 4;
+    margin-top: 8px;
+  }
+  .yor-world-hero__identity { grid-template-rows: auto auto auto auto; }
+}
+@media (max-width: 800px) {
+  .yor-world-hero__socials { gap: 6px 18px; font-size: 12px; }
+  .yor-world-hero__description { font-size: 14px; line-height: 1.55; }
+}
+@media (max-width: 420px) {
+  .yor-world-hero__description { font-size: 13px; line-height: 1.5; }
+}
