@@ -33,11 +33,11 @@ test("reference-inspired narrative preserves semantic sections, working URLs and
   for (const id of ["skills", "projects"]) {
     assert.ok(interactive.includes(`id="${id}"`), `missing interactive section ${id}`);
   }
-  assert.match(hero, /Not another/);
+  assert.match(hero, /Building software/);
   assert.match(hero, /portfolio\./);
   assert.match(narrative, /data-essential-copy/);
   assert.match(hero, /href="#projects"/);
-  assert.ok(hero.includes('href="/resume"'));
+  assert.ok(hero.includes('href="/resume"'));\n  assert.match(hero, /projects\\/candidatex/);
   assert.ok(interactive.includes("project.outcome"));
   assert.ok(interactive.includes("project.purpose"));
   assert.ok(interactive.includes("project.source"));
