@@ -13,6 +13,13 @@ test("homepage is server-rendered and delegates only interactions to small clien
   assert.match(home, /EditorialHome/);
   assert.match(narrative, /<main id="main" className="editorial-home"/);
   assert.ok(narrative.includes("<StudioHero />"));
+  assert.match(hero, /export function StudioExperience/);
+  const heroPosition = narrative.indexOf("<StudioHero />");
+  const projectPosition = narrative.indexOf("<EditorialWork projects={portfolioCards} />");
+  const studioPosition = narrative.indexOf("<StudioExperience />");
+  const aboutPosition = narrative.indexOf('id="about"');
+  assert.ok(heroPosition < projectPosition && projectPosition < studioPosition && studioPosition < aboutPosition,
+    "Recruiters should see selected engineering work before the optional 3D studio and biography");
   assert.match(hero, /<StudioRoom \/>/);
   assert.ok(narrative.includes("<EditorialSkills />"));
   assert.ok(narrative.includes("<EditorialWork projects={portfolioCards} />"));
