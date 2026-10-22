@@ -4,6 +4,8 @@ import { recruiterProjects } from "@/content/project-registry";
 import { EditorialSkills, EditorialWork } from "./EditorialInteractive";
 import { StudioHero } from "./StudioHero";
 
+const verifiedLiveCount = recruiterProjects.filter((project) => project.availability.live === "verified").length;
+
 const portfolioCards = recruiterProjects.map((project) => ({
   slug: project.slug,
   title: project.title,
@@ -50,10 +52,10 @@ export function EditorialHome() {
 
       <section id="moments" className="editorial-moments editorial-section editorial-wrap" aria-labelledby="editorial-moments-title">
         <div className="editorial-kicker"><span className="editorial-kicker__dot" /> 05 / AT A GLANCE</div>
-        <h2 id="editorial-moments-title" data-essential-copy>Proud <em>moments.</em></h2>
+        <h2 id="editorial-moments-title" data-essential-copy>By the <em>numbers.</em></h2>
         <div className="editorial-moments__grid">
-          <div><strong>06<span>↗</span></strong><p>documented projects</p></div>
-          <div><strong>03<span>+</span></strong><p>engineering disciplines</p></div>
+          <div><strong>{String(recruiterProjects.length).padStart(2, "0")}<span>↗</span></strong><p>documented case studies</p></div>
+          <div><strong>{String(verifiedLiveCount).padStart(2, "0")}<span>↗</span></strong><p>verified public live links</p></div>
           <div><strong>2027<span>↗</span></strong><p>expected graduation</p></div>
         </div>
       </section>
