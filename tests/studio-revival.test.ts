@@ -233,8 +233,8 @@ test("room can be traversed by WASD, clicking the floor and mobile directional c
 test("offscreen studio suspends its GPU render loop without unloading the scene", () => {
   const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
   const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
-  assert.match(room, /setInViewport\\(nearViewport\\)/);
-  assert.match(room, /if \\(nearViewport\\) setVisible\\(true\\)/);
-  assert.match(room, /paused=\\{consoleOpen \\|\\| !inViewport\\}/);
-  assert.match(scene, /frameloop=\\{paused \\? "demand" : "always"\\}/);
+  assert.match(room, /setInViewport\(nearViewport\)/);
+  assert.match(room, /if \(nearViewport\) setVisible\(true\)/);
+  assert.match(room, /paused=\{consoleOpen \|\| !inViewport\}/);
+  assert.match(scene, /frameloop=\{paused \? "demand" : "always"\}/);
 });
