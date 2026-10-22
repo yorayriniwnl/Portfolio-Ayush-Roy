@@ -34,7 +34,7 @@ test("reference-inspired narrative preserves semantic sections, working URLs and
     assert.ok(interactive.includes(`id="${id}"`), `missing interactive section ${id}`);
   }
   assert.match(hero, /I build systems/);
-  assert.match(hero, /portfolio\./);
+  assert.match(hero, /You can inspect them/);
   assert.match(narrative, /data-essential-copy/);
   assert.match(hero, /href="\/projects"/);
   assert.ok(hero.includes('href="/resume"'));
