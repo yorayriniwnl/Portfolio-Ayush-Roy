@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { profile } from "@/content/profile";
 import { StudioRoom } from "./StudioRoom";
 
 /**
- * A 3D-first entrance: semantic content loads with HTML, while the actual
- * recovered Three.js room mounts on capable devices after entering the viewport.
+ * Lead with a clear professional identity and keep the interactive studio
+ * as a distinctive, optional second path for visitors.
  */
 export function StudioHero() {
   return (
@@ -12,24 +13,33 @@ export function StudioHero() {
       <div className="yor-world-hero__shell">
         <div className="yor-world-hero__eyebrow">
           <span className="yor-world-hero__led" aria-hidden="true" />
-          <span>YOR / PERSONAL UNIVERSE</span>
-          <span className="yor-world-hero__edition">INTERACTIVE PORTFOLIO · 2026</span>
+          <span>YOR / AYUSH ROY</span>
+          <span className="yor-world-hero__edition">SOFTWARE ENGINEERING · INTERACTIVE WORK</span>
         </div>
         <div className="yor-world-hero__intro">
           <div className="yor-world-hero__identity">
-            <p className="yor-world-hero__welcome">✳ &nbsp;WELCOME TO MY WORLD</p>
+            <p className="yor-world-hero__welcome">✳ &nbsp;ENGINEER. BUILDER. EXPERIMENTER.</p>
             <h1 id="editorial-title" data-essential-copy>
-              Not another<br />
-              <em>portfolio.</em>
+              Building systems.<br />
+              <em>Making them matter.</em>
             </h1>
             <p className="yor-world-hero__description" data-essential-copy>
-              I&apos;m Ayush. A full-stack developer building real software and
-              strange little digital worlds. Come inside my workspace.
+              I&apos;m Ayush Roy, a backend and full-stack engineer building
+              evidence-driven tools, real-time products, and interactive experiences.
+              Explore the work, inspect the code, or step inside my digital studio.
             </p>
             <div className="yor-world-hero__ctas">
-              <a href="#studio" className="yor-world-hero__primary">Explore the 3D room <span aria-hidden="true">↘</span></a>
-              <a href="#projects" className="yor-world-hero__secondary">See my projects ↗</a>
+              <a href="#projects" className="yor-world-hero__primary">Explore selected work <span aria-hidden="true">↗</span></a>
+              <Link href="/resume" className="yor-world-hero__secondary">View résumé ↗</Link>
+              <a href="#studio" className="yor-world-hero__secondary">Enter the 3D studio ↘</a>
             </div>
+            <p className="yor-world-hero__description" style={{ marginTop: "1.25rem", fontSize: "0.875rem" }}>
+              <a href={profile.links.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+              {" · "}
+              <a href={profile.links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+              {" · "}
+              <a href={`mailto:${profile.email}`}>Get in touch ↗</a>
+            </p>
           </div>
           <div className="yor-world-hero__ornament" aria-hidden="true">
             <span>Y</span><span>O</span><span>R</span>
@@ -41,12 +51,12 @@ export function StudioHero() {
         </div>
         <div className="yor-world-hero__below">
           <span><b>01 / 06</b> &nbsp; ENGINEERING · DESIGN · 3D</span>
-          <span>BUILT WITH THREE.JS / REAL INTERACTIONS</span>
-          <Link href="/resume">THE HUMAN BEHIND THE ROOM &nbsp; ↗</Link>
+          <span>AN INTERACTIVE THREE.JS WORKSPACE</span>
+          <Link href="/projects">VIEW THE ENGINEERING CASE STUDIES &nbsp; ↗</Link>
         </div>
       </div>
       <div className="yor-world-hero__ticker" aria-hidden="true">
-        <div>CODE IS A CRAFT <span>✳</span> EXPLORE THE WORKSPACE <span>✳</span> BUILD SOMETHING THAT MATTERS <span>✳</span> CODE IS A CRAFT</div>
+        <div>BUILD WITH PURPOSE <span>✳</span> SHOW THE EVIDENCE <span>✳</span> KEEP EXPLORING <span>✳</span> BUILD WITH PURPOSE</div>
       </div>
     </section>
   );
