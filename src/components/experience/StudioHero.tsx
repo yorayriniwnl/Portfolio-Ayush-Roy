@@ -43,14 +43,30 @@ export function StudioHero() {
             <Link href="/projects" className="yor-world-hero__feature-all">View all six case studies <span aria-hidden="true">↗</span></Link>
           </nav>
         </div>
-        <div id="studio" className="yor-world-hero__studio machine-home">
-          <div className="yor-world-hero__studio-heading"><div><p>THE EXPERIMENTAL SIDE</p><h2>Step inside the studio.</h2></div><span>Interactive 3D / Optional experience</span></div>
-          <StudioRoom />
-        </div>
         <div className="yor-world-hero__below">
           <span><b>01 / 06</b> &nbsp; ENGINEERING FIRST. EXPLORATION ALWAYS.</span>
           <Link href="/lab">Explore the lab ↗</Link>
           <a href="#about">Meet the engineer ↗</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** The exploratory WebGL room is deliberately placed after selected work. */
+export function StudioExperience() {
+  return (
+    <section className="yor-world-hero yor-world-hero--recruiter yor-world-studio-section" aria-labelledby="yor-studio-title" data-experience-section="studio">
+      <div className="yor-world-hero__shell">
+        <div id="studio" className="yor-world-hero__studio machine-home">
+          <div className="yor-world-hero__studio-heading">
+            <div>
+              <p>THE EXPERIMENTAL SIDE</p>
+              <h2 id="yor-studio-title">Step inside the studio.</h2>
+            </div>
+            <span>Interactive 3D / Optional experience</span>
+          </div>
+          <StudioRoom />
         </div>
       </div>
     </section>
