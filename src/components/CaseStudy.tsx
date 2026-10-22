@@ -86,7 +86,7 @@ export function CaseStudy({ project }: { project: Project }) {
         </CaseSection>
 
         <CaseSection id="architecture" number="03 /" title="System architecture">
-          <div className="arch" aria-label={`${project.title} system architecture`}>
+          <div className="arch" role="group" aria-label={`${project.title} system architecture`}>
             {project.architecture.map((node) => <div className="node" key={node}>{node}</div>)}
           </div>
         </CaseSection>
@@ -97,7 +97,7 @@ export function CaseStudy({ project }: { project: Project }) {
             <EvidenceList items={project.implementation} />
             <p className="case-hard-part"><strong>Hardest engineering problem.</strong> {project.hardPart}</p>
           </Copy>
-          <div className="decisions" aria-label="Engineering decisions">
+          <div className="decisions" role="group" aria-label="Engineering decisions">
             {project.decisions.map((decision, itemIndex) => <div className="decision" key={decision.title}><span className="technical">0{itemIndex + 1}</span><h3>{decision.title}</h3><p>{decision.body}</p></div>)}
           </div>
         </CaseSection>
