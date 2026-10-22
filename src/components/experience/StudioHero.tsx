@@ -33,13 +33,11 @@ export function StudioHero() {
               <Link href="/resume" className="yor-world-hero__secondary">View résumé ↗</Link>
               <a href="#studio" className="yor-world-hero__secondary">Enter the 3D studio ↘</a>
             </div>
-            <p className="yor-world-hero__description" style={{ marginTop: "1.25rem", fontSize: "0.875rem" }}>
+            <nav className="yor-world-hero__socials" aria-label="Professional profiles and contact">
               <a href={profile.links.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-              {" · "}
               <a href={profile.links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
-              {" · "}
               <a href={`mailto:${profile.email}`}>Get in touch ↗</a>
-            </p>
+            </nav>
           </div>
           <div className="yor-world-hero__ornament" aria-hidden="true">
             <span>Y</span><span>O</span><span>R</span>
