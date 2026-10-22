@@ -240,3 +240,13 @@ test("the optional studio exposes an honest accessible fallback when WebGL or mo
   assert.match(room, /<Link href="\/projects">all case studies<\/Link>/);
   assert.match(css, /yor-studio__availability/);
 });
+
+
+test("the room conserves GPU rendering while offscreen and resumes without remounting", () => {
+  const room = readFileSync("src/components/experience/StudioRoom.tsx", "utf8");
+  const scene = readFileSync("src/components/experience/YorWorldShowcaseScene.tsx", "utf8");
+  assert.match(room, /setInViewport\(nearViewport\)/);
+  assert.match(room, /if \(nearViewport\) setVisible\(true\)/);
+  assert.match(room, /paused=\{consoleOpen \|\| !inViewport\}/);
+  assert.match(scene, /frameloop=\{paused \? "demand" : "always"\}/);
+});
