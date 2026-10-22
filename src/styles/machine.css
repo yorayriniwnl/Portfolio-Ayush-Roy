@@ -2913,7 +2913,9 @@
     padding: 23px;
     overflow: hidden;
     background-color: var(--graphite);
-    background-position: center;
+    /* The narrow art rail should show the illustrated system, not crop a
+       headline in half from its 16:9 repository artwork. */
+    background-position: 85% center;
     background-size: cover;
     isolation: isolate;
   }
