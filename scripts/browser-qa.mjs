@@ -649,10 +649,28 @@ try {
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.editorial-home h1'))`, { description: "mobile editorial homepage" });
   assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas').length === 0`), "Mobile homepage mounted redundant 3D");
+  // The recruiter-first introduction and direct case-study links occupy the
+  // first mobile screen. The optional room is intentionally lazy-loaded below.
+  const mobileLanding = await cdp.evaluate(`(() => ({
+    heading: document.querySelector('.yor-world-hero h1')?.textContent?.replace(/\\s+/g, ' ').trim(),
+    quickLinks: [...document.querySelectorAll('.yor-world-hero__fast-path-link')].map(link => link.getAttribute('href')),
+    scrollWidth: document.documentElement.scrollWidth,
+    viewport: innerWidth,
+  }))()`);
+  assert(mobileLanding.heading?.includes('I build systems.') &&
+    mobileLanding.quickLinks.length === 3 &&
+    mobileLanding.quickLinks.every(href => href?.startsWith('/projects/')) &&
+    mobileLanding.scrollWidth <= mobileLanding.viewport + 1,
+    `Mobile first screen must provide scannable engineering proof without horizontal overflow: ${JSON.stringify(mobileLanding)}`);
+  report.rendering.mobileLanding = mobileLanding;
+  await capture(cdp, outputDir, "mobile-hero");
+  // Scrolling into the optional studio triggers its IntersectionObserver.
+  // Do not force-load several megabytes of 3D assets on initial page view.
+  await cdp.evaluate(`document.querySelector('.yor-studio__viewport')?.scrollIntoView({block:'center',behavior:'instant'}); true`);
   const mobileRoomReady = await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
-    { timeoutMs: 28_000, description: "authentic Yor-World 3D room ready on mobile" });
-  assert(mobileRoomReady.value, "Mobile 3D room failed to load imported assets");
+    { timeoutMs: 35_000, description: "authentic Yor-World 3D room ready after scrolling to studio on mobile" });
+  assert(mobileRoomReady.value, "Mobile 3D room failed to load imported assets after entering the viewport");
   await delay(220); // Give WebGL a painted frame after model completion.
   const mobileStage = await cdp.evaluate(`(() => {
     const viewport = document.querySelector('.yor-studio__viewport');
@@ -662,11 +680,11 @@ try {
       canvases: viewport.querySelectorAll('canvas').length,
       visiblePixels: Math.max(0, Math.min(rect.bottom, innerHeight) - Math.max(rect.top, 0)) } : null;
   })()`);
-  assert(mobileStage && mobileStage.top < 570 && mobileStage.visiblePixels >= 240 &&
+  assert(mobileStage && mobileStage.visiblePixels >= 240 &&
     mobileStage.canvases === 1 && mobileStage.loaded === "true",
-    `Mobile first screen needs visible loaded 3D room: ${JSON.stringify(mobileStage)}`);
+    `Optional mobile studio must be visible and loaded after entering the viewport: ${JSON.stringify(mobileStage)}`);
   report.rendering.mobileHome = mobileStage;
-  await capture(cdp, outputDir, "mobile-hero");
+  await capture(cdp, outputDir, "mobile-studio");
   await cdp.evaluate(`document.querySelector('.yor-studio__actions button[aria-controls="yor-room-console"]')?.click(); true`);
   await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true'`,
     { timeoutMs:2500, description:"mobile workstation launcher opens" });
