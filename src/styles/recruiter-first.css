@@ -139,3 +139,38 @@ body:has(.yor-world-hero--recruiter) header nav a:last-child:hover { background:
 @media(max-width:650px) {
  .yor-world-studio-section.yor-world-hero--recruiter .yor-world-hero__shell { padding-top:74px; padding-bottom:78px; }
 }
+
+/* Screenshot-verified hero repair: reset the older three-column identity grid. */
+.yor-world-hero--recruiter:not(.yor-world-studio-section) .yor-world-hero__shell {
+  padding-top:clamp(98px,8vw,126px);
+}
+.yor-world-hero--recruiter .yor-world-hero__identity {
+  display:flex; flex-direction:column; align-items:flex-start;
+  gap:0; min-width:0; width:100%; transform:none;
+}
+.yor-world-hero--recruiter:not(.yor-world-studio-section) .yor-world-hero__intro {
+  padding:clamp(44px,5.7vw,84px) 0 clamp(52px,6vw,92px);
+  align-items:center;
+}
+.editorial-home .yor-world-hero--recruiter h1 {
+  max-width:100%; font-size:clamp(57px,5.7vw,89px); line-height:1.01;
+  overflow-wrap:normal;
+}
+.yor-world-hero--recruiter .yor-world-hero__description {
+  width:100%; max-width:570px; margin-top:26px; font-size:clamp(15px,1.25vw,18px); line-height:1.68;
+}
+.yor-world-hero--recruiter .yor-world-hero__ctas { margin-top:26px; }
+.yor-world-hero--recruiter .yor-world-hero__proof { margin-top:23px; }
+.yor-world-hero--recruiter .yor-world-hero__studio-jump { margin-top:14px; }
+.yor-world-hero--recruiter .yor-world-hero__feature-item { padding-block:19px; }
+@media(max-width:950px) {
+ .yor-world-hero--recruiter:not(.yor-world-studio-section) .yor-world-hero__intro {
+   align-items:stretch; padding-block:52px 72px;
+ }
+}
+@media(max-width:650px) {
+ .yor-world-hero--recruiter:not(.yor-world-studio-section) .yor-world-hero__shell { padding-top:89px; }
+ .yor-world-hero--recruiter:not(.yor-world-studio-section) .yor-world-hero__intro { padding:38px 0 63px; }
+ .editorial-home .yor-world-hero--recruiter h1 { font-size:clamp(48px,11vw,70px); }
+ .yor-world-hero--recruiter .yor-world-hero__description { font-size:15px; }
+}
