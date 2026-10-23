@@ -57,7 +57,9 @@ test("Lab keeps experiments separated from recruiter projects and the shared can
   assert.equal(html.includes("machine-scene-layer"), false);
   assert.equal(html.includes("<canvas"), false, "the studio canvas mounts on the client, never in server HTML");
   assert.ok(html.includes('id="studio"'), "the 3D studio lives in the Lab");
-  assert.ok(html.includes("WALK THE ROOM"));
+  assert.ok(html.includes('aria-label="Reset camera view"'));
+  assert.ok(html.includes("Drag to rotate."));
+  assert.equal(html.includes('role="dialog"'), false, "scene navigation must not cover the model with a project dialog");
   assert.ok(html.indexOf('id="studio"') < html.indexOf('id="games"'), "the studio leads the Lab");
   assert.equal(createExperienceState("/lab").surface, "inactive");
 });

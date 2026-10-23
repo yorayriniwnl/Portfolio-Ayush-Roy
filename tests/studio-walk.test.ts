@@ -1,78 +1,43 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import {
-  isWalkable, nearestWalkable, slideWalk, walkRoute, WALK_BOUNDS,
-  type WalkPoint,
-} from "../src/components/experience/StudioWalk";
+import { getStudioCamera, STUDIO_TARGET, STUDIO_LIMITS } from "../src/components/experience/studio-camera";
 
-test("walkmesh excludes walls, furniture and malformed coordinates", () => {
-  assert.equal(isWalkable(0, 0), true);
-  assert.equal(isWalkable(0, -1), false, "Desk footprint must stay blocked");
-  assert.equal(isWalkable(.3, -.36), false, "Chair footprint must stay blocked");
-  assert.equal(isWalkable(WALK_BOUNDS.maxX + .01, 0), false);
-  assert.equal(isWalkable(0, WALK_BOUNDS.minZ - .01), false);
-  for (const point of [{x:NaN,z:0},{x:Infinity,z:0},{x:0,z:-Infinity}]) {
-    assert.equal(isWalkable(point.x, point.z), false);
-    const nearest=nearestWalkable(point.x, point.z);
-    assert.equal(isWalkable(nearest.x,nearest.z),true);
+test("camera framing stays finite and within orbit bounds for extreme aspect ratios", () => {
+  for (const aspect of [NaN, Infinity, -Infinity, -1, 0, .01, .45, .7, 1, 1.6, 2.5, 4, 1000]) {
+    const { eye, target, fov } = getStudioCamera(aspect);
+    assert.ok([...eye, ...target, fov].every(Number.isFinite), `invalid camera at aspect ${aspect}`);
+    assert.deepEqual(target, STUDIO_TARGET);
+    assert.ok(fov > 20 && fov < 80);
+    const distance = Math.hypot(...eye.map((value, index) => value - target[index]));
+    assert.ok(distance >= STUDIO_LIMITS.minDistance && distance <= STUDIO_LIMITS.maxDistance + .001,
+      `camera distance ${distance} exceeds safe bounds at aspect ${aspect}`);
   }
 });
 
-test("sliding cannot move into furniture or poison the camera with invalid input", () => {
-  const start={x:0,z:.2};
-  const stopped=slideWalk(start,0,-1.3);
-  assert.deepEqual(stopped,start);
-  assert.deepEqual(slideWalk(start,NaN,0),start);
-  assert.deepEqual(slideWalk({x:Infinity,z:NaN},0,0),{x:0,z:.9});
-  let position=start;
-  for (let i=0;i<100;i++) {
-    position=slideWalk(position,.025,-.025);
-    assert.equal(isWalkable(position.x,position.z),true);
-  }
+test("portrait framing pulls back so the operator and companion stay together", () => {
+  const portrait = getStudioCamera(.65);
+  const desktop = getStudioCamera(1.8);
+  const landscape = getStudioCamera(3);
+  assert.ok(portrait.eye[2] > desktop.eye[2], "portrait camera should widen its horizontal coverage");
+  assert.ok(desktop.eye[2] >= landscape.eye[2]);
+  assert.equal(portrait.fov, desktop.fov, "framing should not rely on an extreme wide-angle lens");
+  assert.ok(STUDIO_LIMITS.minPolarAngle > 0 && STUDIO_LIMITS.maxPolarAngle < Math.PI);
+  assert.ok(STUDIO_LIMITS.minAzimuthAngle < 0 && STUDIO_LIMITS.maxAzimuthAngle > 0);
 });
 
-test("pathfinding handles all four extreme floor corners without invalid grid indices", () => {
-  const corners:WalkPoint[]=[
-    {x:WALK_BOUNDS.minX+.01,z:WALK_BOUNDS.minZ+.01},
-    {x:WALK_BOUNDS.maxX-.01,z:WALK_BOUNDS.minZ+.01},
-    {x:WALK_BOUNDS.minX+.01,z:WALK_BOUNDS.maxZ-.01},
-    {x:WALK_BOUNDS.maxX-.01,z:WALK_BOUNDS.maxZ-.01},
-  ];
-  const start:WalkPoint={x:0,z:.9};
-  for(const goal of corners) {
-    assert.equal(isWalkable(goal.x,goal.z),true);
-    const path=walkRoute(start,goal);
-    assert.ok(path.length>0, "Path was lost at corner "+JSON.stringify(goal));
-    assert.deepEqual(path.at(-1),goal);
-    for(const point of path) {
-      assert.ok(Number.isFinite(point.x) && Number.isFinite(point.z));
-      assert.equal(isWalkable(point.x,point.z),true,
-        "Route passed through furniture at "+JSON.stringify(point));
-    }
-  }
+test("reset camera data is fresh and cannot be mutated by previous orbit controls", () => {
+  const initial = getStudioCamera(1.6);
+  const expected = structuredClone(initial);
+  initial.eye[0] = 999;
+  initial.target[1] = 999;
+  const reset = getStudioCamera(1.6);
+  assert.deepEqual(reset, expected);
+  assert.notEqual(reset.target, STUDIO_TARGET);
 });
 
-test("cross-room routes stay outside obstacles and do not cut diagonally through desk", () => {
-  const start={x:WALK_BOUNDS.minX+.01,z:WALK_BOUNDS.minZ+.01};
-  const goal={x:WALK_BOUNDS.maxX-.01,z:WALK_BOUNDS.minZ+.01};
-  const path=walkRoute(start,goal);
-  assert.ok(path.length>5,"Cross-room route must detour around furniture");
-  let previous=start;
-  for(const next of path) {
-    for(let sample=0;sample<=10;sample++) {
-      const t=sample/10;
-      const x=previous.x+(next.x-previous.x)*t;
-      const z=previous.z+(next.z-previous.z)*t;
-      assert.equal(isWalkable(x,z),true,
-        "A* segment crossed an obstacle near "+JSON.stringify({x,z}));
-    }
-    previous=next;
-  }
-});
-
-test("mobile movement buttons meet the 44px minimum target size", () => {
-  const css=readFileSync("src/styles/studio.css","utf8");
-  assert.match(css,/grid-template-columns: repeat\(3, 44px\);\s*grid-template-rows: repeat\(3, 44px\)/);
-  assert.doesNotMatch(css,/repeat\(3, ?34px\)/);
+test("malformed aspect ratios use the stable desktop fallback", () => {
+  const expected = getStudioCamera(1.6);
+  for (const aspect of [NaN, Infinity, -Infinity, -10, 0]) assert.deepEqual(getStudioCamera(aspect), expected);
+  assert.deepEqual(getStudioCamera(.001), getStudioCamera(.45));
+  assert.deepEqual(getStudioCamera(100), getStudioCamera(4));
 });

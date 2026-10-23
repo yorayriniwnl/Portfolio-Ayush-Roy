@@ -82,7 +82,7 @@ export function Home() {
             <p>I&apos;m a software engineer who enjoys the interesting part of building: making tricky systems understandable, useful and a little delightful.</p>
             <p>From evidence-first assessment tools and real-time social platforms to energy dashboards, I like getting into the details without losing sight of the people who use the product.</p>
             <p className="home-about__stack"><span>Core stack</span>{coreStack.join(", ")}</p>
-            <p className="home-about__lab">Off the clock I build experiments, including an interactive 3D studio you can walk through. <Link className="home-text-link" href="/lab#studio">Visit the Lab</Link></p>
+            <p className="home-about__lab">Off the clock I build experiments, including an interactive 3D scene you can explore. <Link className="home-text-link" href="/lab#studio">Visit the Lab</Link></p>
           </div>
         </div>
       </section>

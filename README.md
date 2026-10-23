@@ -38,6 +38,10 @@ GitHub Actions runs dependency auditing, tests, lint, content, asset, typecheck,
 
 The root layout owns one persistent machine scene for the project index and canonical case studies. The scene loads after browser idle time; reduced motion and graphics failures preserve static artwork and server-rendered content. The homepage and résumé never mount WebGL. The Lab hosts the separate interactive 3D studio, which loads only as it approaches the viewport. The optional desktop cursor retains the native pointer on touch devices, text controls, reduced motion, or image-loading failure.
 
+The Lab's After Hours scene is a real 3D masked operator, husky, and night study built as three local GLB assets. Drag or use arrow keys to orbit; scroll, pinch, or use plus/minus to zoom. Reset, lighting, animation pause and fullscreen controls sit outside the canvas. Scene clicks never open projects; the engineering-work link is separate. Rendering stops offscreen, in hidden tabs and when paused while retaining the loaded scene. Reduced motion shows the supplied reference artwork with an explicit Load 3D option; WebGL or loading failure keeps an explained image fallback.
+
+The models can be rebuilt using Blender's background mode with `scripts/build-operator-model.py` and `scripts/build-night-study.py`. Their individual 2.5 MB budgets allow actual character, fur and furniture geometry; all other assets retain a 1 MB limit and the site retains its 8 MB total budget. Browser QA exercises mouse/touch rotation, wheel/pinch zoom, reset, inert clicks, fullscreen, pause/resume, viewport visibility and fallback behavior.
+
 Routes:
 
 - `/` : recruiter-first homepage, fully server-rendered: hero, three projects with checkable results, about, and contact

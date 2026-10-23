@@ -19,8 +19,8 @@ export function Lab() {
       <section className="hub-section lab-studio" aria-labelledby="studio-title">
         <div className="container">
           <div className="hub-section-heading">
-            <div><span className="technical hub-section-kicker">01 / 3D STUDIO</span><h2 id="studio-title">Step inside<br />the studio.</h2></div>
-            <p>A real-time WebGL room. Click the floor to walk there, open the workstation to browse the case studies, or turn on walk mode and use W, A, S and D.</p>
+            <div><span className="technical hub-section-kicker">01 / 3D STUDY</span><h2 id="studio-title">After hours.</h2></div>
+            <p>A masked operator, his husky, and a city that never sleeps. Drag to look around the scene; scroll or pinch to get closer.</p>
           </div>
           <div id="studio" className="studio-frame">
             <StudioRoom />

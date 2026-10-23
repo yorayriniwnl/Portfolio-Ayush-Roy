@@ -427,6 +427,29 @@ try {
     }
   }
 
+  activeScenario = "reduced-motion scene fallback and explicit opt-in";
+  await setViewport(cdp, 1440, 900);
+  await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+  await navigate(cdp, `${baseUrl}/lab`);
+  await cdp.evaluate(`document.querySelector('#studio').scrollIntoView({ block: 'center', behavior: 'instant' }); true`);
+  await waitForCondition(cdp, `document.querySelector('.yor-studio__loading')?.textContent.includes('Reduced motion is enabled') &&
+    document.querySelector('.yor-studio__fallback img')?.naturalWidth > 0`,
+    { timeoutMs: 5000, description: "explained reduced-motion reference fallback" });
+  assert(await cdp.evaluate(`document.querySelectorAll('.yor-studio canvas').length === 0`), "Reduced motion automatically mounted a scene");
+  await cdp.evaluate(`Array.from(document.querySelectorAll('.yor-studio button')).find(button => button.textContent === 'Load 3D').click(); true`);
+  await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
+    { timeoutMs: 35_000, description: "explicit reduced-motion 3D opt-in" });
+  assert(await cdp.evaluate(`document.querySelector('.yor-studio')?.dataset.animationPaused === 'true' &&
+    document.querySelector('.yor-studio')?.dataset.renderPaused === 'true' &&
+    Boolean(document.querySelector('button[aria-label="Resume scene animation"]'))`),
+    "Loading 3D with reduced motion started animations without an explicit Resume");
+  const reducedCameraX = await cdp.evaluate(`Number(document.querySelector('.yor-studio').dataset.cameraX)`);
+  await cdp.evaluate(`document.querySelector('.yor-studio__viewport canvas').focus(); true`);
+  await pressKey("ArrowRight", "ArrowRight", 39);
+  await waitForCondition(cdp, `Math.abs(Number(document.querySelector('.yor-studio').dataset.cameraX) - ${reducedCameraX}) > .02`,
+    { description: "keyboard orbit works while reduced-motion animation stays paused" });
+  report.rendering.studioReducedMotion = { explainedArtworkFallback: true, canvasRequiresOptIn: true, manualLoadWorks: true, animationRequiresResume: true, keyboardOrbitWhilePaused: true };
+
   activeScenario = "production review screenshots";
   await setViewport(cdp, 1440, 900);
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
@@ -449,184 +472,141 @@ try {
     `document.querySelector('.yor-studio__viewport canvas') ? true : null`,
     { timeoutMs: 18_000, description: "restored WebGL studio canvas" });
   assert(studioCanvas.value, "Restored 3D workspace did not render in GPU-capable browser");
-  const homeGpu = await cdp.evaluate(`({
+
+  const studioReady = await waitForCondition(cdp,
+    `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
+    { timeoutMs: 35_000, description: "operator and companion GLB scene ready" });
+  assert(studioReady.value, "Operator scene failed to load its model assets");
+  const studioGpu = await cdp.evaluate(`({
     studioCanvases: document.querySelectorAll('.yor-studio__viewport canvas').length,
     projectCanvases: document.querySelectorAll('.machine-canvas canvas').length,
-    sceneLayers: document.querySelectorAll('.machine-scene-layer').length,
-    controls: document.querySelectorAll('.yor-studio__locations button').length
+    sceneLayers: document.querySelectorAll('.machine-scene-layer').length
   })`);
-  assert(homeGpu.studioCanvases === 1 && homeGpu.projectCanvases === 0 && homeGpu.sceneLayers === 0,
-    `Lab studio has missing or duplicate GPU layers: ${JSON.stringify(homeGpu)}`);
-  assert(homeGpu.controls === 4, "Studio camera presets are incomplete");
-  const genuineRoom = await waitForCondition(cdp,
-    `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
-    { timeoutMs: 28_000, description: "authentic Yor-World GLB workstation ready" });
-  assert(genuineRoom.value, "Authentic GLB room never finished loading");
-  const referenceFraming = await cdp.evaluate(`(() => {
-    const stage = document.querySelector('.yor-studio__viewport')?.getBoundingClientRect();
-    const intro = document.querySelector('#studio-title')?.getBoundingClientRect();
-    if (!stage || !intro) return null;
-    return {
-      stageWidth: Math.round(stage.width), viewportWidth: innerWidth,
-      stageHeight: Math.round(stage.height), stageTop: Math.round(stage.top),
-      introBottom: Math.round(intro.bottom), referenceRoomReady:
-        document.querySelector('.yor-studio')?.dataset.sceneReady === 'true',
-      sceneCanvas: stage.width > 0 &&
-        document.querySelector('.yor-studio__viewport canvas') !== null,
-    };
+  assert(studioGpu.studioCanvases === 1 && studioGpu.projectCanvases === 0 && studioGpu.sceneLayers === 0,
+    `Lab has duplicate GPU layers: ${JSON.stringify(studioGpu)}`);
+  const readStudioCamera = () => cdp.evaluate(`(() => {
+    const d = document.querySelector('.yor-studio').dataset;
+    return { x: Number(d.cameraX), y: Number(d.cameraY), z: Number(d.cameraZ),
+      distance: Number(d.cameraDistance), interactions: Number(d.interactionCount || 0) };
   })()`);
-  assert(referenceFraming && referenceFraming.referenceRoomReady &&
-    referenceFraming.sceneCanvas &&
-    referenceFraming.stageWidth >= referenceFraming.viewportWidth * .80 &&
-    referenceFraming.stageHeight >= 600 &&
-    referenceFraming.introBottom <= referenceFraming.stageTop + 18,
-    `The workstation must be a wide, unobstructed art-directed hero, not a cropped split card: ${JSON.stringify(referenceFraming)}`);
-  report.rendering.referenceFraming = referenceFraming;
+  const frameStudio = async () => {
+    await cdp.evaluate(`document.querySelector('.yor-studio__viewport').scrollIntoView({ block: 'center', behavior: 'instant' }); true`);
+    await delay(150);
+    return cdp.evaluate(`(() => { const r = document.querySelector('.yor-studio__viewport canvas').getBoundingClientRect();
+      return { x: r.left + r.width * .5, y: r.top + r.height * .5, width: r.width, height: r.height }; })()`);
+  };
+  let studioPoint = await frameStudio();
+  assert(studioPoint.width >= 1100 && studioPoint.height >= 540, "Desktop scene framing is unexpectedly small");
   await capture(cdp, outputDir, "desktop-studio");
+  const initialCamera = await readStudioCamera();
+  assert([initialCamera.x, initialCamera.y, initialCamera.z, initialCamera.distance].every(Number.isFinite) &&
+    initialCamera.distance > 2, "Scene camera telemetry is missing");
 
-  activeScenario = "distraction-free full-scene room and Escape restoration";
-  await cdp.evaluate(`document.querySelector('.yor-studio__photo-toggle')?.click(); true`);
-  const focusMode = await waitForCondition(cdp,
-    `document.querySelector('.yor-studio')?.dataset.photoMode === 'true' &&
-     document.querySelector('.yor-studio__photo-toggle')?.getAttribute('aria-pressed') === 'true'`,
-    { timeoutMs:2500, description:"full-scene reference mode activated" });
-  assert(focusMode.value, "Full-scene mode did not enable");
-  await cdp.evaluate(`document.querySelector('.yor-studio__viewport')?.scrollIntoView({block:'center',behavior:'instant'});true`);
-  await delay(180);
-  // Headless Chrome can miss one GPU screenshot response immediately after
-  // switching the full-scene canvas compositor. Retry only that CDP timeout.
-  try {
-    await capture(cdp, outputDir, "desktop-full-scene");
-  } catch (error) {
-    if (!String(error).includes("Timed out waiting for CDP response Page.captureScreenshot")) throw error;
-    await delay(450);
-    await capture(cdp, outputDir, "desktop-full-scene");
+  activeScenario = "scene clicks stay in the viewer";
+  const studioUrl = await cdp.evaluate("location.href");
+  for (const offset of [-.25, 0, .25]) {
+    const x = studioPoint.x + studioPoint.width * offset;
+    await cdp.send("Input.dispatchMouseEvent", { type: "mousePressed", x, y: studioPoint.y, button: "left", buttons: 1, clickCount: 1 });
+    await cdp.send("Input.dispatchMouseEvent", { type: "mouseReleased", x, y: studioPoint.y, button: "left", buttons: 0, clickCount: 1 });
   }
+  await delay(150);
+  assert(await cdp.evaluate(`location.href === ${JSON.stringify(studioUrl)} &&
+    document.querySelectorAll('.yor-studio [role="dialog"], .yor-studio__viewport a').length === 0`),
+  "Ordinary scene clicks opened project navigation or a dialog");
+
+  activeScenario = "orbit drag and wheel zoom";
+  await cdp.send("Input.dispatchMouseEvent", { type: "mousePressed", x: studioPoint.x, y: studioPoint.y, button: "left", buttons: 1, clickCount: 1 });
+  for (let i = 1; i <= 8; i++) {
+    await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: studioPoint.x + i * 13, y: studioPoint.y - i * 3, button: "left", buttons: 1 });
+    await delay(20);
+  }
+  await cdp.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: studioPoint.x + 104, y: studioPoint.y - 24, button: "left", buttons: 0, clickCount: 1 });
+  await delay(450);
+  const draggedCamera = await readStudioCamera();
+  assert(Math.hypot(draggedCamera.x - initialCamera.x, draggedCamera.z - initialCamera.z) > .15,
+    "Dragging the scene did not orbit the camera");
+  assert(await cdp.evaluate(`location.href === ${JSON.stringify(studioUrl)} && !document.querySelector('.yor-studio [role="dialog"]')`),
+    "Releasing a drag opened navigation");
+  await cdp.send("Input.dispatchMouseEvent", { type: "mouseWheel", x: studioPoint.x, y: studioPoint.y, deltaX: 0, deltaY: -220 });
+  await delay(500);
+  const zoomedCamera = await readStudioCamera();
+  assert(Math.abs(zoomedCamera.distance - draggedCamera.distance) > .08, "Wheel zoom did not change camera distance");
+  await cdp.evaluate(`document.querySelector('button[aria-label="Reset camera view"]').click(); true`);
+  await waitForCondition(cdp, `(() => {
+    const d = document.querySelector('.yor-studio').dataset;
+    return Math.hypot(Number(d.cameraX) - ${initialCamera.x}, Number(d.cameraY) - ${initialCamera.y},
+      Number(d.cameraZ) - ${initialCamera.z}) < .1;
+  })()`, { timeoutMs: 8000, description: "reset restores the initial camera coordinates" });
+  const resetCamera = await readStudioCamera();
+  assert(Math.hypot(resetCamera.x - initialCamera.x, resetCamera.y - initialCamera.y, resetCamera.z - initialCamera.z) < .1,
+    "Reset view failed to restore the initial camera");
+  report.interaction.studioViewer = { clicksStayInViewer: true, dragOrbits: true, wheelZooms: true, resetRestoresCamera: true };
+
+  activeScenario = "scene controls and fullscreen keyboard exit";
+  await cdp.evaluate(`document.querySelector('button[aria-label="Dim scene lights"]').click(); true`);
+  await waitForCondition(cdp, `Boolean(document.querySelector('button[aria-label="Turn on scene lights"]'))`,
+    { description: "scene lighting toggle" });
+  await cdp.evaluate(`document.querySelector('button[aria-label="Turn on scene lights"]').click(); true`);
+  await clickAtSelector('button[aria-label="Enter fullscreen"]');
+  await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.fullscreen === 'true'`,
+    { description: "fullscreen scene" });
+  await capture(cdp, outputDir, "desktop-full-scene");
+  await cdp.evaluate(`document.querySelector('.yor-studio__projects').focus(); true`);
+  await pressKey("Tab", "Tab", 9);
+  assert(await cdp.evaluate(`Boolean(document.activeElement?.closest('.yor-studio'))`), "Fullscreen keyboard focus escaped behind the viewer");
   await pressKey("Escape", "Escape", 27);
-  await waitForCondition(cdp,
-    `document.querySelector('.yor-studio')?.dataset.photoMode === 'false'`,
-    { timeoutMs:2500, description:"Escape dismisses full-scene reference mode" });
-  report.interaction.fullScene = { activated:true, escapeRestores:true, screenshot:true };
+  await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.fullscreen === 'false'`,
+    { description: "Escape exits fullscreen" });
+  report.interaction.fullScene = { activated: true, escapeRestores: true, screenshot: true };
 
-  activeScenario = "first-person room walking with WASD and click-to-move";
-  await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.click();true`);
-  await waitForCondition(cdp,
-    `document.querySelector('.yor-studio')?.dataset.roaming === 'true' && !!document.querySelector('.yor-studio')?.dataset.walkable`,
-    {timeoutMs:3000,description:"walk mode engages in authentic 3D room"});
-  const walkBefore=await cdp.evaluate(`(() => {
-    const room=document.querySelector('.yor-studio');
-    return {x:Number(room.dataset.walkX),z:Number(room.dataset.walkZ)};
-  })()`);
-  await cdp.evaluate(`document.querySelector('.yor-studio__walk-toggle')?.focus();true`);
-  await cdp.send("Input.dispatchKeyEvent",{type:"keyDown",key:"w",code:"KeyW",windowsVirtualKeyCode:87,nativeVirtualKeyCode:87});
-  await delay(1050);
-  await cdp.send("Input.dispatchKeyEvent",{type:"keyUp",key:"w",code:"KeyW",windowsVirtualKeyCode:87,nativeVirtualKeyCode:87});
-  await delay(140);
-  const walkAfter=await cdp.evaluate(`(() => {
-    const room=document.querySelector('.yor-studio');
-    return {x:Number(room.dataset.walkX),z:Number(room.dataset.walkZ),
-      walkable:room.dataset.walkable,mode:room.dataset.roaming};
-  })()`);
-  assert(walkAfter.mode==="true" && walkAfter.walkable==="true" &&
-    Math.hypot(walkAfter.x-walkBefore.x,walkAfter.z-walkBefore.z)>.075,
-    `Holding W did not move the camera safely through the room: ${JSON.stringify({walkBefore,walkAfter})}`);
-  report.interaction.studioWalking={wasdDistance:Math.hypot(walkAfter.x-walkBefore.x,walkAfter.z-walkBefore.z),safeCollision:true};
-
-  // Click on the lower-left part of the room view to request floor navigation.
-  const floorPoint=await cdp.evaluate(`(() => {
-    const r=document.querySelector('.yor-studio__viewport canvas').getBoundingClientRect();
-    return {x:r.left+r.width*.17,y:r.top+r.height*.78};
-  })()`);
-  const originalTarget=await cdp.evaluate(`document.querySelector('.yor-studio')?.dataset.walkTargetId || ""`);
-  await cdp.send("Input.dispatchMouseEvent",{type:"mouseMoved",x:floorPoint.x,y:floorPoint.y});
-  await cdp.send("Input.dispatchMouseEvent",{type:"mousePressed",x:floorPoint.x,y:floorPoint.y,button:"left",clickCount:1});
-  await cdp.send("Input.dispatchMouseEvent",{type:"mouseReleased",x:floorPoint.x,y:floorPoint.y,button:"left",clickCount:1});
-  const floorClick=await waitForCondition(cdp,
-    `Boolean(document.querySelector('.yor-studio')?.dataset.walkTargetId) &&
-    document.querySelector('.yor-studio')?.dataset.walkTargetId !== '${originalTarget}'`,
-    {timeoutMs:3500,description:"clicking floor requests automatic room movement"});
-  assert(floorClick.value,"Click-to-move did not register a walkable room destination");
-  report.interaction.studioWalking.floorClickRoutes=true;
-  await delay(320);
-  await capture(cdp, outputDir, "desktop-free-roam");
-
-  // Cinematic camera presets must remain a safe exit from free roaming.
-  await cdp.evaluate(`document.querySelector('.yor-studio__locations button:first-child')?.click();true`);
-  await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.roaming === 'false'`,
-    {timeoutMs:2500,description:"camera preset exits free roaming"});
-  report.interaction.studioWalking.presetRestoresCamera=true;
-
-  activeScenario = "3D workstation object interaction controls";
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button[aria-controls="yor-room-console"]')?.click(); true`);
-  const consoleOpened = await waitForCondition(cdp,
-    `document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true' &&
-     document.querySelectorAll('.yor-studio__console-project').length === 6`,
-    { timeoutMs:3000, description:"interactive workstation launcher displays six real projects" });
-  assert(consoleOpened.value, "Workstation launcher failed to reveal six case studies");
-  await waitForCondition(cdp,
-    `document.activeElement?.getAttribute('aria-label') === 'Close workstation launcher'`,
-    { timeoutMs:2500, description:"dialog focus settles after React effect and animation frame" });
-  const launcher = await cdp.evaluate(`(() => ({
-    links:[...document.querySelectorAll('.yor-studio__console-project')].map(node=>node.getAttribute('href')),
-    focus: document.activeElement?.getAttribute('aria-label'),
-    dialog: document.querySelector('.yor-studio__console')?.getAttribute('role')
-  }))()`);
-  assert(launcher.dialog === "dialog" && launcher.focus === "Close workstation launcher",
-    "Launcher must be an accessible dialog with initial keyboard focus on Close");
-  assert(QA_PROJECT_SLUGS.every(slug=>launcher.links.includes(`/projects/${slug}`)),
-    "Launcher must expose every canonical project route");
-  report.interaction.studioObjects = { launcherProjects:launcher.links.length, keyboardFocus:true };
-  await cdp.evaluate(`document.querySelector('.yor-studio__viewport')?.scrollIntoView({block:'center',behavior:'instant'});true`);
-  await delay(180);
-  await capture(cdp, outputDir, "desktop-workstation-launcher");
-  await pressKey("Escape", "Escape", 27);
-  await waitForCondition(cdp,
-    `document.querySelector('.yor-studio')?.dataset.consoleOpen === 'false' &&
-     document.activeElement === document.querySelector('.yor-studio__actions button[aria-controls="yor-room-console"]')`,
-    { timeoutMs:3000, description:"Escape closes workstation launcher and restores focus" });
-  report.interaction.studioObjects.escapeRestoresFocus=true;
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(3)')?.click(); true`);
-  await waitForCondition(cdp,
-    `document.querySelector('.yor-studio')?.dataset.blindsOpen === 'false' &&
-    document.querySelector('.yor-studio__actions button:nth-child(3)')?.getAttribute('aria-pressed') === 'true'`,
-    { timeoutMs:2500, description:"room blinds close through accessible button" });
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(4)')?.click(); true`);
-  await waitForCondition(cdp,
-    `Number(document.querySelector('.yor-studio')?.dataset.paintingBeat) === 1 &&
-     document.querySelector('.yor-studio')?.dataset.secretFound === 'true'`,
-    { timeoutMs:2500, description:"painting tilt reveals hidden YOR detail" });
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button:nth-child(3)')?.click(); true`);
-  await waitForCondition(cdp,
-    `document.querySelector('.yor-studio')?.dataset.blindsOpen === 'true'`,
-    { timeoutMs:2500, description:"room blinds reopen" });
-  report.interaction.studioObjects.blindsToggle=true;
-  report.interaction.studioObjects.paintingDiscovery=true;
-  await cdp.evaluate(`document.querySelector('.yor-studio__locations button:first-child')?.click();true`);
-
-  activeScenario = "cinematic doorway replay";
-  await cdp.evaluate(`document.querySelector('button[aria-label="Replay doorway entrance animation"]')?.click(); true`);
-  await waitForCondition(cdp, `Number(document.querySelector('.yor-studio')?.dataset.introSequence) >= 1`,
-    { timeoutMs:2500, description: "cinematic doorway replay begins" });
-  report.interaction.studioCinematic = { replayStarts: true };
-  await cdp.evaluate(`(() => {
-    const avatar = document.querySelector('.yor-studio__locations button:nth-child(2)');
-    avatar?.scrollIntoView({ block:'center', behavior:'instant' });
-    avatar?.click();
-    return true;
-  })()`);
-  await waitForCondition(cdp,
-    `document.querySelector('.yor-studio__locations button:nth-child(2)')?.getAttribute('aria-pressed') === 'true'`,
-    { timeoutMs: 2500, description: "avatar camera preset activates after React update" });
-  const introCanceled = await waitForCondition(cdp,
-    `document.querySelector('.yor-studio')?.dataset.introSequence === '0'`,
-    { timeoutMs:2500, description: "camera preset skips cinematic entry" });
-  assert(introCanceled.value, "Selecting another camera did not cancel the intro");
-  report.interaction.studioCinematic.skipByCameraPreset = true;
-  await clickAtSelector('.yor-studio__locations button:nth-child(1)');
-  report.rendering.labStudio = { ...homeGpu, restoredInteractiveStudio: true };
+  activeScenario = "paused and offscreen scenes stop rendering without remounting";
+  await cdp.evaluate(`window.__qaStudioCanvas = document.querySelector('.yor-studio__viewport canvas');
+    document.querySelector('button[aria-label="Pause scene animation"]').click(); true`);
+  await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.renderPaused === 'true'`,
+    { description: "animation paused" });
+  await delay(650);
+  const pausedFrames = await cdp.evaluate(`Number(document.querySelector('.yor-studio').dataset.renderedFrames || 0)`);
+  await delay(450);
+  const pausedFramesAfter = await cdp.evaluate(`Number(document.querySelector('.yor-studio').dataset.renderedFrames || 0)`);
+  assert(pausedFrames > 0 && pausedFramesAfter - pausedFrames <= 2, "Paused scene kept continuously rendering");
+  await cdp.evaluate(`document.querySelector('button[aria-label="Resume scene animation"]').click();
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }); true`);
+  await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.renderPaused === 'true'`,
+    { description: "offscreen scene pauses" });
+  await delay(650);
+  const offscreenFrames = await cdp.evaluate(`Number(document.querySelector('.yor-studio').dataset.renderedFrames || 0)`);
+  await delay(450);
+  const offscreenFramesAfter = await cdp.evaluate(`Number(document.querySelector('.yor-studio').dataset.renderedFrames || 0)`);
+  assert(offscreenFramesAfter - offscreenFrames <= 2, "Offscreen scene kept continuously rendering");
+  studioPoint = await frameStudio();
+  await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.renderPaused === 'false' &&
+    window.__qaStudioCanvas === document.querySelector('.yor-studio__viewport canvas')`,
+    { description: "scene resumes with original canvas" });
+  report.rendering.studioPause = { pausedFrames, pausedFramesAfter, offscreenFrames, offscreenFramesAfter, canvasPreserved: true };
+  const hiddenStudioTarget = await browserCdp.send("Target.createTarget", { url: "about:blank" });
+  backgroundTargetId = hiddenStudioTarget.targetId;
+  await browserCdp.send("Target.activateTarget", { targetId: backgroundTargetId });
+  await waitForCondition(cdp, `document.visibilityState === 'hidden' && document.querySelector('.yor-studio')?.dataset.renderPaused === 'true'`,
+    { timeoutMs: 4000, description: "hidden studio pauses rendering" });
+  await delay(300);
+  const hiddenStudioFrames = await cdp.evaluate(`Number(document.querySelector('.yor-studio').dataset.renderedFrames || 0)`);
+  await delay(450);
+  const hiddenStudioFramesAfter = await cdp.evaluate(`Number(document.querySelector('.yor-studio').dataset.renderedFrames || 0)`);
+  assert(hiddenStudioFramesAfter - hiddenStudioFrames <= 2, "Hidden studio kept continuously rendering");
+  await browserCdp.send("Target.activateTarget", { targetId: primaryTargetId });
+  await waitForCondition(cdp, `document.visibilityState === 'visible' && document.querySelector('.yor-studio')?.dataset.renderPaused === 'false' &&
+    window.__qaStudioCanvas === document.querySelector('.yor-studio__viewport canvas')`,
+    { timeoutMs: 4000, description: "visible studio resumes with the same canvas" });
+  await browserCdp.send("Target.closeTarget", { targetId: backgroundTargetId });
+  backgroundTargetId = undefined;
+  report.rendering.studioPause.hiddenFramesDelta = hiddenStudioFramesAfter - hiddenStudioFrames;
+  report.rendering.labStudio = { ...studioGpu, restoredInteractiveStudio: true };
   report.performance.samples.push({ path: "/lab", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
 
-  await clickAtSelector('a[href="/projects"]');
+  const explicitSceneLink = await cdp.evaluate(`(() => { const link = document.querySelector('.yor-studio__projects');
+    return Boolean(link && link.getAttribute('href') === '/projects' && !link.closest('.yor-studio__viewport')); })()`);
+  assert(explicitSceneLink, "Project navigation must be an explicit link outside the scene");
+  await clickAtSelector('.yor-studio__projects');
   await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { timeoutMs: 8000, description: "client navigation to project index" });
   const initialScene = await waitForCondition(cdp, `(() => { const layer = document.querySelector('.machine-scene-layer'); return layer && (layer.dataset.sceneStatus === 'ready' || layer.dataset.sceneStatus === 'failed') ? layer.dataset.sceneStatus : null; })()`, { timeoutMs: 25_000, description: "project-world scene initialized" });
   report.rendering.projectIndex = { status: initialScene.value };
@@ -670,8 +650,8 @@ try {
   assert(mobileStudioLocated, "Mobile Lab lost its optional studio");
   const mobileRoomReady = await waitForCondition(cdp,
     `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
-    { timeoutMs: 28_000, description: "authentic Yor-World 3D room ready on mobile" });
-  assert(mobileRoomReady.value, "Mobile 3D room failed to load imported assets");
+    { timeoutMs: 28_000, description: "operator and husky scene ready on mobile" });
+  assert(mobileRoomReady.value, "Mobile operator scene failed to load imported assets");
   await delay(220); // Give WebGL a painted frame after model completion.
   const mobileStage = await cdp.evaluate(`(() => {
     const viewport = document.querySelector('.yor-studio__viewport');
@@ -686,22 +666,56 @@ try {
     `Mobile studio should load when visited, not require first-screen GPU work: ${JSON.stringify(mobileStage)}`);
   report.rendering.mobileLabStudio = mobileStage;
   await capture(cdp, outputDir, "mobile-studio");
-  await cdp.evaluate(`document.querySelector('.yor-studio__actions button[aria-controls="yor-room-console"]')?.click(); true`);
-  await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'true'`,
-    { timeoutMs:2500, description:"mobile workstation launcher opens" });
-  const mobileLauncher = await cdp.evaluate(`(() => ({
-    cards: document.querySelectorAll('.yor-studio__console-project').length,
-    rect: document.querySelector('.yor-studio__console')?.getBoundingClientRect().toJSON(),
-    scrollWidth: document.documentElement.scrollWidth,
-    viewport: innerWidth
-  }))()`);
-  assert(mobileLauncher.cards === 6 && mobileLauncher.scrollWidth <= mobileLauncher.viewport + 1 &&
-    mobileLauncher.rect && mobileLauncher.rect.width <= mobileLauncher.viewport,
-    `Mobile launcher clipped content or lost projects: ${JSON.stringify(mobileLauncher)}`);
-  await cdp.evaluate(`document.querySelector('button[aria-label="Close workstation launcher"]')?.click(); true`);
-  await waitForCondition(cdp,`document.querySelector('.yor-studio')?.dataset.consoleOpen === 'false'`,
-    { timeoutMs:2500,description:"mobile launcher closes" });
-  report.interaction.studioObjects.mobileLauncherAccessible=true;
+
+  activeScenario = "mobile orbit and pinch zoom";
+  await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 2 });
+  const touchScene = await frameStudio();
+  const mobileCameraBefore = await readStudioCamera();
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: touchScene.x - 35, y: touchScene.y, id: 1 }] });
+  for (let i = 1; i <= 6; i++) {
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: touchScene.x - 35 + i * 12, y: touchScene.y - i * 2, id: 1 }] });
+    await delay(20);
+  }
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await delay(350);
+  const mobileCameraAfter = await readStudioCamera();
+  assert(Math.hypot(mobileCameraAfter.x - mobileCameraBefore.x, mobileCameraAfter.z - mobileCameraBefore.z) > .1,
+    "Touch drag did not orbit the model");
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [
+    { x: touchScene.x - 24, y: touchScene.y, id: 1 }, { x: touchScene.x + 24, y: touchScene.y, id: 2 }
+  ] });
+  for (let i = 1; i <= 5; i++) {
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [
+      { x: touchScene.x - 24 - i * 6, y: touchScene.y, id: 1 },
+      { x: touchScene.x + 24 + i * 6, y: touchScene.y, id: 2 }
+    ] });
+    await delay(25);
+  }
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await delay(350);
+  const pinchedCamera = await readStudioCamera();
+  assert(Math.abs(pinchedCamera.distance - mobileCameraAfter.distance) > .08, "Pinch gesture did not zoom the scene");
+  assert(await cdp.evaluate(`location.pathname === '/lab' && !document.querySelector('.yor-studio [role="dialog"]')`),
+    "Touch gestures left the scene or opened project navigation");
+  await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
+  report.interaction.studioViewer = { ...report.interaction.studioViewer, touchOrbits: true, pinchZooms: true };
+
+  await setViewport(cdp, 844, 390);
+  await waitForCondition(cdp, `(() => {
+    const canvas = document.querySelector('.yor-studio__viewport canvas');
+    const rect = canvas?.getBoundingClientRect();
+    return innerWidth === 844 && rect && rect.width > 650 && rect.height < 400;
+  })()`, { timeoutMs: 15_000, description: "landscape viewport and canvas resize" });
+  await frameStudio();
+  const landscapeStage = await cdp.evaluate(`(() => {
+    const canvas = document.querySelector('.yor-studio__viewport canvas').getBoundingClientRect();
+    return { width: canvas.width, height: canvas.height, overflow: document.documentElement.scrollWidth > innerWidth + 1 };
+  })()`);
+  assert(landscapeStage.width > 650 && landscapeStage.height >= 260 && !landscapeStage.overflow,
+    `Landscape viewer is clipped: ${JSON.stringify(landscapeStage)}`);
+  await capture(cdp, outputDir, "mobile-landscape-studio");
+  report.rendering.mobileLandscapeStudio = landscapeStage;
+  await setViewport(cdp, 390, 844);
   await navigate(cdp, baseUrl + "/projects");
   await positionProjectWorldForCapture();
   await capture(cdp, outputDir, "mobile-project-world");
@@ -744,23 +758,64 @@ try {
   await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelector('#mobile-nav')?.dataset.open === 'false'`, { description: "browser history closes the mobile menu" });
   report.interaction.mobileRouteDismissal = { sameRouteLogo: true, homeNavigation: true, browserBack: true };
 
-  await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 1 });
-  await navigate(cdp, `${baseUrl}/projects`);
-  const touchTarget = await cdp.evaluate(`(async () => {
-    const node = document.querySelector('a.project-world__title-link');
-    if (!node) return null;
-    node.scrollIntoView({ block: 'center', behavior: 'instant' });
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    const rect = node.getBoundingClientRect();
-    return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
-  })()`);
-  assert(touchTarget, "Project index has no touchable project title link");
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: touchTarget.x, y: touchTarget.y, id: 1 }] });
-  await delay(100);
-  const touchedProject = await cdp.evaluate(`document.querySelector('a.project-world__title-link')?.getAttribute('data-project-active')`);
-  assert(touchedProject === "true", "Touch selection did not activate the selected project world");
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchCancel", touchPoints: [] });
 
+  // A page that has switched between multi-touch WebGL gestures and desktop
+  // emulation can acknowledge CDP touches without delivering DOM input events.
+  // Give this independent one-finger check a fresh input-routing context.
+  const projectTouchPage = await browserCdp.send("Target.createTarget", { url: "about:blank" });
+  let projectTouchCdp;
+  try {
+    const targets = await fetch(`http://127.0.0.1:${chromePort}/json/list`, { signal: AbortSignal.timeout(5000) }).then((response) => response.json());
+    const endpoint = targets.find((target) => target.id === projectTouchPage.targetId)?.webSocketDebuggerUrl;
+    assert(endpoint, "Project touch browser target has no debugger endpoint");
+    projectTouchCdp = new CdpClient(endpoint);
+    await projectTouchCdp.connect();
+    await Promise.all([projectTouchCdp.send("Page.enable"), projectTouchCdp.send("Runtime.enable"), projectTouchCdp.send("Network.enable")]);
+    projectTouchCdp.on("Runtime.exceptionThrown", ({ exceptionDetails }) => {
+      const message = exceptionDetails?.exception?.description || exceptionDetails?.text || "Project touch runtime error";
+      if (!isBrowserExtensionNoise(message)) addError(message);
+    });
+    projectTouchCdp.on("Runtime.consoleAPICalled", (event) => {
+      if (event.type !== "error") return;
+      const message = event.args?.map((arg) => arg.value ?? arg.description ?? "").join(" ") || "Project touch console.error";
+      if (!isBrowserExtensionNoise(message)) addError(message);
+    });
+    projectTouchCdp.on("Network.responseReceived", ({ response }) => {
+      if (response.status >= 400 && new URL(response.url).origin === baseUrl) addError(`HTTP ${response.status}: ${new URL(response.url).pathname}`);
+    });
+    await browserCdp.send("Target.activateTarget", { targetId: projectTouchPage.targetId });
+    await setViewport(projectTouchCdp, 390, 844);
+    await projectTouchCdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
+    await projectTouchCdp.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 1 });
+    await navigate(projectTouchCdp, `${baseUrl}/projects`);
+    const touchTarget = await projectTouchCdp.evaluate(`(async () => {
+      const node = document.querySelector('a.project-world__title-link');
+      if (!node) return null;
+      node.scrollIntoView({ block: 'center', behavior: 'instant' });
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const rect = node.getBoundingClientRect();
+      const x = rect.x + rect.width / 2, y = rect.y + rect.height / 2;
+      window.__qaProjectTouch = null;
+      document.addEventListener('touchstart', (event) => {
+        window.__qaProjectTouch = { trusted: event.isTrusted, href: event.target.closest('a')?.getAttribute('href') };
+      }, { capture: true, once: true });
+      return { x, y, hitIsTitle: document.elementFromPoint(x, y)?.closest('a') === node, scale: visualViewport.scale };
+    })()`);
+    assert(touchTarget, "Project index has no touchable project title link");
+    assert(touchTarget.hitIsTitle && Math.abs(touchTarget.scale - 1) < .001, "Project touch coordinates are occluded or scaled");
+    await projectTouchCdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: touchTarget.x, y: touchTarget.y, id: 1 }] });
+    await waitForCondition(projectTouchCdp, `document.querySelector('a.project-world__title-link')?.getAttribute('data-project-active') === 'true' &&
+      window.__qaProjectTouch?.trusted === true && window.__qaProjectTouch?.href === '/projects/candidatex'`,
+      { timeoutMs: 5000, description: "trusted touch activates the project preview" });
+    const touchedProject = await projectTouchCdp.evaluate(`document.querySelector('a.project-world__title-link')?.getAttribute('data-project-active')`);
+    assert(touchedProject === "true", "Touch selection did not activate the selected project world");
+    report.interaction.projectTouch = { target: touchTarget, trustedTouch: true, freshPageContext: true };
+    await projectTouchCdp.send("Input.dispatchTouchEvent", { type: "touchCancel", touchPoints: [] });
+  } finally {
+    try { await browserCdp.send("Target.closeTarget", { targetId: projectTouchPage.targetId }); } catch {}
+    projectTouchCdp?.close();
+    await browserCdp.send("Target.activateTarget", { targetId: primaryTargetId });
+  }
   await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
   report.interaction.keyboard = { skipLinkFirst: true, menuEnter: true, escapeDismissal: true, focusRestored: true };
   report.interaction.touch = { projectWorldSelection: true };
@@ -855,6 +910,15 @@ try {
   await navigate(cdp, baseUrl + "/projects");
   const forcedFailure = await waitForCondition(cdp, `(() => { const layer = document.querySelector('.machine-scene-layer'); return layer?.dataset.sceneStatus === 'failed' ? { status: layer.dataset.sceneStatus, svg: Boolean(document.querySelector('.machine-static svg')), canvas: document.querySelectorAll('.machine-canvas canvas').length } : null; })()`, { timeoutMs: 10_000, description: "forced graphics failure fallback" });
   assert(forcedFailure.value.svg && forcedFailure.value.canvas === 0, "Forced renderer failure did not retain the static SVG fallback");
+  await navigate(cdp, baseUrl + "/lab");
+  await cdp.evaluate(`document.querySelector('#studio').scrollIntoView({ block: 'center', behavior: 'instant' }); true`);
+  await waitForCondition(cdp, `document.querySelector('.yor-studio__loading')?.textContent.includes('WebGL is unavailable') &&
+    document.querySelector('.yor-studio__fallback img')?.naturalWidth > 0`,
+    { timeoutMs: 5000, description: "explained unavailable-WebGL scene fallback" });
+  assert(await cdp.evaluate(`document.querySelectorAll('.yor-studio canvas').length === 0 &&
+    document.querySelector('.yor-studio__projects')?.getAttribute('href') === '/projects'`),
+    "Unavailable WebGL must retain artwork and an independent projects link");
+  report.rendering.studioGraphicsFailure = { explainedArtworkFallback: true, projectNavigationAvailable: true };
   await cdp.send("Page.removeScriptToEvaluateOnNewDocument", { identifier: failScript.identifier });
   report.rendering.forcedGraphicsFailure = forcedFailure.value;
 
