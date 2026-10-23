@@ -6,7 +6,7 @@ The portfolio deployment is served from `https://yorayriniwnl.in`. The six recru
 
 ## Stack
 
-- Next.js 16.3.4 / React 19.2.8
+- Next.js 16.4.2 / React 19.2.8
 - TypeScript
 - React Three Fiber 9.7.0
 - Three.js 0.185.1
