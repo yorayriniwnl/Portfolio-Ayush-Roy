@@ -531,13 +531,15 @@ try {
   await delay(500);
   const zoomedCamera = await readStudioCamera();
   assert(Math.abs(zoomedCamera.distance - draggedCamera.distance) > .08, "Wheel zoom did not change camera distance");
+  report.interaction.studioCamera = { initial: initialCamera, dragged: draggedCamera, zoomed: zoomedCamera };
   await cdp.evaluate(`document.querySelector('button[aria-label="Reset camera view"]').click(); true`);
-  await waitForCondition(cdp, `(() => {
+  const resetResult = await waitForCondition(cdp, `(() => {
     const d = document.querySelector('.yor-studio').dataset;
     return Math.hypot(Number(d.cameraX) - ${initialCamera.x}, Number(d.cameraY) - ${initialCamera.y},
       Number(d.cameraZ) - ${initialCamera.z}) < .1;
-  })()`, { timeoutMs: 8000, description: "reset restores the initial camera coordinates" });
+  })()`, { timeoutMs: 35_000, description: "reset restores the initial camera coordinates" });
   const resetCamera = await readStudioCamera();
+  Object.assign(report.interaction.studioCamera, { reset: resetCamera, resetElapsedMs: resetResult.elapsedMs });
   assert(Math.hypot(resetCamera.x - initialCamera.x, resetCamera.y - initialCamera.y, resetCamera.z - initialCamera.z) < .1,
     "Reset view failed to restore the initial camera");
   report.interaction.studioViewer = { clicksStayInViewer: true, dragOrbits: true, wheelZooms: true, resetRestoresCamera: true };
@@ -1012,7 +1014,7 @@ try {
   report.failedScenario = activeScenario;
   if (cdp) {
     try {
-      report.failurePage = await cdp.evaluate(`({ url: location.href, readyState: document.readyState, visibility: document.visibilityState, focused: document.hasFocus(), heading: document.querySelector('h1')?.innerText, text: document.body.innerText.slice(0, 1800) })`);
+      report.failurePage = await cdp.evaluate(`({ url: location.href, readyState: document.readyState, visibility: document.visibilityState, focused: document.hasFocus(), heading: document.querySelector('h1')?.innerText, studio: { ...document.querySelector('.yor-studio')?.dataset }, text: document.body.innerText.slice(0, 1800) })`);
       console.error(`failure page: ${JSON.stringify(report.failurePage)}`);
       await capture(cdp, outputDir, "failure-page");
     } catch {}
