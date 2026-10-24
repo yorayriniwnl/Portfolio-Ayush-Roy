@@ -1,3 +1,13 @@
+<!-- YOR REDLINE / README COVER V1 -->
+<div align="center">
+
+![Portfolio-Ayush-Roy | YOR REDLINE](docs/yor-redline-cover.svg)
+
+<sub><strong>YOR / PROJECT DOSSIER</strong> · <a href="https://github.com/yorayriniwnl">GitHub</a> · <a href="https://yorayriniwnl.in">Portfolio</a></sub>
+
+</div>
+<!-- END YOR REDLINE -->
+
 # YOR — Ayush Roy Portfolio
 
 The personal universe of Ayush Roy: a polished portfolio and playground for products, experiments, games, and recorded moments.
