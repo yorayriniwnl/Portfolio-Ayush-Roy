@@ -14,6 +14,23 @@ The personal universe of Ayush Roy: a polished portfolio and playground for prod
 
 The portfolio deployment is served from `https://yorayriniwnl.in`. The six recruiter-facing project routes live inside that existing site under `/projects`; `NEXT_PUBLIC_SITE_URL` keeps generated metadata and sitemap URLs aligned with the custom domain.
 
+<!-- YOR REDLINE / EXPERIENCE V2 -->
+
+<a id="system-map"></a>
+## System map
+
+<div align="center"><picture><source media="(max-width: 600px)" srcset="docs/yor-redline-system-mobile.svg"/><img src="docs/yor-redline-system.svg" width="100%" alt="Portfolio product universe: Prepare content to Build interfaces to Present case studies to Validate experience"/></picture></div>
+
+| Project signal | Documented scope |
+| :--- | :--- |
+| **Current maturity** | LIVE PORTFOLIO SOURCE |
+| **Technical focus** | Next.js portfolio, React Three Fiber experience, project case studies, and validation tools. |
+| **Evidence boundary** | Individual project readiness remains governed by evidence-backed case studies, not homepage visuals. |
+
+**Navigate:** [Stack](#stack) · [Run](#run) · [Content and evidence](#content-and-evidence) · [Evidence policy](#evidence-policy)
+
+<!-- END YOR REDLINE / EXPERIENCE V2 -->
+
 ## Stack
 
 - Next.js 16.4.2 / React 19.2.8
