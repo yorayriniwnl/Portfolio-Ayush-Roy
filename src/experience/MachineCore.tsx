@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three/webgpu";
 import type { ExperienceState } from "./experience-state";
 import { MachineMaterial } from "./worlds/shared";
+import { SIGNAL } from "./palette";
 
 const plateAngles = [0, Math.PI / 3, (Math.PI * 2) / 3, Math.PI, (Math.PI * 4) / 3, (Math.PI * 5) / 3];
 
@@ -79,7 +80,7 @@ export function MachineCore({
         </mesh>
         <mesh position={[0, 0, 0.12]}>
           <boxGeometry args={[0.08, 0.56, 0.035]} />
-          <MachineMaterial tint="#ff1728" opacity={0.84} transparent roughness={0.22} />
+          <MachineMaterial tint={SIGNAL} opacity={0.84} transparent roughness={0.22} />
         </mesh>
         <mesh position={[0, 0, 0.145]}>
           <boxGeometry args={[0.38, 0.035, 0.035]} />
@@ -104,7 +105,7 @@ export function MachineCore({
           </mesh>
         ))}
       </group>
-      <pointLight position={[0, 0, 1.45]} intensity={quality === "low" ? 5 : 9} color="#ff1728" distance={3.5} />
+      <pointLight position={[0, 0, 1.45]} intensity={quality === "low" ? 5 : 9} color={SIGNAL} distance={3.5} />
       <pointLight position={[-1.3, 0.8, 1]} intensity={quality === "high" ? 4 : 2} color="#aab0b1" distance={4} />
     </group>
   );

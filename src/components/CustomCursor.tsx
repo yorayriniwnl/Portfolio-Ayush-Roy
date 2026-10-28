@@ -8,6 +8,9 @@ const INTERACTIVE_SELECTOR =
   'a[href], button:not(:disabled), [role="button"], input[type="button"], input[type="submit"], input[type="reset"], summary, select';
 const TEXT_CONTROL_SELECTOR =
   'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, [contenteditable]:not([contenteditable="false"])';
+// Surfaces that rely on their own pointer feedback keep the native cursor:
+// text controls, and the 3D studio, where dragging looks around the room.
+const NATIVE_CURSOR_SELECTOR = `${TEXT_CONTROL_SELECTOR}, .yor-studio__viewport`;
 
 export function CustomCursor() {
   const pathname = usePathname();
@@ -74,7 +77,7 @@ export function CustomCursor() {
       }
 
       const target = event.target instanceof Element ? event.target : null;
-      if (target?.closest(TEXT_CONTROL_SELECTOR)) {
+      if (target?.closest(NATIVE_CURSOR_SELECTOR)) {
         hideCursor();
         return;
       }

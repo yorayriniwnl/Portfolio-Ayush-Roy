@@ -55,7 +55,12 @@ test("Lab keeps experiments separated from recruiter projects and the shared can
   assert.ok(html.includes("CONCEPT / NOT PUBLISHED"));
   for (const item of videoWall) assert.ok(html.includes(item.title));
   assert.equal(html.includes("machine-scene-layer"), false);
-  assert.equal(html.includes("<canvas"), false);
+  assert.equal(html.includes("<canvas"), false, "the studio canvas mounts on the client, never in server HTML");
+  assert.ok(html.includes('id="studio"'), "the 3D studio lives in the Lab");
+  assert.ok(html.includes('aria-label="Reset camera view"'));
+  assert.ok(html.includes("Drag to rotate."));
+  assert.equal(html.includes('role="dialog"'), false, "scene navigation must not cover the model with a project dialog");
+  assert.ok(html.indexOf('id="studio"') < html.indexOf('id="games"'), "the studio leads the Lab");
   assert.equal(createExperienceState("/lab").surface, "inactive");
 });
 
@@ -64,7 +69,8 @@ test("navigation exposes all editorial sections and predictable mobile keyboard 
   const navCss = readFileSync("src/components/SiteNav.module.css", "utf8");
   const layout = readFileSync("src/app/layout.tsx", "utf8");
 
-  for (const name of ["About", "Skills", "Work", "Experience", "Lab", "Resume", "Contact"]) assert.ok(nav.includes(`["${name}",`));
+  for (const name of ["Work", "About", "Lab", "Resume", "Contact"]) assert.ok(nav.includes(`["${name}",`));
+  for (const removed of ["Skills", "Experience"]) assert.equal(nav.includes(`["${removed}",`), false, `${removed} anchor no longer exists`);
   assert.match(nav, /aria-label="Ayush Roy home"/);
   assert.match(nav, /usePathname/);
   assert.match(nav, /aria-current=/);
@@ -74,7 +80,8 @@ test("navigation exposes all editorial sections and predictable mobile keyboard 
   assert.match(nav, /menuRef\.current\?\.focus\(\)/);
   assert.match(nav, /onClick=\{\(\) => setOpen\(false\)\}/);
   assert.match(nav, /Contact/);
-  assert.match(navCss, /@media \(max-width: 1180px\)/);
+  assert.match(navCss, /@media \(max-width: 820px\)/);
+  assert.match(nav, /className=\{styles\.wordmark\}><b>Y<\/b>OR \/ AYUSH ROY<\/span>/, "the wordmark must be one flex item so the gap never splits YOR");
   assert.match(navCss, /\.mobile\[data-open="true"\]/);
   assert.match(navCss, /:focus-visible/);
   assert.match(layout, /className="machine-skip-link" href="#main"/);

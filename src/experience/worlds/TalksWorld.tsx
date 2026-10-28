@@ -1,4 +1,5 @@
 import { Connector, MachineMaterial, type Point3, type WorldProps } from "./shared";
+import { SIGNAL } from "../palette";
 
 const messageNodes: readonly Point3[] = [
   [0, 0, 0.05],
@@ -35,14 +36,14 @@ export function TalksWorld({ quality, demo }: WorldProps) {
         <mesh key={`message-node-${index}`} position={position}>
           <sphereGeometry args={[index === 0 ? 0.09 : 0.055, quality === "high" ? 14 : 8, 8]} />
           <MachineMaterial
-            tint={index === selectedNode ? "#ff1728" : index === 0 ? "#d7d7d2" : "#626a6e"}
+            tint={index === selectedNode ? SIGNAL : index === 0 ? "#d7d7d2" : "#626a6e"}
             roughness={0.31}
           />
         </mesh>
       ))}
       <mesh position={nodes[selectedNode]}>
         <sphereGeometry args={[0.03 + Math.min(demo?.run ?? 0, 8) * 0.003, 10, 8]} />
-        <MachineMaterial tint="#ff1728" opacity={0.7} transparent />
+        <MachineMaterial tint={SIGNAL} opacity={0.7} transparent />
       </mesh>
       <mesh position={[0, 0, -0.09]}>
         <dodecahedronGeometry args={[0.24, 0]} />

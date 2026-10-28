@@ -17,8 +17,8 @@
 }
 
 .link::after { content: "↗"; color: var(--signal); }
-.link:hover { border-color: var(--signal); background: var(--surface-alt); transform: translateY(-1px); box-shadow: 0 12px 30px rgba(0,0,0,.18); }
+.link:hover { border-color: var(--signal); background: var(--surface-alt); transform: translateY(-1px); box-shadow: 0 12px 30px rgba(3,6,12,.22); }
 .link:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }
-.primary { border-color: var(--signal); background: var(--signal); color: #090001; font-weight: 700; }
-.primary::after { color: #090001; }
-.primary:hover { background: var(--signal); }
+.primary { border-color: var(--signal); background: var(--signal); color: var(--signal-ink); font-weight: 700; }
+.primary::after { color: var(--signal-ink); }
+.primary:hover { background: #d6f0bb; }

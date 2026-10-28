@@ -1,4 +1,5 @@
 import { ActionLink } from "./ActionLink";
+import { StudioRoom } from "./experience/StudioRoom";
 import { gameRooms, videoWall, youtubeChannel } from "@/content/hub";
 import { profile } from "@/content/profile";
 
@@ -15,10 +16,22 @@ export function Lab() {
         </div>
       </section>
 
-      <section className="hub-section hub-games" aria-labelledby="games-title">
+      <section className="hub-section lab-studio" aria-labelledby="studio-title">
         <div className="container">
           <div className="hub-section-heading">
-            <div><span className="technical hub-section-kicker">01 / GAME ROOMS</span><h2 id="games-title">A separate<br /><em>kind of focus.</em></h2></div>
+            <div><span className="technical hub-section-kicker">01 / 3D STUDY</span><h2 id="studio-title">After hours.</h2></div>
+            <p>A masked operator, his husky, and a city that never sleeps. Drag to look around the scene; scroll or pinch to get closer.</p>
+          </div>
+          <div id="studio" className="studio-frame">
+            <StudioRoom />
+          </div>
+        </div>
+      </section>
+
+      <section id="games" className="hub-section hub-games" aria-labelledby="games-title">
+        <div className="container">
+          <div className="hub-section-heading">
+            <div><span className="technical hub-section-kicker">02 / GAME ROOMS</span><h2 id="games-title">A separate<br />kind of focus.</h2></div>
             <p>Small worlds with clear rules and strong feedback. Every room stays labeled as a concept until it becomes a functioning public experience.</p>
           </div>
           <div className="hub-games-layout">
@@ -48,7 +61,7 @@ export function Lab() {
       <section className="hub-section hub-videos" aria-labelledby="videos-title">
         <div className="container">
           <div className="hub-section-heading">
-            <div><span className="technical hub-section-kicker">02 / VIDEO WALL</span><h2 id="videos-title">Ideas that may<br /><em>become watchable.</em></h2></div>
+            <div><span className="technical hub-section-kicker">03 / VIDEO WALL</span><h2 id="videos-title">Ideas that may<br />become watchable.</h2></div>
             <p>Reserved editorial concepts stay here until real published media exists. No placeholder is presented as an actual video.</p>
           </div>
           <div className="hub-video-wall">

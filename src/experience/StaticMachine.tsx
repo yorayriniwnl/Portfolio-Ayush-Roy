@@ -1,3 +1,5 @@
+import { SIGNAL, SIGNAL_DEEP } from "./palette";
+
 export function StaticMachine() {
   return (
     <div className="machine-static" aria-hidden="true">
@@ -9,8 +11,8 @@ export function StaticMachine() {
             <stop offset="1" stopColor="#111316" stopOpacity="0.76" />
           </linearGradient>
           <radialGradient id="machine-signal">
-            <stop offset="0" stopColor="#ff1728" stopOpacity="0.82" />
-            <stop offset="0.26" stopColor="#5d0710" stopOpacity="0.38" />
+            <stop offset="0" stopColor={SIGNAL} stopOpacity="0.82" />
+            <stop offset="0.26" stopColor={SIGNAL_DEEP} stopOpacity="0.38" />
             <stop offset="1" stopColor="#030304" stopOpacity="0" />
           </radialGradient>
         </defs>
@@ -31,9 +33,9 @@ export function StaticMachine() {
           <path d="M-83-48 0-96 83-48 83 48 0 96-83 48Z" fill="#08090b" fillOpacity=".68" stroke="#d7d7d2" strokeOpacity=".32" />
           <path d="M-40-14 0-38 40-14 40 14 0 38-40 14Z" fill="#202326" stroke="#d7d7d2" strokeOpacity=".62" />
           <circle r="96" fill="url(#machine-signal)" stroke="none" />
-          <path d="M-14 0H14M0-14V14" stroke="#ff1728" strokeWidth="2" />
+          <path d="M-14 0H14M0-14V14" stroke={SIGNAL} strokeWidth="2" />
           <path d="M-4 0H4" stroke="#efede7" strokeWidth="1" />
-          <path d="M-320-1h37M283-1h37M0-320v37M0 283v37" stroke="#ff1728" strokeOpacity=".64" strokeWidth="2" />
+          <path d="M-320-1h37M283-1h37M0-320v37M0 283v37" stroke={SIGNAL} strokeOpacity=".64" strokeWidth="2" />
           <path d="M-110-286l28 10M110 286l-28-10" stroke="#efede7" strokeOpacity=".52" strokeWidth="3" />
         </g>
       </svg>

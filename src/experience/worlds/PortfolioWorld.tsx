@@ -1,4 +1,5 @@
 import { MachineMaterial, type WorldProps } from "./shared";
+import { SIGNAL } from "../palette";
 
 export function PortfolioWorld({ quality }: WorldProps) {
   const detailSides = quality === "high" ? 12 : 8;
@@ -19,7 +20,7 @@ export function PortfolioWorld({ quality }: WorldProps) {
       </mesh>
       <mesh position={[0.42, -0.4, 0.02]} rotation={[0, 0, -0.18]}>
         <boxGeometry args={[0.42, 0.06, 0.34]} />
-        <MachineMaterial tint="#ff1728" opacity={0.76} transparent />
+        <MachineMaterial tint={SIGNAL} opacity={0.76} transparent />
       </mesh>
       <mesh position={[-0.58, -0.38, -0.02]} rotation={[0.1, 0, 0.14]}>
         <boxGeometry args={[0.31, 0.08, 0.28]} />

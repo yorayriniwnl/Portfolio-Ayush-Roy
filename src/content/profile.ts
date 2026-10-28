@@ -4,6 +4,7 @@ export const profile = {
   headline: "Backend / Full-Stack Software Engineer",
   role: "B.Tech CSCE 2027 / Applied ML Builder",
   status: "Open to software engineering roles",
+  education: "B.Tech in Computer Science and Communication Engineering at KIIT, graduating 2027",
   positioning: "I build backend-heavy product systems with Python, TypeScript, PostgreSQL, Redis, realtime APIs, testing, and applied machine learning.",
   location: "Bhubaneswar, Odisha, India",
   email: "ayushroy.dev@gmail.com",

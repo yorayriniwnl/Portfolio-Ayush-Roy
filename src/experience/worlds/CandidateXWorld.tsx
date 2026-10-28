@@ -1,4 +1,5 @@
 import { Connector, MachineMaterial, type Point3, type WorldProps } from "./shared";
+import { SIGNAL } from "../palette";
 
 const evidenceNodes: readonly Point3[] = [
   [-0.92, 0.34, 0],
@@ -35,7 +36,7 @@ export function CandidateXWorld({ quality }: WorldProps) {
         <mesh key={`node-${index}`} position={position}>
           <sphereGeometry args={[index === 2 ? 0.09 : 0.055, quality === "high" ? 16 : 10, 8]} />
           <MachineMaterial
-            tint={index === 2 ? "#ff1728" : index === 0 ? "#d7d7d2" : "#777d81"}
+            tint={index === 2 ? SIGNAL : index === 0 ? "#d7d7d2" : "#777d81"}
             roughness={0.34}
           />
         </mesh>

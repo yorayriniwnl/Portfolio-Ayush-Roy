@@ -1,12 +1,39 @@
+<!-- YOR REDLINE / README COVER V1 -->
+<div align="center">
+
+<picture><source media="(max-width: 600px)" srcset="docs/yor-redline-cover-mobile.svg"/><img src="docs/yor-redline-cover.svg" width="100%" alt="Portfolio-Ayush-Roy | YOR REDLINE"/></picture>
+
+<sub><strong>YOR / PROJECT DOSSIER</strong> · <a href="https://github.com/yorayriniwnl">GitHub</a> · <a href="https://yorayriniwnl.in">Portfolio</a></sub>
+
+</div>
+<!-- END YOR REDLINE -->
+
 # YOR — Ayush Roy Portfolio
 
 The personal universe of Ayush Roy: a polished portfolio and playground for products, experiments, games, and recorded moments.
 
 The portfolio deployment is served from `https://yorayriniwnl.in`. The six recruiter-facing project routes live inside that existing site under `/projects`; `NEXT_PUBLIC_SITE_URL` keeps generated metadata and sitemap URLs aligned with the custom domain.
 
+<!-- YOR REDLINE / EXPERIENCE V2 -->
+
+<a id="system-map"></a>
+## System map
+
+<div align="center"><picture><source media="(max-width: 600px)" srcset="docs/yor-redline-system-mobile.svg"/><img src="docs/yor-redline-system.svg" width="100%" alt="Portfolio product universe: Prepare content to Build interfaces to Present case studies to Validate experience"/></picture></div>
+
+| Project signal | Documented scope |
+| :--- | :--- |
+| **Current maturity** | LIVE PORTFOLIO SOURCE |
+| **Technical focus** | Next.js portfolio, React Three Fiber experience, project case studies, and validation tools. |
+| **Evidence boundary** | Individual project readiness remains governed by evidence-backed case studies, not homepage visuals. |
+
+**Navigate:** [Stack](#stack) · [Run](#run) · [Content and evidence](#content-and-evidence) · [Evidence policy](#evidence-policy)
+
+<!-- END YOR REDLINE / EXPERIENCE V2 -->
+
 ## Stack
 
-- Next.js 16.3.4 / React 19.2.8
+- Next.js 16.4.2 / React 19.2.8
 - TypeScript
 - React Three Fiber 9.7.0
 - Three.js 0.185.1
@@ -36,12 +63,16 @@ GitHub Actions runs dependency auditing, tests, lint, content, asset, typecheck,
 
 `npm run qa:browser` requires a production build and Chrome, Chromium, or Edge; set `CHROMIUM_PATH` if the browser is not in a standard installation path. It checks eight recruiter routes at ten viewport sizes, source/live resolvers, legacy redirects, accessibility, navigation, reduced motion, graphics fallback, and the custom cursor. Reports and screenshots are written to `artifacts/browser-qa/`.
 
-The root layout owns one persistent machine scene across the homepage, project index, and canonical case studies. The scene loads after browser idle time; reduced motion and graphics failures preserve static artwork and server-rendered content. Resume and Lab do not mount a scene. The optional desktop cursor retains the native pointer on touch devices, text controls, reduced motion, or image-loading failure.
+The root layout owns one persistent machine scene for the project index and canonical case studies. The scene loads after browser idle time; reduced motion and graphics failures preserve static artwork and server-rendered content. The homepage and résumé never mount WebGL. The Lab hosts the separate interactive 3D studio, which loads only as it approaches the viewport. The optional desktop cursor retains the native pointer on touch devices, text controls, reduced motion, or image-loading failure.
+
+The Lab's After Hours scene is a real 3D masked operator, husky, and night study built as three local GLB assets. Drag or use arrow keys to orbit; scroll, pinch, or use plus/minus to zoom. Reset, lighting, animation pause and fullscreen controls sit outside the canvas. Scene clicks never open projects; the engineering-work link is separate. Rendering stops offscreen, in hidden tabs and when paused while retaining the loaded scene. Reduced motion shows the supplied reference artwork with an explicit Load 3D option; WebGL or loading failure keeps an explained image fallback.
+
+The models can be rebuilt using Blender's background mode with `scripts/build-operator-model.py` and `scripts/build-night-study.py`. Their individual 2.5 MB budgets allow actual character, fur and furniture geometry; all other assets retain a 1 MB limit and the site retains its 8 MB total budget. Browser QA exercises mouse/touch rotation, wheel/pinch zoom, reset, inert clicks, fullscreen, pause/resume, viewport visibility and fallback behavior.
 
 Routes:
 
-- `/` : recruiter-first YOR homepage with engineering evidence, selected systems, about, and contact
-- `/lab` : explicitly experimental YOR game-room and media concepts, separated from the recruiter path
+- `/` : recruiter-first homepage, fully server-rendered: hero, three projects with checkable results, about, and contact
+- `/lab` : the interactive 3D studio plus explicitly experimental game-room and media concepts, separated from the recruiter path
 - `/resume` : résumé and professional profile
 - `/projects` : recruiter-facing index containing only the six CV projects
 - `/projects/[slug]` : canonical engineering case study
@@ -80,6 +111,8 @@ The Yor Talks case study also includes a keyboard-operable path explorer. Each b
 Case studies also show the strongest code-authored visuals from their public repositories: architecture diagrams, dashboard states, alert flows, mobile evidence, and model pipelines. Each image is copied locally, tied to a pinned source commit, captioned as visual explanation, and linked back to the exact GitHub asset. The portfolio does not copy ambiguous stock photos or raw dataset images.
 
 The homepage keeps the recruiter path clear while making experimental work discoverable through the dedicated Lab.
+
+Every route shares one palette defined in `src/styles/tokens.css` (navy surfaces, warm paper text, one lime accent); WebGL scenes read the same accent from `src/experience/palette.ts`. Figures mirrored from other repositories keep their original colors so they match their pinned source.
 
 ## Evidence policy
 

@@ -1,4 +1,5 @@
 import { Connector, MachineMaterial, type Point3, type WorldProps } from "./shared";
+import { SIGNAL } from "../palette";
 
 const panelRows = [-0.34, 0.34] as const;
 const panelColumns = [-0.48, 0, 0.48] as const;
@@ -30,7 +31,7 @@ export function ZenithWorld({ quality, demo }: WorldProps) {
       <Connector
         from={irradianceStart}
         to={[0.1, 0.36, 0.18]}
-        tint="#ff1728"
+        tint={SIGNAL}
         radius={expandedScenario ? 0.014 : 0.008}
       />
       <Connector
@@ -45,7 +46,7 @@ export function ZenithWorld({ quality, demo }: WorldProps) {
       </mesh>
       <mesh position={[0.12, 0.36, 0.19]}>
         <sphereGeometry args={[0.034, 10, 8]} />
-        <MachineMaterial tint="#ff1728" roughness={0.22} />
+        <MachineMaterial tint={SIGNAL} roughness={0.22} />
       </mesh>
     </group>
   );

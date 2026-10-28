@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import styles from "./SiteNav.module.css";
 
-const links = [["Work", "/projects"], ["About", "/#about"], ["Skills", "/#skills"], ["Experience", "/#experience"], ["Lab", "/lab"], ["Resume", "/resume"], ["Contact", "/#contact"]] as const;
+const links = [["Work", "/projects"], ["About", "/#about"], ["Lab", "/lab"], ["Resume", "/resume"], ["Contact", "/#contact"]] as const;
 
 function isCurrentPage(href: (typeof links)[number][1], pathname: string) {
   if (href === "/projects") return pathname === "/projects" || pathname.startsWith("/projects/");
@@ -43,7 +43,7 @@ function Navigation({ pathname }: { pathname: string }) {
   return (
     <header className={styles.header}>
       <div className={`container ${styles.inner}`}>
-        <Link className={styles.mark} href="/" onClick={() => setOpen(false)} aria-label="Ayush Roy home" aria-current={pathname === "/" ? "page" : undefined}><b>Y</b>OR / AYUSH ROY</Link>
+        <Link className={styles.mark} href="/" onClick={() => setOpen(false)} aria-label="Ayush Roy home" aria-current={pathname === "/" ? "page" : undefined}><span className={styles.wordmark}><b>Y</b>OR / AYUSH ROY</span></Link>
         <nav className={styles.links} aria-label="Primary">
           {links.map(([label, href]) => <Link key={label} href={href} aria-current={isCurrentPage(href, pathname) ? "page" : undefined}>{label}</Link>)}
         </nav>
