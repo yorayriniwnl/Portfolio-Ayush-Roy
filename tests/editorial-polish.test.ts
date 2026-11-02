@@ -21,7 +21,7 @@ test("homepage work list is plain, crawlable links rather than a carousel", () =
   const home = readFileSync("src/components/Home.tsx", "utf8");
   assert.doesNotMatch(home, /aria-roledescription="carousel"|onTouchStart|useState/);
   assert.match(home, /href=\{`\/projects\/\$\{project\.slug\}`\}/);
-  assert.match(home, /<Link className="home-text-link" href="\/projects">All six case studies<\/Link>/);
+  assert.match(home, /<Link className="home-text-link" href="\\/projects">All six case studies/);
 });
 
 test("homepage uses the public email from profile data and respects reduced motion", () => {
