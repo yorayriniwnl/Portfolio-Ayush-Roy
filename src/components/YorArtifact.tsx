@@ -12,7 +12,9 @@ export function YorArtifact() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const frame = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLDivElement>(null);
   const motionPreference = useRef(false);
+  const [inView, setInView] = useState(true);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -23,6 +25,16 @@ export function YorArtifact() {
     sync();
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    const element = root.current;
+    if (!element || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setInView(entry.isIntersecting);
+    }, { rootMargin: "160px" });
+    observer.observe(element);
+    return () => observer.disconnect();
   }, []);
 
   function move(event: PointerEvent<HTMLDivElement>) {
@@ -41,7 +53,7 @@ export function YorArtifact() {
   }
 
   return (
-    <div className="yor-artifact" data-paused={paused} aria-label="Interactive YOR engineering sculpture">
+    <div ref={root} className="yor-artifact" role="group" data-paused={paused} data-visible={inView} aria-label="Interactive YOR engineering sculpture">
       <div className="yor-artifact__top"><span><span className="yor-artifact__asterisk">✳</span> YOR / THE FORM STUDY</span><span>VOL. 001</span></div>
       <div className="yor-artifact__stage" ref={frame} data-mode={active} onPointerMove={move} onPointerLeave={reset}>
         <div className="yor-artifact__grid" aria-hidden="true" />
