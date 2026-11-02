@@ -71,6 +71,17 @@
 .yor-artifact__orbit--b { animation: yor-ring-b 57s linear infinite reverse; }
 .yor-artifact__orbit--c { animation: yor-ring-c 67s linear infinite; }
 .yor-artifact[data-paused="true"] .yor-artifact__orbit { animation-play-state: paused; }
+.yor-artifact[data-visible="false"] .yor-artifact__orbit { animation-play-state: paused; }
+.yor-artifact__orbit { transition: opacity .45s ease; }
+.yor-artifact__stage[data-mode="0"] .yor-artifact__orbit--b,
+.yor-artifact__stage[data-mode="0"] .yor-artifact__orbit--c,
+.yor-artifact__stage[data-mode="1"] .yor-artifact__orbit--a,
+.yor-artifact__stage[data-mode="1"] .yor-artifact__orbit--c,
+.yor-artifact__stage[data-mode="2"] .yor-artifact__orbit--a,
+.yor-artifact__stage[data-mode="2"] .yor-artifact__orbit--b { opacity: .52; }
+.yor-artifact__stage[data-mode="1"] .yor-artifact__halo { background: radial-gradient(circle at center,rgba(167,215,193,.2),transparent 68%); }
+.yor-artifact__stage[data-mode="2"] .yor-artifact__halo { background: radial-gradient(circle at center,rgba(230,203,165,.16),transparent 68%); }
+
 @keyframes yor-ring-a { from { transform: rotate(-35deg); } to { transform: rotate(325deg); } }
 @keyframes yor-ring-b { from { transform: rotate(54deg); } to { transform: rotate(414deg); } }
 @keyframes yor-ring-c { from { transform: rotate(18deg); } to { transform: rotate(378deg); } }
