@@ -758,6 +758,11 @@ try {
   await navigate(cdp, baseUrl);
   await cdp.evaluate(`document.querySelector('#contact')?.scrollIntoView({ block: 'start', behavior: 'instant' }); true`);
   await delay(350);
+  const contactCta = await cdp.evaluate('(() => { const email=document.querySelector(".home-contact__email"); if (!email) return null; const rect=email.getBoundingClientRect(); const header=document.querySelector("header")?.getBoundingClientRect(); return {top:rect.top,bottom:rect.bottom,width:rect.width,viewportHeight:innerHeight,headerBottom:header?.bottom || 0}; })()');
+  assert(contactCta && contactCta.width > 0 && contactCta.top > contactCta.headerBottom &&
+    contactCta.bottom <= contactCta.viewportHeight - 8,
+    "Desktop contact anchor hides the primary email action below the fold: " + JSON.stringify(contactCta));
+  report.interaction.contactAnchor = { emailVisibleWithoutFurtherScrolling: true, ...contactCta };
   await capture(cdp, outputDir, "contact-finale");
 
   activeScenario = "keyboard and touch interactions";
