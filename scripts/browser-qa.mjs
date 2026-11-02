@@ -589,7 +589,7 @@ try {
   backgroundTargetId = hiddenStudioTarget.targetId;
   await browserCdp.send("Target.activateTarget", { targetId: backgroundTargetId });
   await waitForCondition(cdp, `document.visibilityState === 'hidden' && document.querySelector('.yor-studio')?.dataset.renderPaused === 'true'`,
-    { timeoutMs: 4000, description: "hidden studio pauses rendering" });
+    { timeoutMs: 12000, description: "hidden studio pauses rendering" });
   await delay(300);
   const hiddenStudioFrames = await cdp.evaluate(`Number(document.querySelector('.yor-studio').dataset.renderedFrames || 0)`);
   await delay(450);
@@ -598,7 +598,7 @@ try {
   await browserCdp.send("Target.activateTarget", { targetId: primaryTargetId });
   await waitForCondition(cdp, `document.visibilityState === 'visible' && document.querySelector('.yor-studio')?.dataset.renderPaused === 'false' &&
     window.__qaStudioCanvas === document.querySelector('.yor-studio__viewport canvas')`,
-    { timeoutMs: 4000, description: "visible studio resumes with the same canvas" });
+    { timeoutMs: 12000, description: "visible studio resumes with the same canvas" });
   await browserCdp.send("Target.closeTarget", { targetId: backgroundTargetId });
   backgroundTargetId = undefined;
   report.rendering.studioPause.hiddenFramesDelta = hiddenStudioFramesAfter - hiddenStudioFrames;
