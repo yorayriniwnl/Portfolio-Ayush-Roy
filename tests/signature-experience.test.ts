@@ -35,6 +35,9 @@ test("the engineering sculpture is intentionally a light interactive SVG", () =>
   assert.match(scene, /onPointerLeave=\{reset\}/);
   assert.match(scene, /aria-pressed=\{active === index\}/);
   assert.match(scene, /prefers-reduced-motion/);
+  assert.match(scene, /disabled=\{reducedMotion\}/);
+  assert.match(scene, /data-reduced-motion=\{reducedMotion\}/);
+  assert.match(scene, /Sculpture motion disabled by reduced-motion preference/);
   assert.match(scene, /new IntersectionObserver/);
   assert.match(scene, /observer\.disconnect\(\)/);
   assert.doesNotMatch(scene, /requestAnimationFrame|THREE|WebGLRenderer|new Audio/);
