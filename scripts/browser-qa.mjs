@@ -411,6 +411,39 @@ try {
     throw new Error(`Heading or essential-copy clipping detected (${report.routeMatrix.clippingIssues.length} instances):\n${examples}`);
   }
 
+  activeScenario = "signature sculpture modes, pause, offscreen and reduced motion";
+  await setViewport(cdp, 1440, 900);
+  await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
+  await navigate(cdp, baseUrl);
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact__controls button[aria-pressed=true]")?.textContent.includes("Create")', {
+    description: "sculpture first mode becomes interactive",
+  });
+  const initialInstrument = await cdp.evaluate('(() => { const root=document.querySelector(".yor-artifact"); const modes=[...root.querySelectorAll(".yor-artifact__controls button[aria-pressed]")]; const pause=root.querySelector(".yor-artifact__pause"); return { modeCount:modes.length, selected:modes.filter(b=>b.getAttribute("aria-pressed")==="true").length, svgCount:root.querySelectorAll("svg").length, canvases:root.querySelectorAll("canvas").length, reduced:root.dataset.reducedMotion, paused:root.dataset.paused, disabled:pause.disabled }; })()');
+  assert(initialInstrument.modeCount === 3 && initialInstrument.selected === 1 &&
+    initialInstrument.svgCount === 1 && initialInstrument.canvases === 0 &&
+    initialInstrument.reduced === "false" && initialInstrument.paused === "false" && !initialInstrument.disabled,
+    "Unexpected initial sculpture state: " + JSON.stringify(initialInstrument));
+  await cdp.evaluate('document.querySelectorAll(".yor-artifact__controls button[aria-pressed]")[1].focus(); true');
+  await pressKey("Enter", "Enter", 13);
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact__stage")?.dataset.mode === "1" && document.querySelector(".yor-artifact__description strong")?.textContent === "Think in systems." && document.querySelectorAll(".yor-artifact__controls button[aria-pressed=true]").length === 1',
+    { description: "keyboard Enter selects the Connect mode" });
+  await cdp.evaluate('document.querySelector(".yor-artifact__pause").click(); true');
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.getAttribute("aria-label") === "Play sculpture motion" && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationPlayState === "paused"',
+    { description: "pause control suspends sculpture animation" });
+  await cdp.evaluate('document.querySelector(".yor-artifact__pause").click(); true');
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.paused === "false" && document.querySelector(".yor-artifact__pause")?.getAttribute("aria-label") === "Pause sculpture motion"',
+    { description: "resume control restores sculpture motion" });
+  await cdp.evaluate('window.scrollTo({top: document.documentElement.scrollHeight, left: 0, behavior: "instant"}); true');
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.visible === "false" && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationPlayState === "paused"',
+    { description: "offscreen sculpture suspends its animations" });
+  await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.reducedMotion === "true" && document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.disabled === true && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationName === "none"',
+    { description: "reduced-motion preference disables animation and its play control" });
+  report.interaction.signatureArtifact = {
+    initial: initialInstrument, accessibleKeyboardModes: true, pauseAndResume: true,
+    offscreenSuspension: true, reducedMotionStopsAndDisablesControl: true,
+  };
+
   activeScenario = "secondary routes and inactive scene cleanup";
   for (const viewport of [QA_VIEWPORTS[1], QA_VIEWPORTS[6]]) {
     await setViewport(cdp, viewport.width, viewport.height);
