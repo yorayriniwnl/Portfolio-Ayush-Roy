@@ -510,6 +510,7 @@ try {
     `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
     { timeoutMs: 35_000, description: "operator and companion GLB scene ready" });
   assert(studioReady.value, "Operator scene failed to load its model assets");
+  await cdp.evaluate('window.__qaPhase = "lab:scene-ready"; true');
   const studioGpu = await cdp.evaluate(`({
     studioCanvases: document.querySelectorAll('.yor-studio__viewport canvas').length,
     projectCanvases: document.querySelectorAll('.machine-canvas canvas').length,
@@ -536,6 +537,7 @@ try {
     initialCamera.distance > 2, "Scene camera telemetry is missing");
 
   activeScenario = "scene clicks stay in the viewer";
+  await cdp.evaluate('window.__qaPhase = "lab:scene-clicks"; true');
   const studioUrl = await cdp.evaluate("location.href");
   for (const offset of [-.25, 0, .25]) {
     const x = studioPoint.x + studioPoint.width * offset;
@@ -548,6 +550,7 @@ try {
   "Ordinary scene clicks opened project navigation or a dialog");
 
   activeScenario = "orbit drag and wheel zoom";
+  await cdp.evaluate('window.__qaPhase = "lab:drag-and-wheel"; true');
   await cdp.send("Input.dispatchMouseEvent", { type: "mousePressed", x: studioPoint.x, y: studioPoint.y, button: "left", buttons: 1, clickCount: 1 });
   for (let i = 1; i <= 8; i++) {
     await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: studioPoint.x + i * 13, y: studioPoint.y - i * 3, button: "left", buttons: 1 });
@@ -578,6 +581,7 @@ try {
   report.interaction.studioViewer = { clicksStayInViewer: true, dragOrbits: true, wheelZooms: true, resetRestoresCamera: true };
 
   activeScenario = "scene controls and fullscreen keyboard exit";
+  await cdp.evaluate('window.__qaPhase = "lab:controls-and-fullscreen"; true');
   await cdp.evaluate(`document.querySelector('button[aria-label="Dim scene lights"]').click(); true`);
   await waitForCondition(cdp, `Boolean(document.querySelector('button[aria-label="Turn on scene lights"]'))`,
     { description: "scene lighting toggle" });
@@ -595,6 +599,7 @@ try {
   report.interaction.fullScene = { activated: true, escapeRestores: true, screenshot: true };
 
   activeScenario = "paused and offscreen scenes stop rendering without remounting";
+  await cdp.evaluate('window.__qaPhase = "lab:pause-and-visibility"; true');
   await cdp.evaluate(`window.__qaStudioCanvas = document.querySelector('.yor-studio__viewport canvas');
     document.querySelector('button[aria-label="Pause scene animation"]').click(); true`);
   await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.renderPaused === 'true'`,
@@ -636,7 +641,14 @@ try {
   backgroundTargetId = undefined;
   report.rendering.studioPause.hiddenFramesDelta = hiddenStudioFramesAfter - hiddenStudioFrames;
   report.rendering.labStudio = { ...studioGpu, restoredInteractiveStudio: true };
-  report.performance.samples.push({ path: "/lab", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
+  const labPerformance = await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION);
+  report.performance.samples.push({ path: "/lab", viewport: "1440x900-rendered", ...labPerformance });
+  report.performance.labShiftAttribution = {
+    methodology: "LayoutShift entries excluding hadRecentInput, cumulative across scripted lab interactions; not a CrUX field CLS or a windowed CWV score",
+    total: labPerformance.cumulativeLayoutShift,
+    excludedRecentInputShifts: labPerformance.excludedRecentInputShifts,
+    entries: labPerformance.layoutShiftEntries,
+  };
 
   const explicitSceneLink = await cdp.evaluate(`(() => { const link = document.querySelector('.yor-studio__projects');
     return Boolean(link && link.getAttribute('href') === '/projects' && !link.closest('.yor-studio__viewport')); })()`);
