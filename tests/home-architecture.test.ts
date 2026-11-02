@@ -46,7 +46,9 @@ test("signature sculpture is a contained accessible client island with static ar
   assert.match(component, /"use client"/);
   assert.match(component, /<svg/);
   assert.match(component, /aria-pressed=\{active === index\}/);
-  assert.match(component, /aria-label=\{paused \?/);
+  assert.match(component, /aria-label=\{reducedMotion \?/);
+  assert.match(component, /paused \? "Play sculpture motion"/);
+  assert.match(component, /disabled=\{reducedMotion\}/);
   assert.match(component, /prefers-reduced-motion: reduce/);
   assert.match(component, /removeEventListener\("change"/);
   assert.doesNotMatch(component, /<Canvas|WebGPURenderer|document\.addEventListener/);
