@@ -169,17 +169,46 @@ export const PERFORMANCE_METRICS_EXPRESSION = String.raw`(() => {
     largestContentfulPaintMs: window.__qaLargestContentfulPaintMs ?? null,
     cumulativeLayoutShift: layoutShifts.reduce((sum, entry) => sum + entry.value, 0),
     layoutShiftCount: layoutShifts.length,
+    // These are diagnostic entries, not a replacement for CLS. Scroll and
+    // scripted interaction can span separate visual stability windows.
+    layoutShiftEntries: layoutShifts.map((entry) => ({
+      value: entry.value, startTime: entry.startTime, phase: entry.phase,
+      sources: entry.sources,
+    })),
+    excludedRecentInputShifts: window.__qaRecentInputShifts || 0,
     shaderCompilation: { available: false, reason: "No stable total compile-duration surface is exposed to this production browser harness." },
   };
 })()`;
 
 export const PERFORMANCE_OBSERVER_INSTALL = String.raw`(() => {
   window.__qaLayoutShifts = [];
+  window.__qaRecentInputShifts = 0;
+  window.__qaPhase = "navigation";
   window.__qaLargestContentfulPaintMs = null;
   try {
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (!entry.hadRecentInput) window.__qaLayoutShifts.push({ value: entry.value, startTime: entry.startTime });
+        if (entry.hadRecentInput) {
+          window.__qaRecentInputShifts += 1;
+          continue;
+        }
+        window.__qaLayoutShifts.push({
+          value: entry.value,
+          startTime: entry.startTime,
+          phase: window.__qaPhase,
+          sources: Array.from(entry.sources || []).slice(0, 5).map((source) => ({
+            element: source.node?.tagName?.toLowerCase() || null,
+            className: typeof source.node?.className === "string" ? source.node.className.slice(0, 110) : null,
+            previousRect: source.previousRect ? {
+              x: source.previousRect.x, y: source.previousRect.y,
+              width: source.previousRect.width, height: source.previousRect.height,
+            } : null,
+            currentRect: source.currentRect ? {
+              x: source.currentRect.x, y: source.currentRect.y,
+              width: source.currentRect.width, height: source.currentRect.height,
+            } : null,
+          })),
+        });
       }
     }).observe({ type: "layout-shift", buffered: true });
     new PerformanceObserver((list) => {
