@@ -586,13 +586,20 @@ try {
   await waitForCondition(cdp, `Boolean(document.querySelector('button[aria-label="Turn on scene lights"]'))`,
     { description: "scene lighting toggle" });
   await cdp.evaluate(`document.querySelector('button[aria-label="Turn on scene lights"]').click(); true`);
+  const restingStudioHeight = await cdp.evaluate('document.querySelector(".studio-frame")?.getBoundingClientRect().height');
+  await cdp.evaluate('window.__qaPhase = "lab:enter-fullscreen"; true');
   await clickAtSelector('button[aria-label="Enter fullscreen"]');
   await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.fullscreen === 'true'`,
     { description: "fullscreen scene" });
+  const fullscreenPlaceholderHeight = await cdp.evaluate('document.querySelector(".studio-frame")?.getBoundingClientRect().height');
+  assert(restingStudioHeight > 500 && fullscreenPlaceholderHeight >= restingStudioHeight - 1,
+    `Fullscreen removed the studio's original document-flow footprint: ${restingStudioHeight} -> ${fullscreenPlaceholderHeight}`);
+  report.interaction.studioFullscreenFlow = { restingStudioHeight, fullscreenPlaceholderHeight, footprintReserved: true };
   await capture(cdp, outputDir, "desktop-full-scene");
   await cdp.evaluate(`document.querySelector('.yor-studio__projects').focus(); true`);
   await pressKey("Tab", "Tab", 9);
   assert(await cdp.evaluate(`Boolean(document.activeElement?.closest('.yor-studio'))`), "Fullscreen keyboard focus escaped behind the viewer");
+  await cdp.evaluate('window.__qaPhase = "lab:exit-fullscreen"; true');
   await pressKey("Escape", "Escape", 27);
   await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.fullscreen === 'false'`,
     { description: "Escape exits fullscreen" });
