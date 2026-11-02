@@ -4,6 +4,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 export const QA_VIEWPORTS = [
+  { width: 375, height: 667, label: "375x667" },
   { width: 375, height: 812, label: "375x812" },
   { width: 390, height: 844, label: "390x844" },
   { width: 430, height: 932, label: "430x932" },
@@ -19,7 +20,7 @@ export const QA_VIEWPORTS = [
 export const QA_PROJECT_SLUGS = ["candidatex", "zenith", "helios", "ai-vs-real", "talks", "portfolio"];
 
 export const QA_CORE_ROUTES = [
-  { path: "/", label: "home", surface: "home", requiredHeading: "Building software that works." },
+  { path: "/", label: "home", surface: "home", requiredHeading: "Code with character." },
   { path: "/projects", label: "project-index", surface: "project-index", requiredHeading: "Projects with receipts." },
   ...[
     ["candidatex", "CandidateX"],
