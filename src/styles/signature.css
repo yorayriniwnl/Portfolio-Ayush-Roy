@@ -94,3 +94,16 @@ body::before { opacity: .13; background-size: 86px 86px; }
 .yor-state__track span { display: block; width: 30%; height: 100%; background: var(--signal); animation: yor-progress 2s ease-in-out infinite alternate; transform: translateX(0); }
 @keyframes yor-progress { to { transform: translateX(240%); } }
 @media(prefers-reduced-motion: reduce) { .yor-state__track span { animation: none; } }
+
+/* Source illustrations are authored at 16:9 with embedded diagrams and
+   typography. Never crop their edges inside near-square editorial panels. */
+.project-world__art,
+.home-project__visual {
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #0c171d;
+}
+.home-project__visual::before {
+  background: linear-gradient(180deg, rgba(4,12,19,.62), transparent 22%, transparent 75%, rgba(4,12,19,.76));
+}
