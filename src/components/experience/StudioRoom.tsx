@@ -136,11 +136,22 @@ export function StudioRoom() {
     return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onEscape); };
   }, [fullscreen]);
 
+  // Keep the studio's original space in flow while its viewer is in the
+  // fullscreen top layer. Otherwise the following sections jump upward.
+  useEffect(() => {
+    if (!fullscreen) root.current?.parentElement?.style.removeProperty("min-height");
+  }, [fullscreen]);
+
   const toggleFullscreen = () => {
     if (fullscreen) {
       setFullscreen(false);
       if (document.fullscreenElement === root.current) void document.exitFullscreen().catch(() => {});
     } else {
+      const host = root.current?.parentElement;
+      const restingHeight = root.current?.getBoundingClientRect().height;
+      if (host && restingHeight && Number.isFinite(restingHeight)) {
+        host.style.minHeight = `${Math.ceil(restingHeight)}px`;
+      }
       setFullscreen(true);
       // The expanded CSS view also works when the browser Fullscreen API is absent.
       void root.current?.requestFullscreen?.().catch(() => {});
