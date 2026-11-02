@@ -14,12 +14,14 @@ export function YorArtifact() {
   const frame = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
   const motionPreference = useRef(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [inView, setInView] = useState(true);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => {
       motionPreference.current = media.matches;
+      setReducedMotion(media.matches);
       setPaused(media.matches);
     };
     sync();
@@ -53,7 +55,7 @@ export function YorArtifact() {
   }
 
   return (
-    <div ref={root} className="yor-artifact" role="group" data-paused={paused} data-visible={inView} aria-label="Interactive YOR engineering sculpture">
+    <div ref={root} className="yor-artifact" role="group" data-paused={paused} data-visible={inView} data-reduced-motion={reducedMotion} aria-label="Interactive YOR engineering sculpture">
       <div className="yor-artifact__top"><span><span className="yor-artifact__asterisk">✳</span> YOR / THE FORM STUDY</span><span>VOL. 001</span></div>
       <div className="yor-artifact__stage" ref={frame} data-mode={active} onPointerMove={move} onPointerLeave={reset}>
         <div className="yor-artifact__grid" aria-hidden="true" />
@@ -111,7 +113,7 @@ export function YorArtifact() {
       <div className="yor-artifact__console">
         <div className="yor-artifact__controls" role="group" aria-label="Explore three sides of the YOR design philosophy">
           {modes.map((mode, index) => <button type="button" key={mode.label} aria-pressed={active === index} onClick={() => setActive(index)}><span>0{index + 1}</span> {mode.label}</button>)}
-          <button type="button" className="yor-artifact__pause" aria-label={paused ? "Play sculpture motion" : "Pause sculpture motion"} onClick={() => { reset(); setPaused(p => !p); }}>{paused ? "▶" : "Ⅱ"}</button>
+          <button type="button" className="yor-artifact__pause" disabled={reducedMotion} aria-label={reducedMotion ? "Sculpture motion disabled by reduced-motion preference" : paused ? "Play sculpture motion" : "Pause sculpture motion"} onClick={() => { reset(); setPaused(p => !p); }}>{paused ? "▶" : "Ⅱ"}</button>
         </div>
         <div className="yor-artifact__description" aria-live="polite" aria-atomic="true"><strong>{modes[active].headline}</strong><p>{modes[active].description}</p></div>
       </div>
