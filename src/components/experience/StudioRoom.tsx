@@ -147,8 +147,8 @@ export function StudioRoom() {
       setFullscreen(false);
       if (document.fullscreenElement === root.current) void document.exitFullscreen().catch(() => {});
     } else {
-      const host = root.current?.parentElement;
-      const restingHeight = root.current?.getBoundingClientRect().height;
+      const host = document.getElementById("studio");
+      const restingHeight = host?.getBoundingClientRect().height;
       if (host && restingHeight && Number.isFinite(restingHeight)) {
         host.style.minHeight = `${Math.ceil(restingHeight)}px`;
       }
