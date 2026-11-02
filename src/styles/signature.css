@@ -79,8 +79,8 @@ body::before { opacity: .13; background-size: 86px 86px; }
 .yor-state__inner { position: relative; }
 .yor-state__index { color: var(--signal); }
 .yor-state__glyph { position: absolute; top: 0; right: 4%; font-size: clamp(100px,17vw,240px); line-height: 1; color: rgba(164,223,210,.1); pointer-events: none; }
-.yor-state h1 { position: relative; z-index: 1; margin: 28px 0; font-weight: 590; font-size: clamp(52px,9vw,120px); line-height: .96; letter-spacing: -.075em; }
-.yor-state h1 em { color: var(--metal-warm); font: italic 400 1em var(--font-serif); }
+.yor-state h1, .yor-state__heading { position: relative; z-index: 1; margin: 28px 0; font-weight: 590; font-size: clamp(52px,9vw,120px); line-height: .96; letter-spacing: -.075em; }
+.yor-state h1 em, .yor-state__heading em { color: var(--metal-warm); font: italic 400 1em var(--font-serif); }
 .yor-state p { max-width: 44ch; margin-bottom: 30px; color: var(--titanium); font-size: 17px; line-height: 1.7; }
 .yor-state .actions { position: relative; z-index: 1; }
 .yor-state .action { min-height: 48px; }
