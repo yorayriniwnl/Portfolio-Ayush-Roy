@@ -11,8 +11,8 @@ test("editorial social preview is a generated PNG matching the homepage instead 
   assert.match(card, /ImageResponse/);
   assert.match(card, /contentType = "image\/png"/);
   assert.match(card, /width: 1200, height: 630/);
-  assert.match(card, /Building systems/);
-  assert.match(card, /Making them matter/);
+  assert.match(card, /Code with/);
+  assert.match(card, /character/);
   assert.match(card, /Backend and Full-Stack Engineer/);
   assert.doesNotMatch(card, /Full Stack Developer/);
 });
