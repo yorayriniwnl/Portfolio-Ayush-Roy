@@ -39,3 +39,10 @@ test("the engineering sculpture is intentionally a light interactive SVG", () =>
   assert.match(scene, /observer\.disconnect\(\)/);
   assert.doesNotMatch(scene, /requestAnimationFrame|THREE|WebGLRenderer|new Audio/);
 });
+
+test("project source artwork remains fully visible and not covered by duplicate titles", () => {
+  const styles = readFileSync("src/styles/signature.css", "utf8");
+  const home = readFileSync("src/components/Home.tsx", "utf8");
+  assert.match(styles, /\.project-world__art,\s*\.home-project__visual\s*\{[^}]*background-size: contain/s);
+  assert.doesNotMatch(home, /className="home-project__art-title"/);
+});
