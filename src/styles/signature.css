@@ -23,7 +23,13 @@ body::before { opacity: .13; background-size: 86px 86px; }
 .project-world-list { gap: clamp(22px,3vw,46px); }
 .project-world { grid-template-columns: minmax(270px, .95fr) minmax(0,1.05fr); border-color: var(--yor-outline); background: linear-gradient(120deg,#0c1821,#121f28); transition: border-color .3s ease,transform .3s ease; }
 .project-world:hover { border-color: rgba(164,223,210,.55); transform: translateY(-2px); }
-.project-world__art { min-height: 440px; }
+.project-world__art {
+  min-height: 440px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #0b171d;
+}
 .project-world__art::before { background: linear-gradient(160deg,rgba(5,11,16,.5),transparent 56%,rgba(4,11,16,.72)); }
 .project-world__body { padding: clamp(28px,4.5vw,66px); }
 .project-world h3 { font-size: clamp(43px,5.1vw,80px); font-weight: 570; }
@@ -64,7 +70,7 @@ body::before { opacity: .13; background-size: 86px 86px; }
 @media(max-width: 560px) {
   .projects-index-hero h1 { font-size: clamp(54px,12vw,77px); }
   .projects-index-list { padding-top: 70px; }
-  .project-world__art { min-height: 270px; }
+  .project-world__art { min-height: 225px; }
   .project-world h3 { font-size: clamp(40px,11vw,59px); }
   .resume-hero__name { font-size: clamp(56px,15vw,86px); }
   .case-title { line-height: 1; font-size: clamp(44px,10.7vw,65px); }
