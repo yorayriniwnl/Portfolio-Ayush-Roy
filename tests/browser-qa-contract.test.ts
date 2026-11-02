@@ -7,11 +7,12 @@ const runner = readFileSync("scripts/browser-qa.mjs", "utf8");
 const matches = (source: string, pattern: RegExp, message: string) => assert.equal(pattern.test(source), true, message);
 const excludes = (source: string, pattern: RegExp, message: string) => assert.equal(pattern.test(source), false, message);
 
-test("browser audit covers the approved ten viewport sizes and eight recruiter routes", () => {
+test("browser audit covers eleven viewport sizes including short mobile and eight recruiter routes", () => {
   assert.equal(Array.isArray(qa.QA_VIEWPORTS), true, "viewport contract is not exported");
   assert.deepEqual(
     qa.QA_VIEWPORTS.map(({ width, height }) => [width, height]),
     [
+      [375, 667],
       [375, 812],
       [390, 844],
       [430, 932],
