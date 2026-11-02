@@ -267,6 +267,30 @@
   .home-discipline h3 { margin-top: 28px; }
   .home-about__facts div { grid-template-columns: 90px 1fr; }
 }
+/* Motion follows reading order, never takes over scrolling. */
+@keyframes yor-intro-enter {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes yor-editorial-reveal {
+  from { opacity: .56; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .home-hero__intro { animation: yor-intro-enter .8s var(--ease-out) backwards; }
+  .yor-artifact { animation: yor-intro-enter 1s var(--ease-out) .12s backwards; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home-project__visual, .home-project__main,
+    .home-method__top, .home-about__body, .home-contact h2 {
+      animation: yor-editorial-reveal 1s linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 27%;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .home *, .home *::before, .home *::after { animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   .yor-artifact__sculpture { will-change: auto; }
