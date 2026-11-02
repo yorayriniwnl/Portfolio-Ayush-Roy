@@ -11,8 +11,8 @@ test("editorial social preview is a generated PNG matching the homepage instead 
   assert.match(card, /ImageResponse/);
   assert.match(card, /contentType = "image\/png"/);
   assert.match(card, /width: 1200, height: 630/);
-  assert.match(card, /Building systems/);
-  assert.match(card, /Making them matter/);
+  assert.match(card, /Code with/);
+  assert.match(card, /character/);
   assert.match(card, /Backend and Full-Stack Engineer/);
   assert.doesNotMatch(card, /Full Stack Developer/);
 });
@@ -21,7 +21,7 @@ test("homepage work list is plain, crawlable links rather than a carousel", () =
   const home = readFileSync("src/components/Home.tsx", "utf8");
   assert.doesNotMatch(home, /aria-roledescription="carousel"|onTouchStart|useState/);
   assert.match(home, /href=\{`\/projects\/\$\{project\.slug\}`\}/);
-  assert.match(home, /<Link className="home-text-link" href="\/projects">All six case studies<\/Link>/);
+  assert.ok(home.includes('href="/projects">All six case studies'));
 });
 
 test("homepage uses the public email from profile data and respects reduced motion", () => {

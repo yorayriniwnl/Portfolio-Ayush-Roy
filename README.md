@@ -10,7 +10,7 @@
 
 # YOR — Ayush Roy Portfolio
 
-The personal universe of Ayush Roy: a polished portfolio and playground for products, experiments, games, and recorded moments.
+An editorial engineering portfolio for Ayush Roy, balancing cinematic presentation with source-backed project evidence and an intentionally separate experimental Lab.
 
 The portfolio deployment is served from `https://yorayriniwnl.in`. The six recruiter-facing project routes live inside that existing site under `/projects`; `NEXT_PUBLIC_SITE_URL` keeps generated metadata and sitemap URLs aligned with the custom domain.
 
@@ -39,6 +39,12 @@ The portfolio deployment is served from `https://yorayriniwnl.in`. The six recru
 - Three.js 0.185.1
 - CSS modules, design tokens, and semantic HTML
 
+## Design and interaction architecture
+
+The signature homepage lives in `src/components/Home.tsx` and remains server rendered. `YorArtifact.tsx` is an isolated, accessible interactive SVG sculpture with pointer response, three keyboard-operable modes, a pause control, reduced-motion support and IntersectionObserver-based visibility throttling. The instrument requires no WebGL and leaves the project links and résumé immediately accessible.
+
+`src/styles/tokens.css` defines midnight surfaces, a mineral-glass highlight, aged-champagne typography accents and common motion timings. `home.css` art-directs the signature homepage; `signature.css` carries the same identity into the projects index, case studies, résumé, Lab, loading and recovery states. Source artwork is shown at its authored ratio rather than cropped for convenience. Project facts still originate exclusively from the canonical six-case-study registry. The Lab retains its separately documented Three.js scene and fallbacks.
+
 ## Run
 
 ```bash
@@ -61,9 +67,9 @@ npm run validate:full
 
 GitHub Actions runs dependency auditing, tests, lint, content, asset, typecheck, production-build, and browser-QA checks on pushes and pull requests (`.github/workflows/ci.yml`) with a non-production placeholder origin. It retains the browser report and screenshots as a workflow artifact. Set `NEXT_PUBLIC_SITE_URL=https://yorayriniwnl.in` in the deployment environment.
 
-`npm run qa:browser` requires a production build and Chrome, Chromium, or Edge; set `CHROMIUM_PATH` if the browser is not in a standard installation path. It checks eight recruiter routes at ten viewport sizes, source/live resolvers, legacy redirects, accessibility, navigation, reduced motion, graphics fallback, and the custom cursor. Reports and screenshots are written to `artifacts/browser-qa/`.
+`npm run qa:browser` requires a production build and Chrome, Chromium, or Edge; set `CHROMIUM_PATH` if the browser is not in a standard installation path. It checks eight recruiter routes at eleven viewport sizes (including 375 × 667), source/live resolvers, legacy redirects, accessibility, navigation, reduced motion, graphics fallback, and the custom cursor. Reports and screenshots are written to `artifacts/browser-qa/`.
 
-The root layout owns one persistent machine scene for the project index and canonical case studies. The scene loads after browser idle time; reduced motion and graphics failures preserve static artwork and server-rendered content. The homepage and résumé never mount WebGL. The Lab hosts the separate interactive 3D studio, which loads only as it approaches the viewport. The optional desktop cursor retains the native pointer on touch devices, text controls, reduced motion, or image-loading failure.
+The root layout owns one persistent machine scene for the project index and canonical case studies. The scene loads after browser idle time; reduced motion and graphics failures preserve static artwork and server-rendered content. The homepage and résumé never mount WebGL. The homepage sculpture is a lightweight SVG interaction, and the separate Lab scene remains an opt-in or lazy GPU experience. The Lab hosts the separate interactive 3D studio, which loads only as it approaches the viewport. The optional desktop cursor retains the native pointer on touch devices, text controls, reduced motion, or image-loading failure.
 
 The Lab's After Hours scene is a real 3D masked operator, husky, and night study built as three local GLB assets. Drag or use arrow keys to orbit; scroll, pinch, or use plus/minus to zoom. Reset, lighting, animation pause and fullscreen controls sit outside the canvas. Scene clicks never open projects; the engineering-work link is separate. Rendering stops offscreen, in hidden tabs and when paused while retaining the loaded scene. Reduced motion shows the supplied reference artwork with an explicit Load 3D option; WebGL or loading failure keeps an explained image fallback.
 
@@ -71,7 +77,7 @@ The models can be rebuilt using Blender's background mode with `scripts/build-op
 
 Routes:
 
-- `/` : recruiter-first homepage, fully server-rendered: hero, three projects with checkable results, about, and contact
+- `/` : server-rendered signature experience with a contained interactive SVG island, three verified project highlights, engineering disciplines, about, and contact
 - `/lab` : the interactive 3D studio plus explicitly experimental game-room and media concepts, separated from the recruiter path
 - `/resume` : résumé and professional profile
 - `/projects` : recruiter-facing index containing only the six CV projects
@@ -112,7 +118,14 @@ Case studies also show the strongest code-authored visuals from their public rep
 
 The homepage keeps the recruiter path clear while making experimental work discoverable through the dedicated Lab.
 
-Every route shares one palette defined in `src/styles/tokens.css` (navy surfaces, warm paper text, one lime accent); WebGL scenes read the same accent from `src/experience/palette.ts`. Figures mirrored from other repositories keep their original colors so they match their pinned source.
+### Release verification and dependency boundaries
+
+Pull requests are validated with tests, lint, content and asset checks, TypeScript, a production Next.js build and a Chromium browser audit. The latter checks heading integrity, 11 responsive viewports across eight primary routes, link resolver behavior, keyboard and touch navigation, screenshot captures, reduced-motion fallbacks and 3D scene cleanup. It is not a substitute for real-user Core Web Vitals or independently calibrated Lighthouse scores. The Lab is graphics-heavy and has a separate interaction stress scenario; interpret its cumulative scripted layout-shift readings separately from initial navigation measurements.
+
+Security audits remain release gates. The modern ESLint TypeScript parser's vulnerable `minimatch@10.2.6` path is overridden narrowly to patched `11.0.1`. A documented, exact-version development-only exception exists for `minimatch@3.1.5` because the 10.x-specific globparts amplifier described in GHSA-g3hv-75wg-m249 does not exist in the v3 source, and forcibly upgrading the legacy callable API would break pinned tooling. Other advisories remain fail-closed. Production dependencies must continue to pass `npm audit --omit=dev --audit-level=high`.
+
+
+Every route shares one palette defined in `src/styles/tokens.css` (midnight surfaces, warm paper text, mineral-glass signal and a restrained champagne editorial accent); WebGL scenes read the same signal color from `src/experience/palette.ts`. Figures mirrored from other repositories keep their original colors so they match their pinned source.
 
 ## Evidence policy
 

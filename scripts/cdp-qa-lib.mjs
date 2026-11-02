@@ -4,6 +4,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 export const QA_VIEWPORTS = [
+  { width: 375, height: 667, label: "375x667" },
   { width: 375, height: 812, label: "375x812" },
   { width: 390, height: 844, label: "390x844" },
   { width: 430, height: 932, label: "430x932" },
@@ -19,7 +20,7 @@ export const QA_VIEWPORTS = [
 export const QA_PROJECT_SLUGS = ["candidatex", "zenith", "helios", "ai-vs-real", "talks", "portfolio"];
 
 export const QA_CORE_ROUTES = [
-  { path: "/", label: "home", surface: "home", requiredHeading: "Building software that works." },
+  { path: "/", label: "home", surface: "home", requiredHeading: "Code with character." },
   { path: "/projects", label: "project-index", surface: "project-index", requiredHeading: "Projects with receipts." },
   ...[
     ["candidatex", "CandidateX"],
@@ -454,22 +455,38 @@ export async function capture(cdp, outputDir, name) {
   fs.writeFileSync(path.join(outputDir, `${name}.png`), png);
 }
 
+/** Match the accessibility tree: route-transition/Offscreen DOM can retain
+ * hidden headings and main landmarks. They are not active page landmarks. */
 export async function pageHealth(cdp) {
-  return cdp.evaluate(`(() => ({
-    title: document.title,
-    h1: document.querySelector('h1')?.innerText?.replace(/\\s+/g, ' ').trim() || '',
-    h1Count: document.querySelectorAll('h1').length,
-    mainCount: document.querySelectorAll('main').length,
-    width: innerWidth,
-    scrollWidth: document.documentElement.scrollWidth,
-    canonical: document.querySelector('link[rel="canonical"]')?.href || '',
-    sceneStatus: document.querySelector('.machine-scene-layer')?.getAttribute('data-scene-status') || null,
-    sceneLayers: document.querySelectorAll('.machine-scene-layer').length,
-    canvases: document.querySelectorAll('.machine-canvas canvas').length,
-    bodyText: document.body.innerText,
-  }))()`);
+  return cdp.evaluate(`(() => {
+    const exposed = (node) => Boolean(
+      node.getClientRects().length &&
+      !node.closest("[hidden], [inert], [aria-hidden=true]") &&
+      getComputedStyle(node).display !== "none" &&
+      getComputedStyle(node).visibility !== "hidden"
+    );
+    const headings = Array.from(document.querySelectorAll("h1"));
+    const activeHeadings = headings.filter(exposed);
+    const mains = Array.from(document.querySelectorAll("main"));
+    return {
+      title: document.title,
+      h1: activeHeadings[0]?.innerText?.replace(/\\s+/g, " ").trim() || "",
+      h1Count: activeHeadings.length,
+      mainCount: mains.filter(exposed).length,
+      headingDiagnostics: headings.map((node) => ({
+        text: node.textContent?.trim().slice(0, 80), exposed: exposed(node),
+        hidden: Boolean(node.closest("[hidden], [inert], [aria-hidden=true]")),
+      })),
+      width: innerWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      canonical: document.querySelector('link[rel="canonical"]')?.href || "",
+      sceneStatus: document.querySelector(".machine-scene-layer")?.getAttribute("data-scene-status") || null,
+      sceneLayers: document.querySelectorAll(".machine-scene-layer").length,
+      canvases: document.querySelectorAll(".machine-canvas canvas").length,
+      bodyText: document.body.innerText,
+    };
+  })()`);
 }
-
 export async function accessibilityHealth(cdp, routeLabel) {
   await cdp.send("Accessibility.enable");
   const { nodes = [] } = await cdp.send("Accessibility.getFullAXTree");
@@ -480,7 +497,7 @@ export async function accessibilityHealth(cdp, routeLabel) {
     return !(node.name?.value || "").trim();
   });
   assert(unnamed.length === 0, `${routeLabel}: ${unnamed.length} interactive accessibility nodes have no accessible name`);
-  const headingLevels = await cdp.evaluate(`Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6')).map((node) => Number(node.tagName.slice(1)))`);
+  const headingLevels = await cdp.evaluate(`Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6')).filter((node) => node.getClientRects().length && !node.closest("[hidden], [inert], [aria-hidden=true]") && getComputedStyle(node).display !== "none" && getComputedStyle(node).visibility !== "hidden").map((node) => Number(node.tagName.slice(1)))`);
   assert(headingLevels.filter((level) => level === 1).length === 1, `${routeLabel}: expected exactly one h1`);
   return { nodes: nodes.length, unnamedInteractive: unnamed.length };
 }

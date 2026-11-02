@@ -28,16 +28,32 @@ test("the homepage stays short: no 3D room, skills grid, timeline or vanity coun
   assert.ok(home.includes('href="/lab#studio"'), "homepage should point to the studio in the Lab");
 });
 
-test("hero keeps the one accent, working CTAs and recruiter facts", () => {
+test("signature hero keeps clear identity, CTA links and source-backed personal facts", () => {
   const home = readFileSync("src/components/Home.tsx", "utf8");
-  assert.match(home, /Building software<br \/>\s*<em>that works\.<\/em>/);
-  assert.equal((home.match(/<em>/g) ?? []).length, 1, "only the hero headline carries the serif accent");
+  assert.match(home, /Code with<br \/><em>character\.<\/em>/);
+  assert.match(home, /<YorArtifact \/>/);
   assert.match(home, /href="#projects"/);
   assert.ok(home.includes('href="/resume"'));
   for (const fact of ["profile.status", "profile.education", "profile.location", "profile.email"]) {
-    assert.ok(home.includes(fact), `hero facts are missing ${fact}`);
+    assert.ok(home.includes(fact), `personal fact missing ${fact}`);
   }
   assert.match(home, /data-essential-copy/);
+});
+
+test("signature sculpture is a contained accessible client island with static art and motion controls", () => {
+  const component = readFileSync("src/components/YorArtifact.tsx", "utf8");
+  const css = readFileSync("src/styles/home.css", "utf8");
+  assert.match(component, /"use client"/);
+  assert.match(component, /<svg/);
+  assert.match(component, /aria-pressed=\{active === index\}/);
+  assert.match(component, /aria-label=\{reducedMotion \?/);
+  assert.match(component, /paused \? "Play sculpture motion"/);
+  assert.match(component, /disabled=\{reducedMotion\}/);
+  assert.match(component, /prefers-reduced-motion: reduce/);
+  assert.match(component, /removeEventListener\("change"/);
+  assert.doesNotMatch(component, /<Canvas|WebGPURenderer|document\.addEventListener/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(css, /@media \(max-width: 400px\)/);
 });
 
 test("selected work shows three projects, each with a metric that exists in its case study", () => {

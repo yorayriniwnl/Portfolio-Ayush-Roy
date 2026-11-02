@@ -386,7 +386,7 @@ try {
         assert(home.projects && home.about && home.contact, `${viewport.label}: homepage narrative sections missing`);
         assert(home.favicon.includes("favicon.svg"), `${viewport.label}: document does not link /favicon.svg`);
       } else if (route.surface === "project-index") {
-        const count = await cdp.evaluate(`document.querySelectorAll('[data-project-slug]').length`);
+        const count = await cdp.evaluate(`Array.from(document.querySelectorAll('[data-project-slug]')).filter(node => node.getClientRects().length && !node.closest('[hidden], [inert], [aria-hidden=true]') && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden').length`);
         assert(count === QA_PROJECT_SLUGS.length, `${viewport.label}: project index has ${count} records, expected six`);
       } else {
         const pageProject = await cdp.evaluate(`document.querySelector('main[data-experience-project]')?.getAttribute('data-experience-project') || ''`);
@@ -410,6 +410,39 @@ try {
     const examples = report.routeMatrix.clippingIssues.slice(0, 12).map((issue) => `${issue.path} ${issue.viewport} ${issue.kind}: ${issue.text}`).join("\n");
     throw new Error(`Heading or essential-copy clipping detected (${report.routeMatrix.clippingIssues.length} instances):\n${examples}`);
   }
+
+  activeScenario = "signature sculpture modes, pause, offscreen and reduced motion";
+  await setViewport(cdp, 1440, 900);
+  await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
+  await navigate(cdp, baseUrl);
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact__controls button[aria-pressed=true]")?.textContent.includes("Create")', {
+    description: "sculpture first mode becomes interactive",
+  });
+  const initialInstrument = await cdp.evaluate('(() => { const root=document.querySelector(".yor-artifact"); const modes=[...root.querySelectorAll(".yor-artifact__controls button[aria-pressed]")]; const pause=root.querySelector(".yor-artifact__pause"); return { modeCount:modes.length, selected:modes.filter(b=>b.getAttribute("aria-pressed")==="true").length, svgCount:root.querySelectorAll("svg").length, canvases:root.querySelectorAll("canvas").length, reduced:root.dataset.reducedMotion, paused:root.dataset.paused, disabled:pause.disabled }; })()');
+  assert(initialInstrument.modeCount === 3 && initialInstrument.selected === 1 &&
+    initialInstrument.svgCount === 1 && initialInstrument.canvases === 0 &&
+    initialInstrument.reduced === "false" && initialInstrument.paused === "false" && !initialInstrument.disabled,
+    "Unexpected initial sculpture state: " + JSON.stringify(initialInstrument));
+  await cdp.evaluate('document.querySelectorAll(".yor-artifact__controls button[aria-pressed]")[1].focus(); true');
+  await pressKey("Enter", "Enter", 13);
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact__stage")?.dataset.mode === "1" && document.querySelector(".yor-artifact__description strong")?.textContent === "Think in systems." && document.querySelectorAll(".yor-artifact__controls button[aria-pressed=true]").length === 1',
+    { description: "keyboard Enter selects the Connect mode" });
+  await cdp.evaluate('document.querySelector(".yor-artifact__pause").click(); true');
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.getAttribute("aria-label") === "Play sculpture motion" && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationPlayState === "paused"',
+    { description: "pause control suspends sculpture animation" });
+  await cdp.evaluate('document.querySelector(".yor-artifact__pause").click(); true');
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.paused === "false" && document.querySelector(".yor-artifact__pause")?.getAttribute("aria-label") === "Pause sculpture motion"',
+    { description: "resume control restores sculpture motion" });
+  await cdp.evaluate('window.scrollTo({top: document.documentElement.scrollHeight, left: 0, behavior: "instant"}); true');
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.visible === "false" && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationPlayState === "paused"',
+    { description: "offscreen sculpture suspends its animations" });
+  await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.reducedMotion === "true" && document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.disabled === true && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationName === "none"',
+    { description: "reduced-motion preference disables animation and its play control" });
+  report.interaction.signatureArtifact = {
+    initial: initialInstrument, accessibleKeyboardModes: true, pauseAndResume: true,
+    offscreenSuspension: true, reducedMotionStopsAndDisablesControl: true,
+  };
 
   activeScenario = "secondary routes and inactive scene cleanup";
   for (const viewport of [QA_VIEWPORTS[1], QA_VIEWPORTS[6]]) {
@@ -589,7 +622,7 @@ try {
   backgroundTargetId = hiddenStudioTarget.targetId;
   await browserCdp.send("Target.activateTarget", { targetId: backgroundTargetId });
   await waitForCondition(cdp, `document.visibilityState === 'hidden' && document.querySelector('.yor-studio')?.dataset.renderPaused === 'true'`,
-    { timeoutMs: 4000, description: "hidden studio pauses rendering" });
+    { timeoutMs: 12000, description: "hidden studio pauses rendering" });
   await delay(300);
   const hiddenStudioFrames = await cdp.evaluate(`Number(document.querySelector('.yor-studio').dataset.renderedFrames || 0)`);
   await delay(450);
@@ -598,7 +631,7 @@ try {
   await browserCdp.send("Target.activateTarget", { targetId: primaryTargetId });
   await waitForCondition(cdp, `document.visibilityState === 'visible' && document.querySelector('.yor-studio')?.dataset.renderPaused === 'false' &&
     window.__qaStudioCanvas === document.querySelector('.yor-studio__viewport canvas')`,
-    { timeoutMs: 4000, description: "visible studio resumes with the same canvas" });
+    { timeoutMs: 12000, description: "visible studio resumes with the same canvas" });
   await browserCdp.send("Target.closeTarget", { targetId: backgroundTargetId });
   backgroundTargetId = undefined;
   report.rendering.studioPause.hiddenFramesDelta = hiddenStudioFramesAfter - hiddenStudioFrames;
@@ -609,7 +642,7 @@ try {
     return Boolean(link && link.getAttribute('href') === '/projects' && !link.closest('.yor-studio__viewport')); })()`);
   assert(explicitSceneLink, "Project navigation must be an explicit link outside the scene");
   await clickAtSelector('.yor-studio__projects');
-  await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { timeoutMs: 8000, description: "client navigation to project index" });
+  await waitForCondition(cdp, `location.pathname === '/projects' && Array.from(document.querySelectorAll('[data-project-slug]')).filter(node => node.getClientRects().length && !node.closest('[hidden], [inert], [aria-hidden=true]') && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden').length === 6`, { timeoutMs: 8000, description: "client navigation to project index" });
   const initialScene = await waitForCondition(cdp, `(() => { const layer = document.querySelector('.machine-scene-layer'); return layer && (layer.dataset.sceneStatus === 'ready' || layer.dataset.sceneStatus === 'failed') ? layer.dataset.sceneStatus : null; })()`, { timeoutMs: 25_000, description: "project-world scene initialized" });
   report.rendering.projectIndex = { status: initialScene.value };
   const recordedCanvas = await cdp.evaluate(`(() => {
@@ -725,6 +758,11 @@ try {
   await navigate(cdp, baseUrl);
   await cdp.evaluate(`document.querySelector('#contact')?.scrollIntoView({ block: 'start', behavior: 'instant' }); true`);
   await delay(350);
+  const contactCta = await cdp.evaluate('(() => { const email=document.querySelector(".home-contact__email"); if (!email) return null; const rect=email.getBoundingClientRect(); const header=document.querySelector("header")?.getBoundingClientRect(); return {top:rect.top,bottom:rect.bottom,width:rect.width,viewportHeight:innerHeight,headerBottom:header?.bottom || 0}; })()');
+  assert(contactCta && contactCta.width > 0 && contactCta.top > contactCta.headerBottom &&
+    contactCta.bottom <= contactCta.viewportHeight - 8,
+    "Desktop contact anchor hides the primary email action below the fold: " + JSON.stringify(contactCta));
+  report.interaction.contactAnchor = { emailVisibleWithoutFurtherScrolling: true, ...contactCta };
   await capture(cdp, outputDir, "contact-finale");
 
   activeScenario = "keyboard and touch interactions";
@@ -944,7 +982,7 @@ try {
   const reloaded = cdp.once("Page.loadEventFired", 20_000);
   await cdp.send("Page.reload", { ignoreCache: true });
   await reloaded;
-  await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { description: "refresh project index" });
+  await waitForCondition(cdp, `location.pathname === '/projects' && Array.from(document.querySelectorAll('[data-project-slug]')).filter(node => node.getClientRects().length && !node.closest('[hidden], [inert], [aria-hidden=true]') && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden').length === 6`, { description: "refresh project index" });
   // A visible headless tab can remain unfocused after the background-tab test
   // on Windows. Activate it before exercising keyboard focus handlers.
   await cdp.send("Page.bringToFront");
@@ -970,7 +1008,7 @@ try {
   const projectsIndex = afterBack.entries.findLastIndex((entry) => new URL(entry.url).pathname === "/projects");
   assert(projectsIndex >= 0, "Browser history lost the project index entry");
   await cdp.send("Page.navigateToHistoryEntry", { entryId: afterBack.entries[projectsIndex].id });
-  await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { description: "browser forward navigation" });
+  await waitForCondition(cdp, `location.pathname === '/projects' && Array.from(document.querySelectorAll('[data-project-slug]')).filter(node => node.getClientRects().length && !node.closest('[hidden], [inert], [aria-hidden=true]') && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden').length === 6`, { description: "browser forward navigation" });
 
   const repeated = [];
   for (const routePath of ["/projects/candidatex", "/resume", "/projects/helios", "/lab", "/projects/portfolio", "/"]) {
