@@ -96,6 +96,7 @@
 .yor-artifact__controls button[aria-pressed="true"] { color: var(--paper); border-bottom-color: var(--signal); background: rgba(147,210,197,.055); }
 .yor-artifact__controls button:hover { color: var(--paper); }
 .yor-artifact__controls .yor-artifact__pause { flex: 0 0 48px; border-left: 1px solid var(--line); color: var(--signal); font-size: 15px; }
+.yor-artifact__controls .yor-artifact__pause:disabled { opacity: .48; cursor: not-allowed; }
 .yor-artifact__description { display: grid; gap: 8px; min-height: 91px; padding: 17px 14px 0; }
 .yor-artifact__description strong { color: var(--paper); font-size: 14px; font-weight: 560; }
 .yor-artifact__description p { color: var(--muted); font-size: 12px; line-height: 1.6; }
