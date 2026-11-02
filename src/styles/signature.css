@@ -73,3 +73,18 @@ body::before { opacity: .13; background-size: 86px 86px; }
 @media(prefers-reduced-motion: reduce) {
   .project-world, .project-world__art { transition: none !important; }
 }
+
+/* Loading and recovery share the site's editorial identity. */
+.yor-state { position: relative; min-height: 100svh; display: grid; align-items: center; padding: clamp(132px,15vw,200px) 0 80px; background: radial-gradient(ellipse 54% 52% at 79% 42%,rgba(130,197,184,.12),transparent 77%),var(--void); }
+.yor-state__inner { position: relative; }
+.yor-state__index { color: var(--signal); }
+.yor-state__glyph { position: absolute; top: 0; right: 4%; font-size: clamp(100px,17vw,240px); line-height: 1; color: rgba(164,223,210,.1); pointer-events: none; }
+.yor-state h1 { position: relative; z-index: 1; margin: 28px 0; font-weight: 590; font-size: clamp(52px,9vw,120px); line-height: .96; letter-spacing: -.075em; }
+.yor-state h1 em { color: var(--metal-warm); font: italic 400 1em var(--font-serif); }
+.yor-state p { max-width: 44ch; margin-bottom: 30px; color: var(--titanium); font-size: 17px; line-height: 1.7; }
+.yor-state .actions { position: relative; z-index: 1; }
+.yor-state .action { min-height: 48px; }
+.yor-state__track { width: min(390px,100%); height: 2px; background: var(--line); overflow: hidden; }
+.yor-state__track span { display: block; width: 30%; height: 100%; background: var(--signal); animation: yor-progress 2s ease-in-out infinite alternate; transform: translateX(0); }
+@keyframes yor-progress { to { transform: translateX(240%); } }
+@media(prefers-reduced-motion: reduce) { .yor-state__track span { animation: none; } }
