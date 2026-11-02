@@ -386,7 +386,7 @@ try {
         assert(home.projects && home.about && home.contact, `${viewport.label}: homepage narrative sections missing`);
         assert(home.favicon.includes("favicon.svg"), `${viewport.label}: document does not link /favicon.svg`);
       } else if (route.surface === "project-index") {
-        const count = await cdp.evaluate(`document.querySelectorAll('[data-project-slug]').length`);
+        const count = await cdp.evaluate(`Array.from(document.querySelectorAll('[data-project-slug]')).filter(node => node.getClientRects().length && !node.closest('[hidden], [inert], [aria-hidden=true]') && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden').length`);
         assert(count === QA_PROJECT_SLUGS.length, `${viewport.label}: project index has ${count} records, expected six`);
       } else {
         const pageProject = await cdp.evaluate(`document.querySelector('main[data-experience-project]')?.getAttribute('data-experience-project') || ''`);
@@ -609,7 +609,7 @@ try {
     return Boolean(link && link.getAttribute('href') === '/projects' && !link.closest('.yor-studio__viewport')); })()`);
   assert(explicitSceneLink, "Project navigation must be an explicit link outside the scene");
   await clickAtSelector('.yor-studio__projects');
-  await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { timeoutMs: 8000, description: "client navigation to project index" });
+  await waitForCondition(cdp, `location.pathname === '/projects' && Array.from(document.querySelectorAll('[data-project-slug]')).filter(node => node.getClientRects().length && !node.closest('[hidden], [inert], [aria-hidden=true]') && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden').length === 6`, { timeoutMs: 8000, description: "client navigation to project index" });
   const initialScene = await waitForCondition(cdp, `(() => { const layer = document.querySelector('.machine-scene-layer'); return layer && (layer.dataset.sceneStatus === 'ready' || layer.dataset.sceneStatus === 'failed') ? layer.dataset.sceneStatus : null; })()`, { timeoutMs: 25_000, description: "project-world scene initialized" });
   report.rendering.projectIndex = { status: initialScene.value };
   const recordedCanvas = await cdp.evaluate(`(() => {
@@ -944,7 +944,7 @@ try {
   const reloaded = cdp.once("Page.loadEventFired", 20_000);
   await cdp.send("Page.reload", { ignoreCache: true });
   await reloaded;
-  await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { description: "refresh project index" });
+  await waitForCondition(cdp, `location.pathname === '/projects' && Array.from(document.querySelectorAll('[data-project-slug]')).filter(node => node.getClientRects().length && !node.closest('[hidden], [inert], [aria-hidden=true]') && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden').length === 6`, { description: "refresh project index" });
   // A visible headless tab can remain unfocused after the background-tab test
   // on Windows. Activate it before exercising keyboard focus handlers.
   await cdp.send("Page.bringToFront");
@@ -970,7 +970,7 @@ try {
   const projectsIndex = afterBack.entries.findLastIndex((entry) => new URL(entry.url).pathname === "/projects");
   assert(projectsIndex >= 0, "Browser history lost the project index entry");
   await cdp.send("Page.navigateToHistoryEntry", { entryId: afterBack.entries[projectsIndex].id });
-  await waitForCondition(cdp, `location.pathname === '/projects' && document.querySelectorAll('[data-project-slug]').length === 6`, { description: "browser forward navigation" });
+  await waitForCondition(cdp, `location.pathname === '/projects' && Array.from(document.querySelectorAll('[data-project-slug]')).filter(node => node.getClientRects().length && !node.closest('[hidden], [inert], [aria-hidden=true]') && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden').length === 6`, { description: "browser forward navigation" });
 
   const repeated = [];
   for (const routePath of ["/projects/candidatex", "/resume", "/projects/helios", "/lab", "/projects/portfolio", "/"]) {
