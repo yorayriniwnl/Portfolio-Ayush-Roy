@@ -19,7 +19,7 @@ test("route loading and recovery remain accessible and do not disclose stack det
   const css = readFileSync("src/styles/signature.css", "utf8");
   assert.match(loading, /aria-busy="true"/);
   assert.match(loading, /role="status"/);
-  assert.doesNotMatch(loading, /<main\\b|<h1\\b/);
+  assert.doesNotMatch(loading, /<main\b|<h1\b/);
   assert.match(error, /"use client"/);
   assert.match(error, /role="alert"/);
   assert.match(error, /onClick=\{reset\}/);
