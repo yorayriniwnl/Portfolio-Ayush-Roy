@@ -2,20 +2,21 @@
   :root {
     color-scheme: dark;
 
-    /* One palette for every route: navy surfaces, warm paper text, one lime accent. */
-    --void: #0c111b;          /* page background */
-    --graphite: #141c27;      /* raised panels */
-    --surface-alt: #1a2432;   /* hover and elevated states */
-    --paper: #f6f3ec;         /* primary text */
-    --titanium: #c6cdd8;      /* body copy */
-    --muted: #9aa6b5;         /* labels and metadata (7.6:1 on --void) */
-    --signal: #c7eaa4;        /* the single accent */
-    --signal-ink: #131a16;    /* text on the accent */
-    --signal-deep: #2b3d25;   /* low-light accent for glows and fills */
+    /* YOR studio palette: midnight ink, mineral glass, and aged champagne. */
+    --void: #090f17;         /* deep midnight */
+    --graphite: #13212b;     /* editorial surface */
+    --surface-alt: #1c323a;  /* responsive interactive surface */
+    --paper: #f5f5ef;        /* warm white */
+    --titanium: #c7d6d1;     /* secondary copy */
+    --muted: #9aafa9;        /* captions */
+    --signal: #a4dfd2;       /* mineral-glass highlight */
+    --metal-warm: #ecd9ba;   /* aged champagne */
+    --signal-ink: #0a1a1d;
+    --signal-deep: #254943;
 
-    --line: rgba(198, 205, 216, 0.15);
-    --line-hot: rgba(199, 234, 164, 0.55);
-    --surface-glass: rgba(12, 17, 27, 0.92);
+    --line: rgba(174, 211, 203, 0.17);
+    --line-hot: rgba(164, 223, 210, 0.58);
+    --surface-glass: rgba(9, 15, 23, 0.93);
     --shadow: 0 24px 80px rgba(3, 6, 12, 0.32);
 
     --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -36,7 +37,7 @@
     --content: min(1380px, calc(100vw - 112px));
     --reading: 66ch;
 
-    --radius-panel: 14px;
+    --radius-panel: 3px;
     --radius-frame: 5px;
     --motion-micro: 180ms;
     --motion-hover: 360ms;
@@ -46,7 +47,7 @@
     --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 
     --depth-soft: 0 24px 70px rgba(3, 6, 12, 0.28);
-    --depth-hot: 0 30px 100px rgba(43, 61, 37, 0.22);
+    --depth-hot: 0 30px 100px rgba(38, 96, 87, 0.22);
   }
 
   @media (max-width: 760px) {
