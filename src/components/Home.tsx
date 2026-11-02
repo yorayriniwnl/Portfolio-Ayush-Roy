@@ -54,7 +54,6 @@ export function Home() {
                 <article className="home-project" aria-labelledby={`home-project-${project.slug}`}>
                   <div className="home-project__visual" style={{ backgroundImage: `url("${project.art}")` }}>
                     <span className="home-project__visual-top"><span>YOR / FIELD NOTES</span><span>NO. {String(index + 1).padStart(2, "0")}</span></span>
-                    <span className="home-project__art-title" aria-hidden="true">{project.title}</span>
                     <span className="home-project__visual-bottom">PROJECT ARTWORK <span aria-hidden="true">↗</span></span>
                   </div>
                   <div className="home-project__main">
