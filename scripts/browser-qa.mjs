@@ -428,16 +428,16 @@ try {
   await waitForCondition(cdp, 'document.querySelector(".yor-artifact__stage")?.dataset.mode === "1" && document.querySelector(".yor-artifact__description strong")?.textContent === "Think in systems." && document.querySelectorAll(".yor-artifact__controls button[aria-pressed=true]").length === 1',
     { description: "keyboard Enter selects the Connect mode" });
   await cdp.evaluate('document.querySelector(".yor-artifact__pause").click(); true');
-  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.getAttribute("aria-label") === "Play sculpture motion" && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationPlayState === "paused"',
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.getAttribute("aria-label") === "Play sculpture motion" && getComputedStyle(document.querySelector(".yor-artifact__module--a")).animationPlayState === "paused"',
     { description: "pause control suspends sculpture animation" });
   await cdp.evaluate('document.querySelector(".yor-artifact__pause").click(); true');
   await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.paused === "false" && document.querySelector(".yor-artifact__pause")?.getAttribute("aria-label") === "Pause sculpture motion"',
     { description: "resume control restores sculpture motion" });
   await cdp.evaluate('window.scrollTo({top: document.documentElement.scrollHeight, left: 0, behavior: "instant"}); true');
-  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.visible === "false" && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationPlayState === "paused"',
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.visible === "false" && getComputedStyle(document.querySelector(".yor-artifact__module--a")).animationPlayState === "paused"',
     { description: "offscreen sculpture suspends its animations" });
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
-  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.reducedMotion === "true" && document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.disabled === true && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationName === "none"',
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.reducedMotion === "true" && document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.disabled === true && getComputedStyle(document.querySelector(".yor-artifact__module--a")).animationName === "none"',
     { description: "reduced-motion preference disables animation and its play control" });
   report.interaction.signatureArtifact = {
     initial: initialInstrument, accessibleKeyboardModes: true, pauseAndResume: true,
