@@ -173,13 +173,13 @@
 .home-about__facts dd { color: var(--paper); font-size: 14px; line-height: 1.5; }
 
 /* Full-circle finale with an intentionally oversized editorial invitation. */
-.home-contact { position: relative; overflow: hidden; padding-top: clamp(100px,10vw,160px); background: radial-gradient(ellipse 60% 50% at 85% 40%, rgba(99,154,143,.09), transparent 75%), #080e16; }
+.home-contact { position: relative; overflow: hidden; padding-top: clamp(78px,7vw,112px); background: radial-gradient(ellipse 60% 50% at 85% 40%, rgba(99,154,143,.09), transparent 75%), #080e16; }
 .home-contact__heading { display: flex; justify-content: space-between; align-items: start; padding-top: 25px; border-top: 1px solid var(--line); }
 .home-contact__asterisk { color: var(--signal); font-size: clamp(72px, 10vw, 150px); line-height: .7; }
-.home-contact h2 { max-width: 1100px; margin-top: 15px; font-size: clamp(54px,9.4vw,152px); }
+.home-contact h2 { max-width: 1100px; margin-top: 15px; font-size: clamp(54px,7.5vw,122px); }
 .home-contact h2 em { color: var(--metal-warm,#e9d8bd); }
-.home-contact .home-wrap > p { max-width: 47ch; margin-top: 35px; color: var(--titanium); font-size: 17px; line-height: 1.75; }
-.home-contact__email { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; width: fit-content; max-width: 100%; margin-top: 42px; padding-bottom: 12px; border-bottom: 1px solid var(--signal); color: var(--paper); font-size: clamp(24px,3.5vw,52px); letter-spacing: -.055em; overflow-wrap: anywhere; }
+.home-contact .home-wrap > p { max-width: 47ch; margin-top: 26px; color: var(--titanium); font-size: 17px; line-height: 1.75; }
+.home-contact__email { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; width: fit-content; max-width: 100%; margin-top: 26px; padding-bottom: 12px; border-bottom: 1px solid var(--signal); color: var(--paper); font-size: clamp(24px,3.5vw,52px); letter-spacing: -.055em; overflow-wrap: anywhere; }
 .home-contact__email span { color: var(--signal); font-size: .55em; }
 .home-contact__email:hover { color: var(--metal-warm,#e9d8bd); }
 .home-contact__links { display: flex; gap: 12px 36px; flex-wrap: wrap; margin-top: 40px; }
