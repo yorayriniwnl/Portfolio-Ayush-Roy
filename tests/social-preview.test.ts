@@ -10,7 +10,7 @@ test("social preview represents engineering work and matches the graphite and bl
   assert.match(card, /character\./);
   assert.match(card, /#0b0b10/);
   assert.match(card, /#9ab0ff/);
-  assert.doesNotMatch(card, /#(?:090f17|a4dfd2|c7eaa4)\\b/i);
+  assert.doesNotMatch(card, /#(?:090f17|a4dfd2|c7eaa4)/i);
   assert.match(card, /Backend and Full-Stack Engineer/);
   assert.doesNotMatch(card, /Full Stack Developer\./);
   assert.match(metadata, /engineering portfolio with evidence-backed software projects/);
