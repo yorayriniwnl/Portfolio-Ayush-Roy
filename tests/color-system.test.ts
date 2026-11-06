@@ -25,7 +25,7 @@ test("graphite and porcelain theme has a strong accessible single accent",()=>{
   assert.ok(contrast("101329","9ab0ff")>=7);
 });
 test("old mint champagne lime and red accents are gone from shared UI",()=>{
-  for(const path of ["src/styles/tokens.css","src/styles/home.css","src/styles/signature.css","src/styles/machine.css","src/styles/studio.css","src/components/SiteNav.module.css"]){
+  for(const path of ["src/styles/tokens.css","src/styles/home.css","src/styles/signature.css","src/styles/machine.css","src/styles/studio.css","src/components/SiteNav.module.css","src/app/opengraph-image.tsx","public/favicon.svg"]){
     const css=readFileSync(path,"utf8");
     assert.doesNotMatch(css,/#(?:a4dfd2|ecd9ba|e9d8bd|c7eaa4|ee3e48|d5efe3)\b/i,path);
     assert.doesNotMatch(css,/rgba\(\s*199\s*,\s*234\s*,\s*164\s*,/i,path);
