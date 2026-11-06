@@ -105,5 +105,5 @@ body::before { opacity: .13; background-size: 86px 86px; }
   background-color: #17171f;
 }
 .home-project__visual::before {
-  background: linear-gradient(180deg, rgba(53,66,115,.62), transparent 22%, transparent 75%, rgba(53,66,115,.76));
+  background: linear-gradient(180deg, rgba(12,13,20,.62), transparent 22%, transparent 75%, rgba(12,13,20,.76));
 }
