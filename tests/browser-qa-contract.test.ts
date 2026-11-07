@@ -116,7 +116,7 @@ test("review screenshots include the narrow 320px stable capture", () => {
     "mobile-project-world",
     "contact-finale",
   ]);
-  matches(runner, /await capture\\(cdp, outputDir, "mobile-hero-320"\\)/, "the 320px screenshot was added to the manifest but is never captured");
+  assert.ok(runner.includes('await capture(cdp, outputDir, "mobile-hero-320");'), "the 320px screenshot was added to the manifest but is never captured");
   matches(runner, /async function positionProjectWorldForCapture[\s\S]*?window\.scrollTo/, "world captures do not have a stable card framing helper");
   assert.equal((runner.match(/await positionProjectWorldForCapture\(\)/g) ?? []).length, 2, "desktop and mobile world captures must both frame a project card");
   matches(runner, /await capture\(cdp, outputDir, "mobile-project-world"\)[\s\S]*await setViewport\(cdp, 1440, 900\)[\s\S]*await capture\(cdp, outputDir, "contact-finale"\)/, "contact finale is not captured at the desktop review viewport");
