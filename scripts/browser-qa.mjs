@@ -491,6 +491,13 @@ try {
   // The homepage is recruiter-first and never mounts WebGL. Capture it, then
   // visit the optional 3D studio, which lives in the Lab and stays lazy until
   // it approaches the viewport.
+  await waitForCondition(cdp, `(() => {
+    const intro=document.querySelector(".home-hero__intro");
+    const sculpture=document.querySelector(".yor-artifact");
+    return Boolean(intro && sculpture &&
+      Number(getComputedStyle(intro).opacity) >= .995 &&
+      Number(getComputedStyle(sculpture).opacity) >= .995);
+  })()`, { timeoutMs: 4000, description: "hero intro animation settled before desktop capture" });
   await capture(cdp, outputDir, "desktop-hero");
   assert(await cdp.evaluate(`document.querySelectorAll('canvas').length === 0`), "Homepage mounted a canvas; the 3D studio belongs in the Lab");
   await navigate(cdp, `${baseUrl}/lab`);
@@ -693,6 +700,13 @@ try {
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.home h1'))`, { description: "mobile homepage" });
   assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas, canvas').length === 0`), "Mobile homepage mounted redundant 3D");
+  await waitForCondition(cdp, `(() => {
+    const intro=document.querySelector(".home-hero__intro");
+    const sculpture=document.querySelector(".yor-artifact");
+    return Boolean(intro && sculpture &&
+      Number(getComputedStyle(intro).opacity) >= .995 &&
+      Number(getComputedStyle(sculpture).opacity) >= .995);
+  })()`, { timeoutMs: 4000, description: "hero intro animation settled before mobile capture" });
   await capture(cdp, outputDir, "mobile-hero");
   const mobilePrimaryAction = async () => cdp.evaluate(`(() => {
     const action=document.querySelector(".home-button--primary");
