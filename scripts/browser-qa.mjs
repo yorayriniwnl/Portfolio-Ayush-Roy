@@ -363,7 +363,7 @@ try {
     report.routeResponses.expected404.push({ path: routePath, status: response.status, readable: true });
   }
 
-  activeScenario = "ten viewport core route matrix";
+  activeScenario = "responsive core route matrix including 320px";
   const matrix = [];
   for (const viewport of QA_VIEWPORTS) {
     await setViewport(cdp, viewport.width, viewport.height);
@@ -445,7 +445,7 @@ try {
   };
 
   activeScenario = "secondary routes and inactive scene cleanup";
-  for (const viewport of [QA_VIEWPORTS[1], QA_VIEWPORTS[6]]) {
+  for (const viewport of [QA_VIEWPORTS[2], QA_VIEWPORTS[7]]) {
     await setViewport(cdp, viewport.width, viewport.height);
     for (const route of QA_SECONDARY_ROUTES) {
       const response = await fetchManual(route.path);
@@ -731,6 +731,14 @@ try {
   assert(action320 && action320.textLineCount===1 && action320.textInside &&
     action320.actionInsideViewport && action320.scrollWidth<=320,
     "Narrow 320px primary CTA wraps or overflows: " + JSON.stringify(action320));
+  await waitForCondition(cdp, `(() => {
+    const intro=document.querySelector(".home-hero__intro");
+    const sculpture=document.querySelector(".yor-artifact");
+    return Boolean(intro && sculpture &&
+      Number(getComputedStyle(intro).opacity) >= .995 &&
+      Number(getComputedStyle(sculpture).opacity) >= .995);
+  })()`, { timeoutMs: 4000, description: "320px hero settled before narrow screenshot" });
+  await capture(cdp, outputDir, "mobile-hero-320");
   report.interaction.mobileHeroCta = { at390:action390, at320:action320 };
   await setViewport(cdp, 390, 844);
   await navigate(cdp, `${baseUrl}/lab`);

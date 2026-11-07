@@ -4,6 +4,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 export const QA_VIEWPORTS = [
+  { width: 320, height: 720, label: "320x720" },
   { width: 375, height: 667, label: "375x667" },
   { width: 375, height: 812, label: "375x812" },
   { width: 390, height: 844, label: "390x844" },
@@ -67,6 +68,7 @@ export const REVIEW_SCREENSHOT_NAMES = [
   "desktop-project-world",
   "desktop-case-study",
   "mobile-hero",
+  "mobile-hero-320",
   "mobile-project-world",
   "contact-finale",
 ];
