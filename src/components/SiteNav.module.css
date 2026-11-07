@@ -69,7 +69,7 @@
   min-height: 37px;
   padding: 0 17px;
   border: 1px solid var(--paper);
-  border-radius: 2px;
+  border-radius: 999px;
   background: var(--paper);
   color: var(--void);
   font-weight: 650;
