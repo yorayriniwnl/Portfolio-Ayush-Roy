@@ -1,11 +1,11 @@
 /* The scene owns pointer gestures. Project links sit outside the viewport. */
 .studio-frame { position: relative; min-width: 0; scroll-margin-top: 90px; }
 .studio-frame .yor-studio {
-  --studio-red: #9ab0ff;
-  --studio-border: rgba(154,176,255,.2);
+  --studio-red: #BBA4D9;
+  --studio-border: rgba(187,164,217,.2);
   position: relative; width: 100%; min-width: 0; overflow: hidden;
   border: 1px solid var(--studio-border); border-radius: 14px;
-  background: #111117; color: #f4f5fc;
+  background: #100E15; color: #F7F4FA;
 }
 .studio-frame :is(button, a):focus-visible { outline: 2px solid var(--studio-red); outline-offset: 4px; }
 .yor-studio__topline {
@@ -13,17 +13,17 @@
   min-height: 58px; padding: 16px 24px; border-bottom: 1px solid var(--studio-border);
   font: 600 11px/1.5 var(--font-mono); letter-spacing: .11em;
 }
-.yor-studio__topline span:first-child { color: #b4c3ff; }
-.yor-studio__topline span:last-child { color: #a5aab9; font-size: 9px; }
+.yor-studio__topline span:first-child { color: #CEB7E3; }
+.yor-studio__topline span:last-child { color: #B5AAB9; font-size: 9px; }
 .studio-frame .yor-studio__viewport {
   position: relative; isolation: isolate; width: 100%; height: clamp(560px, 70vh, 790px);
-  overflow: hidden; background: #09090e;
+  overflow: hidden; background: #09090D;
 }
 .yor-studio__viewport > div:has(canvas) { position: absolute !important; inset: 0; z-index: 1; }
 .yor-studio__viewport canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
 .yor-studio__viewport canvas:active { cursor: grabbing; }
 .yor-studio__viewport canvas:focus-visible { outline: 2px solid var(--studio-red); outline-offset: -4px; }
-.yor-studio__fallback { position: absolute; inset: 0; z-index: 0; background: #09090e; pointer-events: none; }
+.yor-studio__fallback { position: absolute; inset: 0; z-index: 0; background: #09090D; pointer-events: none; }
 .yor-studio__fallback img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .yor-studio[data-scene-ready="true"] .yor-studio__fallback { visibility: hidden; }
 .yor-studio[data-scene-failed="true"] .yor-studio__fallback { visibility: visible; }
@@ -31,14 +31,14 @@
   position: absolute; z-index: 3; right: 18px; bottom: 45px; left: 18px;
   width: fit-content; max-width: min(530px, calc(100% - 36px));
   border: 1px solid var(--studio-border); border-radius: 8px;
-  padding: 12px 16px; background: rgba(8, 9, 12, .92); color: #d9dce9;
+  padding: 12px 16px; background: rgba(8, 9, 12, .92); color: #E0D8E6;
   pointer-events: none;
 }
 .yor-studio__loading p { margin: 0; font: 400 14px/1.55 var(--font-body); }
 .yor-studio__loading button { margin-top: 10px; pointer-events: auto; }
 .yor-studio__frame-label {
   position: absolute; right: 20px; bottom: 16px; z-index: 2;
-  color: #acbce7; font: 500 9px/1.5 var(--font-mono); letter-spacing: .12em; pointer-events: none;
+  color: #B9ABCE; font: 500 9px/1.5 var(--font-mono); letter-spacing: .12em; pointer-events: none;
 }
 .yor-studio__controls {
   display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
@@ -47,21 +47,21 @@
 .yor-studio :is(.yor-studio__controls button, .yor-studio__loading button) {
   display: inline-flex; justify-content: center; align-items: center;
   min-width: 90px; min-height: 44px; padding: 10px 16px;
-  border: 1px solid #666c7f; border-radius: 6px; background: #1d1d27; color: #f4f5fc;
+  border: 1px solid #666c7f; border-radius: 6px; background: #201B25; color: #F7F4FA;
   font: 600 13px/1.4 var(--font-body); cursor: pointer;
   transition: border-color .18s ease, background-color .18s ease;
 }
-.yor-studio :is(.yor-studio__controls button, .yor-studio__loading button):hover { border-color: #b4c3ff; background: #282b40; }
-.yor-studio__controls button[aria-pressed="true"] { border-color: #9caaf1; }
-.yor-studio__controls button:disabled { color: #a4a9bd; cursor: wait; border-color: #3d4256; }
+.yor-studio :is(.yor-studio__controls button, .yor-studio__loading button):hover { border-color: #CEB7E3; background: #2E2437; }
+.yor-studio__controls button[aria-pressed="true"] { border-color: #BBA4D9; }
+.yor-studio__controls button:disabled { color: #AAA0B0; cursor: wait; border-color: #47404E; }
 .yor-studio__controls button:last-child { margin-left: auto; }
 .yor-studio__bottomline {
   display: flex; align-items: center; justify-content: space-between; gap: 20px;
   padding: 0 24px 20px;
 }
-.yor-studio__bottomline p { max-width: 56ch; margin: 0; color: #a5aab9; font: 400 13px/1.6 var(--font-body); }
-.yor-studio__projects { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: #bdcaff; font: 600 13px/1.4 var(--font-body); }
-.yor-studio__projects:hover { color: #e5eaff; text-decoration: underline; text-underline-offset: 5px; }
+.yor-studio__bottomline p { max-width: 56ch; margin: 0; color: #B5AAB9; font: 400 13px/1.6 var(--font-body); }
+.yor-studio__projects { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: #D8C9E4; font: 600 13px/1.4 var(--font-body); }
+.yor-studio__projects:hover { color: #F0E8F5; text-decoration: underline; text-underline-offset: 5px; }
 .studio-frame .yor-studio:is(.is-fullscreen, :fullscreen) {
   position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column;
   width: 100%; height: 100dvh; margin: 0; border: 0; border-radius: 0;
