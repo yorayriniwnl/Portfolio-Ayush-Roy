@@ -428,16 +428,16 @@ try {
   await waitForCondition(cdp, 'document.querySelector(".yor-artifact__stage")?.dataset.mode === "1" && document.querySelector(".yor-artifact__description strong")?.textContent === "Think in systems." && document.querySelectorAll(".yor-artifact__controls button[aria-pressed=true]").length === 1',
     { description: "keyboard Enter selects the Connect mode" });
   await cdp.evaluate('document.querySelector(".yor-artifact__pause").click(); true');
-  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.getAttribute("aria-label") === "Play sculpture motion" && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationPlayState === "paused"',
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.getAttribute("aria-label") === "Play sculpture motion" && getComputedStyle(document.querySelector(".yor-artifact__module--a")).animationPlayState === "paused"',
     { description: "pause control suspends sculpture animation" });
   await cdp.evaluate('document.querySelector(".yor-artifact__pause").click(); true');
   await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.paused === "false" && document.querySelector(".yor-artifact__pause")?.getAttribute("aria-label") === "Pause sculpture motion"',
     { description: "resume control restores sculpture motion" });
   await cdp.evaluate('window.scrollTo({top: document.documentElement.scrollHeight, left: 0, behavior: "instant"}); true');
-  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.visible === "false" && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationPlayState === "paused"',
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.visible === "false" && getComputedStyle(document.querySelector(".yor-artifact__module--a")).animationPlayState === "paused"',
     { description: "offscreen sculpture suspends its animations" });
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
-  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.reducedMotion === "true" && document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.disabled === true && getComputedStyle(document.querySelector(".yor-artifact__orbit--a")).animationName === "none"',
+  await waitForCondition(cdp, 'document.querySelector(".yor-artifact")?.dataset.reducedMotion === "true" && document.querySelector(".yor-artifact")?.dataset.paused === "true" && document.querySelector(".yor-artifact__pause")?.disabled === true && getComputedStyle(document.querySelector(".yor-artifact__module--a")).animationName === "none"',
     { description: "reduced-motion preference disables animation and its play control" });
   report.interaction.signatureArtifact = {
     initial: initialInstrument, accessibleKeyboardModes: true, pauseAndResume: true,
@@ -491,6 +491,13 @@ try {
   // The homepage is recruiter-first and never mounts WebGL. Capture it, then
   // visit the optional 3D studio, which lives in the Lab and stays lazy until
   // it approaches the viewport.
+  await waitForCondition(cdp, `(() => {
+    const intro=document.querySelector(".home-hero__intro");
+    const sculpture=document.querySelector(".yor-artifact");
+    return Boolean(intro && sculpture &&
+      Number(getComputedStyle(intro).opacity) >= .995 &&
+      Number(getComputedStyle(sculpture).opacity) >= .995);
+  })()`, { timeoutMs: 4000, description: "hero intro animation settled before desktop capture" });
   await capture(cdp, outputDir, "desktop-hero");
   assert(await cdp.evaluate(`document.querySelectorAll('canvas').length === 0`), "Homepage mounted a canvas; the 3D studio belongs in the Lab");
   await navigate(cdp, `${baseUrl}/lab`);
@@ -510,6 +517,7 @@ try {
     `document.querySelector('.yor-studio')?.dataset.sceneReady === 'true'`,
     { timeoutMs: 35_000, description: "operator and companion GLB scene ready" });
   assert(studioReady.value, "Operator scene failed to load its model assets");
+  await cdp.evaluate('window.__qaPhase = "lab:scene-ready"; true');
   const studioGpu = await cdp.evaluate(`({
     studioCanvases: document.querySelectorAll('.yor-studio__viewport canvas').length,
     projectCanvases: document.querySelectorAll('.machine-canvas canvas').length,
@@ -536,6 +544,7 @@ try {
     initialCamera.distance > 2, "Scene camera telemetry is missing");
 
   activeScenario = "scene clicks stay in the viewer";
+  await cdp.evaluate('window.__qaPhase = "lab:scene-clicks"; true');
   const studioUrl = await cdp.evaluate("location.href");
   for (const offset of [-.25, 0, .25]) {
     const x = studioPoint.x + studioPoint.width * offset;
@@ -548,6 +557,7 @@ try {
   "Ordinary scene clicks opened project navigation or a dialog");
 
   activeScenario = "orbit drag and wheel zoom";
+  await cdp.evaluate('window.__qaPhase = "lab:drag-and-wheel"; true');
   await cdp.send("Input.dispatchMouseEvent", { type: "mousePressed", x: studioPoint.x, y: studioPoint.y, button: "left", buttons: 1, clickCount: 1 });
   for (let i = 1; i <= 8; i++) {
     await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: studioPoint.x + i * 13, y: studioPoint.y - i * 3, button: "left", buttons: 1 });
@@ -578,23 +588,32 @@ try {
   report.interaction.studioViewer = { clicksStayInViewer: true, dragOrbits: true, wheelZooms: true, resetRestoresCamera: true };
 
   activeScenario = "scene controls and fullscreen keyboard exit";
+  await cdp.evaluate('window.__qaPhase = "lab:controls-and-fullscreen"; true');
   await cdp.evaluate(`document.querySelector('button[aria-label="Dim scene lights"]').click(); true`);
   await waitForCondition(cdp, `Boolean(document.querySelector('button[aria-label="Turn on scene lights"]'))`,
     { description: "scene lighting toggle" });
   await cdp.evaluate(`document.querySelector('button[aria-label="Turn on scene lights"]').click(); true`);
+  const restingStudioHeight = await cdp.evaluate('document.querySelector(".studio-frame")?.getBoundingClientRect().height');
+  await cdp.evaluate('window.__qaPhase = "lab:enter-fullscreen"; true');
   await clickAtSelector('button[aria-label="Enter fullscreen"]');
   await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.fullscreen === 'true'`,
     { description: "fullscreen scene" });
+  const fullscreenPlaceholderHeight = await cdp.evaluate('document.querySelector(".studio-frame")?.getBoundingClientRect().height');
+  assert(restingStudioHeight > 500 && fullscreenPlaceholderHeight >= restingStudioHeight - 1,
+    `Fullscreen removed the studio's original document-flow footprint: ${restingStudioHeight} -> ${fullscreenPlaceholderHeight}`);
+  report.interaction.studioFullscreenFlow = { restingStudioHeight, fullscreenPlaceholderHeight, footprintReserved: true };
   await capture(cdp, outputDir, "desktop-full-scene");
   await cdp.evaluate(`document.querySelector('.yor-studio__projects').focus(); true`);
   await pressKey("Tab", "Tab", 9);
   assert(await cdp.evaluate(`Boolean(document.activeElement?.closest('.yor-studio'))`), "Fullscreen keyboard focus escaped behind the viewer");
+  await cdp.evaluate('window.__qaPhase = "lab:exit-fullscreen"; true');
   await pressKey("Escape", "Escape", 27);
   await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.fullscreen === 'false'`,
     { description: "Escape exits fullscreen" });
   report.interaction.fullScene = { activated: true, escapeRestores: true, screenshot: true };
 
   activeScenario = "paused and offscreen scenes stop rendering without remounting";
+  await cdp.evaluate('window.__qaPhase = "lab:pause-and-visibility"; true');
   await cdp.evaluate(`window.__qaStudioCanvas = document.querySelector('.yor-studio__viewport canvas');
     document.querySelector('button[aria-label="Pause scene animation"]').click(); true`);
   await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.renderPaused === 'true'`,
@@ -636,7 +655,14 @@ try {
   backgroundTargetId = undefined;
   report.rendering.studioPause.hiddenFramesDelta = hiddenStudioFramesAfter - hiddenStudioFrames;
   report.rendering.labStudio = { ...studioGpu, restoredInteractiveStudio: true };
-  report.performance.samples.push({ path: "/lab", viewport: "1440x900-rendered", ...(await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION)) });
+  const labPerformance = await cdp.evaluate(PERFORMANCE_METRICS_EXPRESSION);
+  report.performance.samples.push({ path: "/lab", viewport: "1440x900-rendered", ...labPerformance });
+  report.performance.labShiftAttribution = {
+    methodology: "LayoutShift entries excluding hadRecentInput, cumulative across scripted lab interactions; not a CrUX field CLS or a windowed CWV score",
+    total: labPerformance.cumulativeLayoutShift,
+    excludedRecentInputShifts: labPerformance.excludedRecentInputShifts,
+    entries: labPerformance.layoutShiftEntries,
+  };
 
   const explicitSceneLink = await cdp.evaluate(`(() => { const link = document.querySelector('.yor-studio__projects');
     return Boolean(link && link.getAttribute('href') === '/projects' && !link.closest('.yor-studio__viewport')); })()`);
@@ -674,7 +700,39 @@ try {
   await navigate(cdp, baseUrl);
   await waitForCondition(cdp, `Boolean(document.querySelector('.home h1'))`, { description: "mobile homepage" });
   assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas, canvas').length === 0`), "Mobile homepage mounted redundant 3D");
+  await waitForCondition(cdp, `(() => {
+    const intro=document.querySelector(".home-hero__intro");
+    const sculpture=document.querySelector(".yor-artifact");
+    return Boolean(intro && sculpture &&
+      Number(getComputedStyle(intro).opacity) >= .995 &&
+      Number(getComputedStyle(sculpture).opacity) >= .995);
+  })()`, { timeoutMs: 4000, description: "hero intro animation settled before mobile capture" });
   await capture(cdp, outputDir, "mobile-hero");
+  const mobilePrimaryAction = async () => cdp.evaluate(`(() => {
+    const action=document.querySelector(".home-button--primary");
+    const node=action?.firstChild;
+    if (!action || !node) return null;
+    const range=document.createRange();
+    range.selectNodeContents(node);
+    const lines=Array.from(range.getClientRects()).filter(rect => rect.width>0 && rect.height>0);
+    const box=action.getBoundingClientRect();
+    return { textLineCount:lines.length, textInside:lines.every(rect => rect.left>=box.left-1 && rect.right<=box.right+1),
+      actionInsideViewport:box.left>=0 && box.right<=innerWidth+1,
+      scrollWidth:document.documentElement.scrollWidth, viewportWidth:innerWidth };
+  })()`);
+  const action390=await mobilePrimaryAction();
+  assert(action390 && action390.textLineCount===1 && action390.textInside &&
+    action390.actionInsideViewport && action390.scrollWidth<=390,
+    "Mobile 390px primary CTA wraps or overflows: " + JSON.stringify(action390));
+  await setViewport(cdp, 320, 720);
+  await navigate(cdp, baseUrl);
+  await waitForCondition(cdp, `Boolean(document.querySelector(".home-button--primary"))`, { description:"320px primary CTA" });
+  const action320=await mobilePrimaryAction();
+  assert(action320 && action320.textLineCount===1 && action320.textInside &&
+    action320.actionInsideViewport && action320.scrollWidth<=320,
+    "Narrow 320px primary CTA wraps or overflows: " + JSON.stringify(action320));
+  report.interaction.mobileHeroCta = { at390:action390, at320:action320 };
+  await setViewport(cdp, 390, 844);
   await navigate(cdp, `${baseUrl}/lab`);
   const mobileStudioLocated = await cdp.evaluate(`(() => {
     const studio = document.getElementById('studio');
