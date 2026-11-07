@@ -694,6 +694,31 @@ try {
   await waitForCondition(cdp, `Boolean(document.querySelector('.home h1'))`, { description: "mobile homepage" });
   assert(await cdp.evaluate(`document.querySelectorAll('.machine-scene-layer, .machine-canvas, canvas').length === 0`), "Mobile homepage mounted redundant 3D");
   await capture(cdp, outputDir, "mobile-hero");
+  const mobilePrimaryAction = async () => cdp.evaluate(`(() => {
+    const action=document.querySelector(".home-button--primary");
+    const node=action?.firstChild;
+    if (!action || !node) return null;
+    const range=document.createRange();
+    range.selectNodeContents(node);
+    const lines=Array.from(range.getClientRects()).filter(rect => rect.width>0 && rect.height>0);
+    const box=action.getBoundingClientRect();
+    return { textLineCount:lines.length, textInside:lines.every(rect => rect.left>=box.left-1 && rect.right<=box.right+1),
+      actionInsideViewport:box.left>=0 && box.right<=innerWidth+1,
+      scrollWidth:document.documentElement.scrollWidth, viewportWidth:innerWidth };
+  })()`);
+  const action390=await mobilePrimaryAction();
+  assert(action390 && action390.textLineCount===1 && action390.textInside &&
+    action390.actionInsideViewport && action390.scrollWidth<=390,
+    "Mobile 390px primary CTA wraps or overflows: " + JSON.stringify(action390));
+  await setViewport(cdp, 320, 720);
+  await navigate(cdp, baseUrl);
+  await waitForCondition(cdp, `Boolean(document.querySelector(".home-button--primary"))`, { description:"320px primary CTA" });
+  const action320=await mobilePrimaryAction();
+  assert(action320 && action320.textLineCount===1 && action320.textInside &&
+    action320.actionInsideViewport && action320.scrollWidth<=320,
+    "Narrow 320px primary CTA wraps or overflows: " + JSON.stringify(action320));
+  report.interaction.mobileHeroCta = { at390:action390, at320:action320 };
+  await setViewport(cdp, 390, 844);
   await navigate(cdp, `${baseUrl}/lab`);
   const mobileStudioLocated = await cdp.evaluate(`(() => {
     const studio = document.getElementById('studio');
