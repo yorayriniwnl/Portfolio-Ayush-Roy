@@ -2,17 +2,17 @@
   :root {
     color-scheme: dark;
 
-    /* YOR Obsidian Pearl: ink, porcelain, silver, and one restrained amethyst. */
-    --void: #09090D;         /* near-black */
-    --graphite: #17151D;     /* editorial surface */
-    --surface-alt: #23212A;  /* responsive interactive surface */
-    --paper: #F7F4FA;        /* porcelain white */
-    --titanium: #C9C3D1;     /* secondary copy */
-    --muted: #9D96A7;        /* captions */
-    --signal: #BBA4D9;       /* restrained amethyst */
-    --metal-warm: #E6DFEB;   /* pearl metallic */
-    --signal-ink: #22192B;
-    --signal-deep: #574369;
+    /* YOR Monograph: neutral ink, warm paper, and unembellished engineering typography. */
+    --void: #0c0d0c;         /* near-black */
+    --graphite: #191a18;     /* editorial surface */
+    --surface-alt: #242521;  /* responsive interactive surface */
+    --paper: #f5f3ed;        /* porcelain white */
+    --titanium: #c9c8c1;     /* secondary copy */
+    --muted: #a19f98;        /* captions */
+    --signal: #e2dfd5;       /* restrained amethyst */
+    --metal-warm: #f5f3ed;   /* pearl metallic */
+    --signal-ink: #121310;
+    --signal-deep: #4d4b43;
 
     --line: rgba(202,194,214,0.18);
     --line-hot: rgba(187,164,217,0.58);

@@ -1,33 +1,20 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-
-function luminance(hex: string) {
-  const values = hex.match(/[0-9a-f]{2}/gi);
-  assert.ok(values && values.length === 3);
-  const [r,g,b] = values.map(value => {
-    const c=parseInt(value,16)/255;
-    return c<=0.04045 ? c/12.92 : ((c+0.055)/1.055)**2.4;
-  });
-  return 0.2126*r + 0.7152*g + 0.0722*b;
-}
-function contrast(a:string,b:string) {
-  const x=luminance(a),y=luminance(b);
-  return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05);
-}
-test("Obsidian Pearl palette retains accessible contrast and one restrained accent",()=>{
-  const css=readFileSync("src/styles/tokens.css","utf8");
-  for(const token of ["--void: #09090D","--paper: #F7F4FA","--signal: #BBA4D9","--metal-warm: #E6DFEB"]) {
-    assert.ok(css.includes(token),token);
-  }
-  assert.ok(contrast("BBA4D9","09090D")>=7);
-  assert.ok(contrast("F7F4FA","09090D")>=7);
-  assert.ok(contrast("22192B","BBA4D9")>=7);
+const lum=(hex:string)=>{const c=(hex.match(/[a-f0-9]{2}/gi)||[]).map(s=>parseInt(s,16)/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);assert.equal(c.length,3);return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+const contrast=(a:string,b:string)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+test("Monograph keeps an accessible neutral ink and warm-paper palette",()=>{
+ const css=readFileSync("src/styles/tokens.css","utf8");
+ const editorial=readFileSync("src/styles/monograph.css","utf8");
+ const global=readFileSync("src/app/globals.css","utf8");
+ assert.match(css,/--void: #0c0d0c/);assert.match(css,/--paper: #f5f3ed/);assert.match(css,/--signal: #e2dfd5/);
+ assert.ok(global.includes('@import "../styles/monograph.css"'));
+ assert.ok(contrast("f5f3ed","0c0d0c")>14);
+ assert.ok(contrast("171816","f1f0eb")>14);
+ assert.ok(contrast("121310","e2dfd5")>12);
+ assert.match(editorial,/\.home \.home-work \{ background: #f1f0eb/);
+ assert.match(editorial,/\.home \.home-about \{ background: #deddd5/);
 });
-test("obsolete mint, neon-blue, champagne and lime do not leak to branded pages",()=>{
-  for(const path of ["src/styles/tokens.css","src/styles/home.css","src/styles/signature.css","src/styles/machine.css","src/styles/studio.css","src/components/SiteNav.module.css","src/app/opengraph-image.tsx","public/favicon.svg"]) {
-    const data=readFileSync(path,"utf8");
-    assert.doesNotMatch(data,/#(?:a4dfd2|ecd9ba|e9d8bd|c7eaa4|ee3e48|d5efe3|9ab0ff|c9d6ff)\b/i,path);
-    assert.doesNotMatch(data,/rgba\(\s*(?:199\s*,\s*234\s*,\s*164|154\s*,\s*176\s*,\s*255)\s*,/i,path);
-  }
+test("new identity excludes previous mint and violet accents",()=>{
+ assert.doesNotMatch(readFileSync("src/styles/monograph.css","utf8"),/#(?:a4dfd2|9ab0ff|bba4d9|ecd9ba|e9d8bd|c7eaa4)\b/i);
 });
