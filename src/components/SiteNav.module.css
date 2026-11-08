@@ -20,20 +20,19 @@
   color: var(--paper);
   font-family: var(--font-display);
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: -.012em;
+  font-weight: 600;
+  letter-spacing: .005em;
   white-space: nowrap;
 }
 .mark::before {
-  content: "✳";
-  display: grid;
-  place-items: center;
-  width: 29px;
-  height: 29px;
-  border-radius: 50%;
-  background: rgba(226,223,213,.12);
-  color: var(--signal);
-  font: 17px var(--font-display);
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  background: var(--paper);
+  border-radius: 1px;
+  transform: rotate(45deg);
 }
 /* One flex item for the whole wordmark, so the gap never splits "YOR". */
 .wordmark { display: inline-block; }
@@ -45,8 +44,8 @@
   color: var(--titanium);
   font-family: var(--font-body);
   font-size: 13px;
-  font-weight: 550;
-  letter-spacing: .01em;
+  font-weight: 480;
+  letter-spacing: .02em;
 }
 .links a {
   position: relative;
