@@ -7,7 +7,7 @@ test("social preview represents engineering work and matches the Monograph ident
   const metadata = readFileSync("src/app/layout.tsx", "utf8");
   assert.match(card, /width: 1200, height: 630/);
   assert.match(card, /Software,/);
-  assert.match(card, /character\./);
+  assert.match(card, /thought through\./);
   assert.match(card, /#0c0d0c/i);
   assert.match(card, /#f5f3ed/i);
   assert.doesNotMatch(card, /#(?:090f17|a4dfd2|c7eaa4|9ab0ff)/i);
