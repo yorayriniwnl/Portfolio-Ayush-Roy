@@ -89,6 +89,12 @@ body::before { opacity: .06; }
 .home .yor-artifact__point { display: none; }
 .home .yor-artifact__sculpture { filter: drop-shadow(0 26px 42px rgba(0,0,0,.25)); transition: transform 450ms cubic-bezier(.2,.7,.2,1); }
 .home .yor-artifact__module { transition: opacity .6s ease; }
+.home .yor-artifact__stage[data-mode="0"] .yor-artifact__module--b,
+.home .yor-artifact__stage[data-mode="0"] .yor-artifact__module--c,
+.home .yor-artifact__stage[data-mode="1"] .yor-artifact__module--a,
+.home .yor-artifact__stage[data-mode="1"] .yor-artifact__module--c,
+.home .yor-artifact__stage[data-mode="2"] .yor-artifact__module--a,
+.home .yor-artifact__stage[data-mode="2"] .yor-artifact__module--b { opacity: .78; }
 .home .yor-artifact__module--a { animation: yor-panel-a 10s ease-in-out infinite alternate; }
 .home .yor-artifact__module--b { animation: yor-panel-b 13s ease-in-out infinite alternate; }
 .home .yor-artifact__module--c { animation: yor-panel-c 11s ease-in-out infinite alternate; }
