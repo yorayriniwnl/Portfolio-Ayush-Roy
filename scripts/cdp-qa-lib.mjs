@@ -4,6 +4,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 export const QA_VIEWPORTS = [
+  { width: 320, height: 720, label: "320x720" },
   { width: 375, height: 667, label: "375x667" },
   { width: 375, height: 812, label: "375x812" },
   { width: 390, height: 844, label: "390x844" },
@@ -20,7 +21,7 @@ export const QA_VIEWPORTS = [
 export const QA_PROJECT_SLUGS = ["candidatex", "zenith", "helios", "ai-vs-real", "talks", "portfolio"];
 
 export const QA_CORE_ROUTES = [
-  { path: "/", label: "home", surface: "home", requiredHeading: "Code with character." },
+  { path: "/", label: "home", surface: "home", requiredHeading: "Software, thought through." },
   { path: "/projects", label: "project-index", surface: "project-index", requiredHeading: "Projects with receipts." },
   ...[
     ["candidatex", "CandidateX"],
@@ -67,6 +68,7 @@ export const REVIEW_SCREENSHOT_NAMES = [
   "desktop-project-world",
   "desktop-case-study",
   "mobile-hero",
+  "mobile-hero-320",
   "mobile-project-world",
   "contact-finale",
 ];
@@ -169,17 +171,46 @@ export const PERFORMANCE_METRICS_EXPRESSION = String.raw`(() => {
     largestContentfulPaintMs: window.__qaLargestContentfulPaintMs ?? null,
     cumulativeLayoutShift: layoutShifts.reduce((sum, entry) => sum + entry.value, 0),
     layoutShiftCount: layoutShifts.length,
+    // These are diagnostic entries, not a replacement for CLS. Scroll and
+    // scripted interaction can span separate visual stability windows.
+    layoutShiftEntries: layoutShifts.map((entry) => ({
+      value: entry.value, startTime: entry.startTime, phase: entry.phase,
+      sources: entry.sources,
+    })),
+    excludedRecentInputShifts: window.__qaRecentInputShifts || 0,
     shaderCompilation: { available: false, reason: "No stable total compile-duration surface is exposed to this production browser harness." },
   };
 })()`;
 
 export const PERFORMANCE_OBSERVER_INSTALL = String.raw`(() => {
   window.__qaLayoutShifts = [];
+  window.__qaRecentInputShifts = 0;
+  window.__qaPhase = "navigation";
   window.__qaLargestContentfulPaintMs = null;
   try {
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (!entry.hadRecentInput) window.__qaLayoutShifts.push({ value: entry.value, startTime: entry.startTime });
+        if (entry.hadRecentInput) {
+          window.__qaRecentInputShifts += 1;
+          continue;
+        }
+        window.__qaLayoutShifts.push({
+          value: entry.value,
+          startTime: entry.startTime,
+          phase: window.__qaPhase,
+          sources: Array.from(entry.sources || []).slice(0, 5).map((source) => ({
+            element: source.node?.tagName?.toLowerCase() || null,
+            className: typeof source.node?.className === "string" ? source.node.className.slice(0, 110) : null,
+            previousRect: source.previousRect ? {
+              x: source.previousRect.x, y: source.previousRect.y,
+              width: source.previousRect.width, height: source.previousRect.height,
+            } : null,
+            currentRect: source.currentRect ? {
+              x: source.currentRect.x, y: source.currentRect.y,
+              width: source.currentRect.width, height: source.currentRect.height,
+            } : null,
+          })),
+        });
       }
     }).observe({ type: "layout-shift", buffered: true });
     new PerformanceObserver((list) => {

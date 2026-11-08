@@ -2,8 +2,8 @@
   position: fixed;
   inset: 0 0 auto;
   z-index: 80;
-  border-bottom: 1px solid rgba(198, 205, 216, .12);
-  background: rgba(9, 15, 23, .91);
+  border-bottom: 1px solid rgba(226,223,213,.12);
+  background: rgba(12,13,12,.94);
   backdrop-filter: blur(24px) saturate(125%);
 }
 .inner {
@@ -20,20 +20,19 @@
   color: var(--paper);
   font-family: var(--font-display);
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: -.012em;
+  font-weight: 600;
+  letter-spacing: .005em;
   white-space: nowrap;
 }
 .mark::before {
-  content: "✳";
-  display: grid;
-  place-items: center;
-  width: 29px;
-  height: 29px;
-  border-radius: 50%;
-  background: rgba(164, 223, 210, .12);
-  color: var(--signal);
-  font: 17px var(--font-display);
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  background: var(--paper);
+  border-radius: 1px;
+  transform: rotate(45deg);
 }
 /* One flex item for the whole wordmark, so the gap never splits "YOR". */
 .wordmark { display: inline-block; }
@@ -45,8 +44,8 @@
   color: var(--titanium);
   font-family: var(--font-body);
   font-size: 13px;
-  font-weight: 550;
-  letter-spacing: .01em;
+  font-weight: 480;
+  letter-spacing: .02em;
 }
 .links a {
   position: relative;
@@ -68,14 +67,14 @@
 .links a:last-child {
   min-height: 37px;
   padding: 0 17px;
-  border: 1px solid var(--signal);
-  border-radius: 2px;
-  background: var(--signal);
-  color: var(--signal-ink);
+  border: 1px solid var(--paper);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--void);
   font-weight: 650;
 }
 .links a:last-child[aria-current="page"]::after { display: none; }
-.links a:last-child:hover { border-color: #d5efe3; background: #d5efe3; color: var(--signal-ink); }
+.links a:last-child:hover { border-color: #dedbd0; background: #dedbd0; color: var(--signal-ink); }
 .links a:not(:last-child):hover,
 .mobile a:hover { color: var(--signal); }
 .menu {
@@ -83,7 +82,7 @@
   height: 44px;
   display: none;
   place-items: center;
-  border: 1px solid rgba(198, 205, 216, .3);
+  border: 1px solid rgba(226,223,213,.3);
   border-radius: 8px;
   background: rgba(255, 255, 255, .04);
   color: var(--paper);
@@ -95,7 +94,7 @@
   min-height: 51px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid rgba(198, 205, 216, .12);
+  border-bottom: 1px solid rgba(226,223,213,.12);
   color: var(--paper);
   font-family: var(--font-body);
   font-size: 15px;
@@ -124,8 +123,8 @@
     max-height: calc(100svh - 68px);
     overflow-y: auto;
     padding: 12px 20px 22px;
-    border-bottom: 1px solid rgba(198, 205, 216, .17);
-    background: rgba(9, 15, 23, .98);
+    border-bottom: 1px solid rgba(226,223,213,.17);
+    background: rgba(12,13,12,.98);
   }
 }
 @media (prefers-reduced-motion: reduce) {

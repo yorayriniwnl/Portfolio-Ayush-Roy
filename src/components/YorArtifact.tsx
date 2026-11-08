@@ -55,55 +55,54 @@ export function YorArtifact() {
   }
 
   return (
-    <div ref={root} className="yor-artifact" role="group" data-paused={paused} data-visible={inView} data-reduced-motion={reducedMotion} aria-label="Interactive YOR engineering sculpture">
-      <div className="yor-artifact__top"><span><span className="yor-artifact__asterisk">✳</span> YOR / THE FORM STUDY</span><span>VOL. 001</span></div>
+    <div ref={root} className="yor-artifact" role="group" data-paused={paused} data-visible={inView} data-reduced-motion={reducedMotion} aria-label="Interactive YOR editorial letterform study">
+      <div className="yor-artifact__top"><span><span className="yor-artifact__asterisk">✳</span> YOR / THE LETTERFORM STUDY</span><span>EDITION 001</span></div>
       <div className="yor-artifact__stage" ref={frame} data-mode={active} onPointerMove={move} onPointerLeave={reset}>
         <div className="yor-artifact__grid" aria-hidden="true" />
         <div className="yor-artifact__halo" aria-hidden="true" />
-        <span className="yor-artifact__axis yor-artifact__axis--top" aria-hidden="true">CURIOUS BY DESIGN</span>
-        <span className="yor-artifact__axis yor-artifact__axis--bottom" aria-hidden="true">ENGINEERED TO LAST</span>
+        <span className="yor-artifact__axis yor-artifact__axis--top" aria-hidden="true">THOUGHTFUL BY DESIGN</span>
+        <span className="yor-artifact__axis yor-artifact__axis--bottom" aria-hidden="true">BUILT TO HOLD UP</span>
         <svg className="yor-artifact__sculpture" viewBox="0 0 640 640" fill="none" aria-hidden="true">
           <defs>
-            <linearGradient id="yor-steel" x1="73" y1="109" x2="560" y2="527" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#314651"/><stop offset=".15" stopColor="#e1f7ec"/><stop offset=".32" stopColor="#729498"/><stop offset=".48" stopColor="#293942"/><stop offset=".63" stopColor="#dbf0e6"/><stop offset=".82" stopColor="#6d8a90"/><stop offset="1" stopColor="#17232c"/>
+            <linearGradient id="yor-satin" x1="65" y1="120" x2="573" y2="510" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#F6F4EF" />
+              <stop offset=".31" stopColor="#D7D3C8" />
+              <stop offset=".62" stopColor="#85857E" />
+              <stop offset="1" stopColor="#F1EEE6" />
             </linearGradient>
-            <linearGradient id="yor-foil" x1="175" y1="170" x2="440" y2="495" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#f7efd9"/><stop offset=".35" stopColor="#aec9c5"/><stop offset=".6" stopColor="#72848d"/><stop offset=".85" stopColor="#f0e3cf"/><stop offset="1" stopColor="#576a71"/>
+            <linearGradient id="yor-glass" x1="0" y1="0" x2="1" y2="1">
+              <stop stopColor="#F0EEE6" stopOpacity=".12" />
+              <stop offset="1" stopColor="#F0EEE6" stopOpacity=".015" />
             </linearGradient>
-            <radialGradient id="yor-core"><stop stopColor="#d8ece3"/><stop offset=".18" stopColor="#a2bebc"/><stop offset=".48" stopColor="#2f4a51"/><stop offset=".8" stopColor="#0b1721"/><stop offset="1" stopColor="#0a111a"/></radialGradient>
-            <radialGradient id="yor-haze"><stop stopColor="#8ed3cf" stopOpacity=".25"/><stop offset="1" stopColor="#8ed3cf" stopOpacity="0"/></radialGradient>
-            <filter id="yor-ambient"><feGaussianBlur stdDeviation="14"/></filter>
           </defs>
-          <circle cx="320" cy="320" r="286" fill="url(#yor-haze)"/>
           <g className="yor-artifact__geometry">
-            <circle cx="320" cy="320" r="212" stroke="#9abeba" strokeOpacity=".12" strokeWidth="1"/>
-            <circle cx="320" cy="320" r="266" stroke="#97c3bb" strokeOpacity=".10" strokeDasharray="2 12"/>
-            <path d="M320 24V616M24 320H616" stroke="#8facaa" strokeOpacity=".12" strokeWidth=".6"/>
-            <g className="yor-artifact__orbit yor-artifact__orbit--a" transform="rotate(-35 320 320)">
-              <ellipse cx="320" cy="320" rx="238" ry="118" stroke="#050d12" strokeWidth="27"/>
-              <ellipse cx="320" cy="320" rx="238" ry="118" stroke="url(#yor-steel)" strokeWidth="17"/>
-              <ellipse cx="320" cy="320" rx="238" ry="118" stroke="#edf5e8" strokeOpacity=".72" strokeWidth="1"/>
-              <ellipse cx="320" cy="320" rx="238" ry="118" stroke="#09131c" strokeOpacity=".58" strokeWidth="3" transform="translate(0 8)"/>
+            <path d="M42 108H598M42 531H598" stroke="#D9D5C9" strokeOpacity=".16" strokeWidth="1"/>
+            <path d="M57 94V125M583 94V125M57 514V545M583 514V545" stroke="#C2C0B6" strokeOpacity=".35" strokeWidth="1"/>
+            <g className="yor-artifact__module yor-artifact__module--a">
+              <path d="M85 175L237 148L237 455L85 482Z" fill="#1B1B19" stroke="#D9D5C9" strokeOpacity=".34" strokeWidth="1.3" />
+              <path d="M93 183L229 159L229 446L93 469Z" fill="url(#yor-glass)" />
+              <text x="161" y="368" fontSize="223" fontWeight="500" letterSpacing="-14" textAnchor="middle" fontFamily="Georgia,serif" fill="url(#yor-satin)">Y</text>
+              <path d="M103 448H220" stroke="#F1EFE7" strokeOpacity=".3" />
+              <text x="106" y="460" fontSize="8" letterSpacing="2" fill="#DFDAD0">01 / MAKE</text>
             </g>
-            <g className="yor-artifact__orbit yor-artifact__orbit--b" transform="rotate(54 320 320)">
-              <ellipse cx="320" cy="320" rx="216" ry="141" stroke="#080f16" strokeWidth="22"/>
-              <ellipse cx="320" cy="320" rx="216" ry="141" stroke="url(#yor-steel)" strokeWidth="12"/>
-              <ellipse cx="320" cy="320" rx="216" ry="141" stroke="#fcf2dc" strokeOpacity=".62" strokeWidth="1.1"/>
+            <g className="yor-artifact__module yor-artifact__module--b">
+              <path d="M245 144L397 117L397 424L245 451Z" fill="#1E1E1B" stroke="#F2EFE8" strokeOpacity=".47" strokeWidth="1.3" />
+              <path d="M253 152L389 128L389 415L253 438Z" fill="url(#yor-glass)" />
+              <text x="321" y="333" fontSize="195" fontWeight="400" letterSpacing="-14" textAnchor="middle" fontFamily="Georgia,serif" fill="url(#yor-satin)">O</text>
+              <path d="M263 418H379" stroke="#F1EFE7" strokeOpacity=".3" />
+              <text x="267" y="431" fontSize="8" letterSpacing="2" fill="#DFDAD0">02 / THINK</text>
             </g>
-            <g className="yor-artifact__orbit yor-artifact__orbit--c" transform="rotate(18 320 320)">
-              <ellipse cx="320" cy="320" rx="153" ry="238" stroke="#09121b" strokeWidth="14"/>
-              <ellipse cx="320" cy="320" rx="153" ry="238" stroke="url(#yor-foil)" strokeWidth="8"/>
-              <ellipse cx="320" cy="320" rx="153" ry="238" stroke="#b7e4d5" strokeOpacity=".7" strokeWidth=".8"/>
+            <g className="yor-artifact__module yor-artifact__module--c">
+              <path d="M405 180L557 153L557 460L405 487Z" fill="#1B1B19" stroke="#D9D5C9" strokeOpacity=".34" strokeWidth="1.3" />
+              <path d="M413 188L549 164L549 451L413 474Z" fill="url(#yor-glass)" />
+              <text x="481" y="373" fontSize="217" fontWeight="400" letterSpacing="-14" textAnchor="middle" fontFamily="Georgia,serif" fill="url(#yor-satin)">R</text>
+              <path d="M422 454H540" stroke="#F1EFE7" strokeOpacity=".3" />
+              <text x="425" y="468" fontSize="8" letterSpacing="2" fill="#DFDAD0">03 / REFINE</text>
             </g>
-            <circle cx="320" cy="320" r="121" fill="#72b4af" fillOpacity=".2" filter="url(#yor-ambient)"/>
-            <circle cx="320" cy="320" r="115" fill="url(#yor-core)" stroke="url(#yor-foil)" strokeWidth="4"/>
-            <circle cx="320" cy="320" r="98" stroke="#c5dcd1" strokeOpacity=".35"/>
-            <circle cx="320" cy="320" r="83" stroke="#a6d2cd" strokeOpacity=".2" strokeDasharray="2 7"/>
-            <path d="M320 232V408M232 320H408" stroke="#d5e7dc" strokeOpacity=".18"/>
-            <text x="320" y="349" textAnchor="middle" fontSize="80" letterSpacing="-13" fontFamily="Georgia,serif" fontWeight="bold" fill="url(#yor-foil)">YOR</text>
-            <circle cx="320" cy="320" r="278" stroke="#d8e5d8" strokeOpacity=".28" strokeDasharray="1 24"/>
-            <circle cx="95" cy="187" r="4" fill="#d7e9d6"/><circle cx="550" cy="436" r="4" fill="#d7e9d6"/>
-            <path d="M90 187H30M550 436H608" stroke="#c8e5d4" strokeOpacity=".5"/>
+            <path d="M58 501H155M484 117H580" stroke="#BFBDB3" strokeOpacity=".28" strokeDasharray="4 8"/>
+            <circle cx="57" cy="501" r="2.5" fill="#E6E0D4" />
+            <circle cx="583" cy="117" r="2.5" fill="#E6E0D4" />
+            <text x="320" y="576" textAnchor="middle" fontSize="10" letterSpacing="3.5" fontFamily="monospace" fill="#B6B3AA">YOR / INDEPENDENT ENGINEERING</text>
           </g>
         </svg>
         <span className="yor-artifact__point yor-artifact__point--one" aria-hidden="true"><i /> FORM / 01</span>
@@ -117,7 +116,7 @@ export function YorArtifact() {
         </div>
         <div className="yor-artifact__description" aria-live="polite" aria-atomic="true"><strong>{modes[active].headline}</strong><p>{modes[active].description}</p></div>
       </div>
-      <p className="sr-only">An original silver and mineral-glass sculpture: three interlocking engineering orbits circle the YOR monogram. Select Create, Connect or Refine to explore the philosophy; pause the motion if preferred.</p>
+      <p className="sr-only">An original editorial YOR letterform composed of three separate moving typographic panels. Select Create, Connect or Refine to explore the philosophy; pause the motion if preferred.</p>
     </div>
   );
 }

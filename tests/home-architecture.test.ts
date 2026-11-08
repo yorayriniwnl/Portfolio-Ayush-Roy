@@ -30,7 +30,7 @@ test("the homepage stays short: no 3D room, skills grid, timeline or vanity coun
 
 test("signature hero keeps clear identity, CTA links and source-backed personal facts", () => {
   const home = readFileSync("src/components/Home.tsx", "utf8");
-  assert.match(home, /Code with<br \/><em>character\.<\/em>/);
+  assert.match(home, /Software,<br \/><em>thought through\.<\/em>/);
   assert.match(home, /<YorArtifact \/>/);
   assert.match(home, /href="#projects"/);
   assert.ok(home.includes('href="/resume"'));
