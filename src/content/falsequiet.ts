@@ -15,7 +15,7 @@ export const falseQuietProject: Project = {
   role: "Applied ML · security research",
   contribution: "I developed the FalseQuiet prototype represented by the repository: data preparation, the XGBoost, TabTransformer, and autoencoder models, the hybrid decision engine, SHAP explanations, the evaluation experiments, and the FastAPI-backed monitoring dashboard.",
   outcome: "A reproducible prototype showing where supervised detectors stay silent on an unseen attack type, and how an anomaly stream can catch part of what they miss.",
-  evidenceScope: "Results come from committed evaluation artifacts on the CIC-IDS2017 dataset. The supervised scores are for a narrow benign-versus-PortScan split, and the held-out DDoS experiment uses one excluded attack category. Neither is evidence of real-world or general zero-day detection. The public deployment serves the monitoring dashboard; its hosted API endpoints are not currently verified. FalseQuiet was previously named H-NIDS.",
+  evidenceScope: "Results come from committed evaluation artifacts on the CIC-IDS2017 dataset. The supervised scores are for a narrow benign-versus-PortScan split, and the held-out DDoS experiment uses one excluded attack category. Neither is evidence of real-world or general zero-day detection. The public deployment serves the monitoring dashboard and its prediction API, with sample scenarios and CSV batch scanning.",
   technologies: ["Python", "FastAPI", "XGBoost", "PyTorch", "TabTransformer", "SHAP"],
   art: "/media/github/falsequiet/hero.svg",
   period: "2026",
@@ -70,7 +70,7 @@ export const falseQuietProject: Project = {
     "The held-out experiment covers one excluded CIC-IDS2017 category; it is not proof of real-world zero-day detection.",
     "The supervised accuracy figures are for a narrow two-class split.",
     "The repository does not contain a comparable aggregate benchmark for the fused engine.",
-    "The hosted API endpoints on the public deployment are not currently verified.",
+    "The public deployment runs lightweight NumPy inference; it is a demo, not a monitoring service for real traffic.",
   ],
   lessons: [
     "Report where a detector is silent, not only where it is accurate.",
