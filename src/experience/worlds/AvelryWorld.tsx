@@ -14,7 +14,7 @@ const messageEdges = [
   [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 3], [2, 5],
 ] as const;
 
-export function TalksWorld({ quality, demo }: WorldProps) {
+export function AvelryWorld({ quality, demo }: WorldProps) {
   const nodes = quality === "low" ? messageNodes.slice(0, 5) : messageNodes;
   const selectedNode = Math.min(demo?.selectedNode ?? 0, nodes.length - 1);
   const edges = messageEdges.filter(

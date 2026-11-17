@@ -3,13 +3,13 @@
 import type { Project, ProjectDemoMode } from "@/content/projects";
 import { useExperience } from "@/experience/ExperienceProvider";
 
-const choices: Record<Exclude<ProjectDemoMode, "talks">, readonly [string, string]> = {
+const choices: Record<Exclude<ProjectDemoMode, "avelry">, readonly [string, string]> = {
   helios: ["Nominal signal", "Illustrative anomaly"],
   zenith: ["Baseline roof scenario", "Higher solar scenario"],
   "ai-vs-real": ["LBP feature view", "GLCM feature view"],
 };
 
-const choiceDescriptions: Record<Exclude<ProjectDemoMode, "talks">, readonly [string, string]> = {
+const choiceDescriptions: Record<Exclude<ProjectDemoMode, "avelry">, readonly [string, string]> = {
   helios: [
     "Nominal deterministic signal selected. Sample telemetry is illustrative, not field data.",
     "Illustrative anomaly selected at the operator boundary. No live device or provider is involved.",
@@ -24,16 +24,17 @@ const choiceDescriptions: Record<Exclude<ProjectDemoMode, "talks">, readonly [st
   ],
 };
 
-const talksNodes = [
-  { name: "Browser", responsibility: "Owns the social shell and requests state through authenticated boundaries.", failure: "Stale optimistic state or a reconnect that is treated as trusted without revalidation.", verification: "Local regression/build path", sourceLocation: "social/src/App.tsx", sourceUrl: "https://github.com/yorayriniwnl/yor-talksv2/blob/main/social/src/App.tsx", testCoverage: "Repository path: e2e/core-social.spec.ts", designDecision: "Keep presentation responsive while the server remains the policy owner.", evidenceUrl: "https://github.com/yorayriniwnl/yor-talksv2" },
-  { name: "Web app", responsibility: "Translates user intent into REST and Socket.IO calls without becoming a second policy layer.", failure: "A client-only permission check drifting away from server authorization.", verification: "Repository architecture / readiness audit", sourceLocation: "social/src/components/layout/AppShell.tsx", sourceUrl: "https://github.com/yorayriniwnl/yor-talksv2/blob/main/social/src/components/layout/AppShell.tsx", testCoverage: "Repository path: e2e/core-social.spec.ts", designDecision: "Treat the client as an adapter, not a duplicate authorization system.", evidenceUrl: "https://github.com/yorayriniwnl/yor-talksv2" },
-  { name: "API + WebSocket", responsibility: "Authenticates requests, authorizes events, and coordinates durable product behavior.", failure: "An unauthorized event or dropped connection being accepted as a completed action.", verification: "Repository architecture / readiness audit", sourceLocation: "api-server/src/socket/index.ts", sourceUrl: "https://github.com/yorayriniwnl/yor-talksv2/blob/main/api-server/src/socket/index.ts", testCoverage: "Repository path: api-server/src/__tests__/socket-security.test.ts", designDecision: "Gate realtime events at the same trust boundary as HTTP requests.", evidenceUrl: "https://github.com/yorayriniwnl/yor-talksv2" },
-  { name: "Redis", responsibility: "Carries queues, notifications, and ephemeral worker paths that should not own product truth.", failure: "A retry, queue, or notification path failing without a durable state transition.", verification: "Repository architecture / readiness audit", sourceLocation: "api-server/src/services/queue-service.ts", sourceUrl: "https://github.com/yorayriniwnl/yor-talksv2/blob/main/api-server/src/services/queue-service.ts", testCoverage: "Repository path: api-server/src/__tests__/redis-budget.test.ts", designDecision: "Use Redis for transient coordination while durable state stays in PostgreSQL.", evidenceUrl: "https://github.com/yorayriniwnl/yor-talksv2" },
-  { name: "PostgreSQL", responsibility: "Stores durable social state behind Drizzle migrations and transaction boundaries.", failure: "A partial write or migration mismatch leaving the source of truth inconsistent.", verification: "Repository architecture / readiness audit", sourceLocation: "api-server/src/repositories/base-repository.ts", sourceUrl: "https://github.com/yorayriniwnl/yor-talksv2/blob/main/api-server/src/repositories/base-repository.ts", testCoverage: "Repository path: api-server/src/__tests__/settings-concurrency.test.ts", designDecision: "Make relational state the source of truth and keep repository boundaries explicit.", evidenceUrl: "https://github.com/yorayriniwnl/yor-talksv2" },
+// Avelry's source is private, so the explorer names file paths without linking to them.
+const avelryNodes = [
+  { name: "Web app", responsibility: "Owns the React/TypeScript social shell and requests state through authenticated API and Socket.IO calls.", failure: "Stale optimistic state, or a reconnect treated as trusted without revalidation.", verification: "Web-release review: 345 Chromium end-to-end tests", sourceLocation: "social/src/App.tsx", testCoverage: "Chromium end-to-end suite", designDecision: "Keep the client responsive while the server stays the policy owner." },
+  { name: "Protection gate", responsibility: "Applies the current emergency level (normal, guarded, read-only, offline) to every route before the handler runs.", failure: "A write or paid call slipping through while the platform is meant to be read-only or paused.", verification: "Operator runbook for emergency controls", sourceLocation: "api-server/src/middlewares/protection-gate.ts", testCoverage: "api-server/src/__tests__/spend-guard.test.ts", designDecision: "Decide what stays open per level, so sign-in and recovery outlive paid and risky features." },
+  { name: "API + Socket.IO", responsibility: "Authenticates requests, authorizes realtime events, and coordinates durable product behavior.", failure: "An unauthorized event or dropped connection being accepted as a completed action.", verification: "Web-release review: 855 API tests", sourceLocation: "api-server/src/socket/index.ts", testCoverage: "api-server/src/__tests__/socket-security.test.ts", designDecision: "Gate realtime events at the same trust boundary as HTTP requests." },
+  { name: "Redis", responsibility: "Carries rate limits, queues, and the idempotent provider spend ledger without owning product truth.", failure: "A retry double-counting spend, or a lost ledger allowing unbounded provider calls.", verification: "Rate-limit and spend-ledger test suites", sourceLocation: "api-server/src/lib/spend-ledger.ts", testCoverage: "api-server/src/__tests__/spend-ledger-redis.test.ts", designDecision: "Make spend accounting idempotent and fail closed when the ledger is missing." },
+  { name: "PostgreSQL", responsibility: "Stores durable social state behind Drizzle schemas and transaction boundaries.", failure: "A partial write or migration mismatch leaving the source of truth inconsistent.", verification: "Web-release review: 855 API tests", sourceLocation: "lib/db/src/schema", testCoverage: "api-server/src/__tests__/suspended-rights.integration.test.ts", designDecision: "Make relational state the source of truth and keep Redis transient." },
 ] as const;
 
-function isInteractiveMode(mode: ProjectDemoMode): mode is Exclude<ProjectDemoMode, "talks"> {
-  return mode !== "talks";
+function isInteractiveMode(mode: ProjectDemoMode): mode is Exclude<ProjectDemoMode, "avelry"> {
+  return mode !== "avelry";
 }
 
 export function ProjectInteractionPanel({ project }: { project: Project }) {
@@ -70,13 +71,13 @@ export function ProjectInteractionPanel({ project }: { project: Project }) {
           </div>
         ) : (
           <>
-            <div className="actions project-interaction-choices" role="group" aria-label="Yor Talks sample walkthrough">
+            <div className="actions project-interaction-choices" role="group" aria-label="Avelry sample walkthrough">
               <button className="action primary" type="button" onClick={runDemo}>Send sample message</button>
             </div>
-            <div className="architecture-explorer" aria-label="Yor Talks architecture explorer">
+            <div className="architecture-explorer" aria-label="Avelry architecture explorer">
               <span className="technical">Path explorer / select a boundary</span>
               <div className="architecture-nodes" role="list">
-                {talksNodes.map((node, index) => (
+                {avelryNodes.map((node, index) => (
                   <div role="listitem" key={node.name}>
                     <button
                       type="button"
@@ -90,15 +91,14 @@ export function ProjectInteractionPanel({ project }: { project: Project }) {
                 ))}
               </div>
               <div className="architecture-detail" aria-live="polite">
-                <strong>{talksNodes[selectedNode % talksNodes.length].name}</strong>
-                <p>{talksNodes[selectedNode % talksNodes.length].responsibility}</p>
-                <p><b>Failure to watch.</b> {talksNodes[selectedNode % talksNodes.length].failure}</p>
-                <p><b>Decision.</b> {talksNodes[selectedNode % talksNodes.length].designDecision}</p>
-                <span className="technical">Verification / {talksNodes[selectedNode % talksNodes.length].verification}</span>
-                <span className="technical">Test surface / {talksNodes[selectedNode % talksNodes.length].testCoverage}</span>
+                <strong>{avelryNodes[selectedNode % avelryNodes.length].name}</strong>
+                <p>{avelryNodes[selectedNode % avelryNodes.length].responsibility}</p>
+                <p><b>Failure to watch.</b> {avelryNodes[selectedNode % avelryNodes.length].failure}</p>
+                <p><b>Decision.</b> {avelryNodes[selectedNode % avelryNodes.length].designDecision}</p>
+                <span className="technical">Verification / {avelryNodes[selectedNode % avelryNodes.length].verification}</span>
+                <span className="technical">Test surface / {avelryNodes[selectedNode % avelryNodes.length].testCoverage}</span>
                 <span className="technical">Run count / {run}</span>
-                <a href={talksNodes[selectedNode % talksNodes.length].sourceUrl} target="_blank" rel="noopener noreferrer">Source / {talksNodes[selectedNode % talksNodes.length].sourceLocation} ↗</a>
-                <a href={talksNodes[selectedNode % talksNodes.length].evidenceUrl} target="_blank" rel="noopener noreferrer">Repository evidence ↗</a>
+                <span className="technical">Source (private) / {avelryNodes[selectedNode % avelryNodes.length].sourceLocation}</span>
               </div>
             </div>
           </>

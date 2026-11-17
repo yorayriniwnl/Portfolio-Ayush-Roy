@@ -1,0 +1,83 @@
+import type { Project } from "./projects";
+
+export const velvetclipProject: Project = {
+  id: "velvetclip",
+  slug: "velvetclip",
+  aliases: ["yor-tools"],
+  index: "02",
+  title: "Velvetclip",
+  shortTitle: "Velvetclip",
+  kicker: "Local-first browser utilities",
+  purpose: "A browser-first utility platform with 27 PDF, image, document, and media tools that process standard file operations on the user's own device instead of uploading files to a server.",
+  status: "Release candidate · public deployment",
+  role: "Founder · full-stack / browser engineering",
+  contribution: "I founded Velvetclip and built the platform: the Next.js/React interface, the tool registry and runner, the PDF and image processing workflows on PDF.js and pdf-lib, browser-based OCR, and the file-safety checks around every input.",
+  outcome: "A deployed toolset where common PDF, image, and document tasks finish in the browser, so files do not have to leave the user's device.",
+  evidenceScope: "Velvetclip is publicly deployed; its source repository is private, so the links on this page go to the product rather than the code. The test and route counts come from the RC1 release checkpoint: 83 unit/integration tests, 6 Playwright browser journeys, and 36 statically built routes. Paid plans are not enabled on the public deployment. Velvetclip was previously named Yor Tools.",
+  technologies: ["Next.js", "React", "TypeScript", "PDF.js", "pdf-lib", "Tesseract.js", "Playwright"],
+  art: "/media/github/velvetclip/hero.svg",
+  period: "2026",
+  links: {
+    live: "https://velvetclip.vercel.app",
+  },
+  availability: { live: "verified", source: "unavailable" },
+  visibility: { featured: true, portfolio: true, resume: true },
+  media: [],
+  problem: "Most online file converters upload documents to a server to merge a PDF or compress an image. For contracts, IDs, and medical or financial records, that upload is the privacy risk.",
+  whyItMatters: "Many routine file tasks can run entirely in a modern browser. Doing the work locally removes a whole class of data exposure, as long as the browser path is also safe against hostile files.",
+  constraints: [
+    "Standard file operations must run client-side with no file upload.",
+    "Inputs are untrusted: file types are checked by content, not by extension.",
+    "Archives and images must be checked for decompression bombs before they are expanded.",
+    "Redaction must remove the underlying content, not only draw a box over it.",
+  ],
+  workflow: "A user selects a file; its real type is detected from the leading bytes, size and decompression limits are checked, the matching PDF, image, document, or media engine processes it in browser workers, and the result downloads locally.",
+  hardPart: "Running locally removes the upload risk but moves the attack surface into the browser. Every tool therefore shares one safety layer: content sniffing, dimension and decompression checks, safe ZIP handling, and redaction validation that confirms text is actually gone.",
+  decisions: [
+    { title: "Process on the device", body: "Standard PDF, image, and document operations run in the browser, so files are not uploaded for routine tasks." },
+    { title: "Trust bytes, not names", body: "File types are detected from magic bytes, and image dimensions are read from headers before any canvas memory is allocated." },
+    { title: "Verify redaction", body: "Redaction is validated by checking that the underlying text and data streams were removed, not only visually covered." },
+  ],
+  architecture: [
+    "File input",
+    "Type sniffing + safety limits",
+    "Tool registry / runner",
+    "PDF.js · pdf-lib · OCR workers",
+    "Local download",
+  ],
+  implementation: [
+    "A shared tool registry drives 27 tools through one runner component, so every tool gets the same validation and progress handling.",
+    "PDF workflows use PDF.js for rendering and pdf-lib for editing; OCR runs in the browser through Tesseract.js workers.",
+    "Safety utilities cover file-type sniffing, safe ZIP handling, decompression-bomb checks, and redaction forensics.",
+    "Pages are statically generated with Next.js, with structured data and sitemaps for each tool.",
+  ],
+  testing: [
+    "The RC1 checkpoint recorded 83 passing unit/integration tests and 6 passing Playwright browser journeys.",
+    "The same checkpoint built 36 static routes: the home, pricing, privacy, security, and error pages plus one page per tool.",
+  ],
+  results: [
+    "27 tools are registered and wired to the shared runner.",
+    "Routine file operations complete without uploading the file.",
+    "Safety checks are shared across tools instead of re-implemented per tool.",
+  ],
+  metrics: [
+    { label: "Browser tools", value: "27", context: "PDF, image, document, and media tools registered in the RC1 build" },
+    { label: "Automated tests", value: "83 + 6", context: "Unit/integration tests and Playwright journeys passing at the RC1 checkpoint" },
+    { label: "Static routes", value: "36", context: "Statically built routes in the RC1 production build" },
+  ],
+  limitations: [
+    "The source repository is private; the evidence here is the live product and the recorded release checkpoint.",
+    "Very large files are limited by the memory available to the browser tab.",
+    "Paid plans and checkout are not enabled on the public deployment.",
+  ],
+  lessons: [
+    "Local-first changes the threat model rather than removing it.",
+    "One shared safety layer is easier to trust than per-tool checks.",
+  ],
+  nextIteration: "Publish per-tool performance measurements on large files and add fuzzing for the file-type and decompression checks.",
+  claimIds: ["velvetclip-rc1-tests", "velvetclip-tool-count"],
+  seo: {
+    title: "Velvetclip · Local-First Browser Utilities Case Study",
+    description: "Velvetclip runs 27 PDF, image, document, and media tools in the browser with PDF.js, pdf-lib, and OCR, plus file-type checks, safe ZIP handling, and verified redaction.",
+  },
+};

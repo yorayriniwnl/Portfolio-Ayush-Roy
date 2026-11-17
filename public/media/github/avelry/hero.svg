@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Avelry privacy-first social platform</title>
+  <desc id="desc">A technical visualization of Avelry's request path from the web app through the Express API and Socket.IO gateway to PostgreSQL and Redis, with four emergency protection levels.</desc>
+  <defs>
+    <radialGradient id="bg" cx="70%" cy="44%" r="70%"><stop offset="0" stop-color="#142017"/><stop offset=".45" stop-color="#142017"/><stop offset="1" stop-color="#0c111b"/></radialGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <g opacity=".13" stroke="#f6f3ec"><path d="M0 90H1600M0 180H1600M0 270H1600M0 360H1600M0 450H1600M0 540H1600M0 630H1600M0 720H1600M0 810H1600"/><path d="M100 0V900M200 0V900M300 0V900M400 0V900M500 0V900M600 0V900M700 0V900M800 0V900M900 0V900M1000 0V900M1100 0V900M1200 0V900M1300 0V900M1400 0V900M1500 0V900"/></g>
+  <text x="98" y="105" fill="#e0f4cf" font-family="monospace" font-size="18" letter-spacing="6">AVELRY // PRIVACY-FIRST SOCIAL</text>
+  <text x="94" y="245" fill="#f6f3ec" font-family="serif" font-size="126" font-weight="600">Social, on</text>
+  <text x="94" y="350" fill="#c7eaa4" font-family="serif" font-size="126" font-style="italic" font-weight="600">your terms.</text>
+  <text x="98" y="420" fill="#9aa6b5" font-family="monospace" font-size="22">identity → authorization → durable state → realtime delivery</text>
+
+  <g transform="translate(100 535)" font-family="monospace">
+    <g fill="#0c111b" stroke="#3a4656"><rect width="220" height="116" rx="12"/><text x="24" y="40" fill="#e0f4cf" font-size="16">01 / CLIENT</text><text x="24" y="76" fill="#f6f3ec" font-size="19">React · TS</text><text x="24" y="101" fill="#9aa6b5" font-size="15">no trusted state</text></g>
+    <path d="M230 58H332" stroke="#c7eaa4" stroke-width="2"/><circle cx="281" cy="58" r="5" fill="#c7eaa4" filter="url(#glow)"/>
+    <g transform="translate(342)" fill="#142017" stroke="#c7eaa4"><rect width="248" height="116" rx="12"/><text x="24" y="40" fill="#e0f4cf" font-size="16">02 / GATEWAY</text><text x="24" y="76" fill="#f6f3ec" font-size="19">Express · Socket.IO</text><text x="24" y="101" fill="#9aa6b5" font-size="15">one trust boundary</text></g>
+    <path d="M600 58H702" stroke="#c7eaa4" stroke-width="2"/>
+    <g transform="translate(712)" fill="#0c111b" stroke="#3a4656"><rect width="220" height="116" rx="12"/><text x="24" y="40" fill="#e0f4cf" font-size="16">03 / DURABLE</text><text x="24" y="76" fill="#f6f3ec" font-size="19">PostgreSQL</text><text x="24" y="101" fill="#9aa6b5" font-size="15">Drizzle · truth</text></g>
+    <path d="M942 58H1044" stroke="#c7eaa4" stroke-width="2"/>
+    <g transform="translate(1054)" fill="#0c111b" stroke="#3a4656"><rect width="220" height="116" rx="12"/><text x="24" y="40" fill="#e0f4cf" font-size="16">04 / TRANSIENT</text><text x="24" y="76" fill="#f6f3ec" font-size="19">Redis</text><text x="24" y="101" fill="#9aa6b5" font-size="15">limits · queues</text></g>
+  </g>
+
+  <g transform="translate(1138 150)" font-family="monospace">
+    <circle cx="170" cy="170" r="142" fill="none" stroke="#c7eaa4" stroke-opacity=".7"/>
+    <circle cx="170" cy="170" r="100" fill="none" stroke="#c7eaa4" stroke-opacity=".35"/>
+    <circle cx="170" cy="170" r="54" fill="#142017" fill-opacity=".8" stroke="#c7eaa4" filter="url(#glow)"/>
+    <text x="133" y="177" fill="#f6f3ec" font-size="19">GUARD</text>
+    <g fill="#c7eaa4"><circle cx="170" cy="28" r="8"/><circle cx="312" cy="170" r="8" fill-opacity=".75"/><circle cx="170" cy="312" r="8" fill-opacity=".5"/><circle cx="28" cy="170" r="8" fill-opacity=".3"/></g>
+    <g fill="#9aa6b5" font-size="15"><text x="136" y="12">normal</text><text x="324" y="175">guarded</text><text x="128" y="342">read-only</text><text x="-60" y="175">offline</text></g>
+  </g>
+  <text x="101" y="830" fill="#6b7787" font-family="monospace" font-size="16" letter-spacing="2">LIVE AT AVELRY.IN / PRIVATE SOURCE / SERVER-OWNED PERMISSIONS</text>
+</svg>

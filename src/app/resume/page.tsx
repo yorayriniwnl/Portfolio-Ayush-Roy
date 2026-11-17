@@ -43,6 +43,7 @@ export default function Resume() {
                 <p className="resume-project__outcome">{project.outcome}</p>
                 <div className="actions resume-project__actions">
                   <ActionLink href={`/projects/${project.slug}`} primary>Case study</ActionLink>
+                  {project.availability.live === "verified" && project.links.live && <ActionLink href={`/projects/${project.slug}/live`}>Live</ActionLink>}
                   {project.availability.source === "verified" && project.links.source && <ActionLink href={`/projects/${project.slug}/source`}>Source</ActionLink>}
                 </div>
               </div>

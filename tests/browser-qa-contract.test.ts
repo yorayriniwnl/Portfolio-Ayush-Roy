@@ -30,9 +30,9 @@ test("browser audit covers eleven viewport sizes including short mobile and eigh
     "/projects",
     "/projects/candidatex",
     "/projects/zenith",
-    "/projects/helios",
-    "/projects/ai-vs-real",
-    "/projects/talks",
+    "/projects/velvetclip",
+    "/projects/falsequiet",
+    "/projects/avelry",
     "/projects/portfolio",
   ]);
 });

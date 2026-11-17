@@ -30,7 +30,8 @@ test("project registry uses a canonical portfolio record without mutating legacy
   const validator = readFileSync("scripts/validate-content.mjs", "utf8");
 
   assert.match(registry, /portfolioProject/);
-  assert.match(registry, /legacyCvProjects\.filter\(\(project\) => project\.slug !== "portfolio"\)/);
+  assert.match(registry, /sharedCvProjects\.find\(\(project\) => project\.slug === "zenith"\)/);
+  assert.doesNotMatch(registry, /\.\.\.sharedCvProjects/);
   assert.doesNotMatch(registry, /\.replace\(|normalizedOriginalProjects|canonicalProjectCount/);
   assert.doesNotMatch(registry, /decisions:\s*project\.decisions|results:\s*project\.results|metrics:\s*project\.metrics/);
   assert.doesNotMatch(portfolio, /five public projects|exactly five CV projects|value:\s*"5"/i);

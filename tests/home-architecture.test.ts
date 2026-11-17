@@ -58,10 +58,12 @@ test("signature sculpture is a contained accessible client island with static ar
 
 test("selected work shows three projects, each with a metric that exists in its case study", () => {
   assert.equal(homeHighlights.length, 3);
-  for (const { project, metric, caption, source } of homeHighlights) {
+  for (const { project, metric, caption, source, live } of homeHighlights) {
     assert.ok(recruiterProjects.includes(project), `${project.slug} is not a recruiter project`);
     assert.ok(project.metrics.includes(metric), `${project.slug} metric is not from its registry entry`);
-    assert.ok(source, `${project.slug} should link verified source`);
+    // Private-source products are checked through their verified live deployment instead.
+    if (project.availability.source === "verified") assert.ok(source, `${project.slug} should link verified source`);
+    else assert.ok(live, `${project.slug} has private source, so it should link a verified live deployment`);
     const evidence = [metric.context, ...project.metrics.map((item) => `${item.value} ${item.context}`), ...project.results, project.outcome].join(" ");
     for (const number of caption.match(/\d[\d,./%]*/g) ?? []) {
       assert.ok(evidence.includes(number.replace(/[.,]$/, "")), `${project.slug} caption number ${number} is not backed by project data`);

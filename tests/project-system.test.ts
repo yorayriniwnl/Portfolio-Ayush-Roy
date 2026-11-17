@@ -5,6 +5,7 @@ import {
   cvProjects,
   getCanonicalProjectSlug,
   getCvProject,
+  getLegacyProject,
   getLegacyRedirect,
   resolveConfiguredProjectLink,
   resolveProjectLink,
@@ -13,22 +14,27 @@ import {
 } from "../src/content/project-system";
 
 test("exposes exactly the six CV project slugs", () => {
-  assert.deepEqual([...CANONICAL_PROJECT_SLUGS], ["portfolio", "helios", "zenith", "ai-vs-real", "talks", "candidatex"]);
+  assert.deepEqual([...CANONICAL_PROJECT_SLUGS], ["portfolio", "velvetclip", "zenith", "falsequiet", "avelry", "candidatex"]);
   assert.deepEqual(cvProjects.map((project) => project.slug), [...CANONICAL_PROJECT_SLUGS]);
   assert.equal(cvProjects.some((project) => project.slug === "token-usage"), false);
 });
 
 test("canonicalizes historical project aliases", () => {
-  assert.equal(getCanonicalProjectSlug("texture-forensics"), "ai-vs-real");
-  assert.equal(getCanonicalProjectSlug("yor-talks"), "talks");
-  assert.equal(getCvProject("yor-helios")?.slug, "helios");
+  assert.equal(getCanonicalProjectSlug("yor-talks"), "avelry");
+  assert.equal(getCanonicalProjectSlug("talks"), "avelry");
+  assert.equal(getCanonicalProjectSlug("yor-tools"), "velvetclip");
+  assert.equal(getCvProject("h-nids")?.slug, "falsequiet");
+  assert.equal(getCanonicalProjectSlug("texture-forensics"), undefined);
   assert.equal(getCanonicalProjectSlug("token-usage"), undefined);
 });
 
 test("maps legacy work paths to canonical project paths", () => {
-  assert.equal(getLegacyRedirect("helios"), "/projects/helios");
-  assert.equal(getLegacyRedirect("texture-forensics"), "/projects/ai-vs-real");
-  assert.equal(getLegacyRedirect("yor-talks"), "/projects/talks");
+  assert.equal(getLegacyRedirect("yor-talks"), "/projects/avelry");
+  assert.equal(getLegacyRedirect("yor-tools"), "/projects/velvetclip");
+  assert.equal(getLegacyRedirect("h-nids"), "/projects/falsequiet");
+  assert.equal(getLegacyRedirect("helios"), undefined);
+  assert.equal(getLegacyProject("helios")?.slug, "helios");
+  assert.equal(getLegacyProject("texture-forensics")?.slug, "ai-vs-real");
   assert.equal(getLegacyRedirect("not-a-project"), undefined);
 });
 
@@ -44,20 +50,18 @@ test("resolves the deployed portfolio live target", () => {
   if (result.kind === "redirect") assert.equal(result.target, "https://yorayriniwnl.in");
 });
 
-test("resolves the bounded Helios frontend demo", () => {
-  const result = resolveProjectLink("helios", "live");
-  assert.equal(result.kind, "redirect");
-  if (result.kind === "redirect") assert.equal(result.target, "https://yor-helios-demo.vercel.app");
+test("resolves the live Avelry product and keeps its private source unlinked", () => {
+  const live = resolveProjectLink("avelry", "live");
+  assert.equal(live.kind, "redirect");
+  if (live.kind === "redirect") assert.equal(live.target, "https://avelry.in");
+  assert.equal(resolveProjectLink("avelry", "source").kind, "unavailable");
 });
 
-test("resolves the AI detector inference demo", () => {
-  const result = resolveProjectLink("ai-vs-real", "live");
-  assert.equal(result.kind, "redirect");
-  if (result.kind === "redirect") assert.equal(result.target, "https://yor-ai-vs-real-detector.vercel.app");
-});
-
-test("keeps Yor Talks live unavailable", () => {
-  assert.equal(resolveProjectLink("talks", "live").kind, "unavailable");
+test("resolves the Velvetclip deployment and keeps its private source unlinked", () => {
+  const live = resolveProjectLink("velvetclip", "live");
+  assert.equal(live.kind, "redirect");
+  if (live.kind === "redirect") assert.equal(live.target, "https://velvetclip.vercel.app");
+  assert.equal(resolveProjectLink("velvetclip", "source").kind, "unavailable");
 });
 
 test("adds CandidateX to the canonical project system with verified source and verified demo live state", () => {
@@ -74,9 +78,9 @@ test("adds CandidateX to the canonical project system with verified source and v
 });
 
 test("resolves source through the stable source namespace", () => {
-  const result = resolveProjectLink("talks", "source");
+  const result = resolveProjectLink("falsequiet", "source");
   assert.equal(result.kind, "redirect");
-  if (result.kind === "redirect") assert.equal(result.target, "https://github.com/yorayriniwnl/yor-talksv2");
+  if (result.kind === "redirect") assert.equal(result.target, "https://github.com/yorayriniwnl/Hybrid-Intelligent-Network-Intrusion-Detection-System");
 });
 
 test("rejects malformed configured redirect data", () => {
@@ -110,8 +114,8 @@ test("rejects credential-bearing destinations and alternate localhost spellings"
 });
 
 test("generates stable canonical project paths and keeps demo modes scoped", () => {
-  assert.equal(projectPath("ai-vs-real"), "/projects/ai-vs-real");
-  assert.equal(projectLinkPath("talks", "source"), "/projects/talks/source");
+  assert.equal(projectPath("falsequiet"), "/projects/falsequiet");
+  assert.equal(projectLinkPath("avelry", "source"), "/projects/avelry/source");
   assert.equal(cvProjects.some((project) => String(project.demoMode) === "token-usage"), false);
   assert.equal(getCvProject("portfolio")?.demoMode, undefined);
 });

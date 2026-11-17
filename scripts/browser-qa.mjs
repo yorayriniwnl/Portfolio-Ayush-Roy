@@ -1011,7 +1011,7 @@ try {
   await waitForCondition(cdp, `location.pathname === '/projects' && Array.from(document.querySelectorAll('[data-project-slug]')).filter(node => node.getClientRects().length && !node.closest('[hidden], [inert], [aria-hidden=true]') && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden').length === 6`, { description: "browser forward navigation" });
 
   const repeated = [];
-  for (const routePath of ["/projects/candidatex", "/resume", "/projects/helios", "/lab", "/projects/portfolio", "/"]) {
+  for (const routePath of ["/projects/candidatex", "/resume", "/projects/velvetclip", "/lab", "/projects/portfolio", "/"]) {
     await navigate(cdp, `${baseUrl}${routePath}`);
     const health = await pageHealth(cdp);
     assert(health.sceneLayers <= 1 && health.canvases <= 1, `${routePath}: duplicate scene layer or canvas after route change`);

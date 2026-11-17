@@ -6,10 +6,10 @@ import { getCvProject, resolveProjectLink } from "../src/content/project-system"
 test("CandidateX is the sixth recruiter-facing project", () => {
   assert.deepEqual(cvProjects.map((project) => project.slug), [
     "portfolio",
-    "helios",
+    "velvetclip",
     "zenith",
-    "ai-vs-real",
-    "talks",
+    "falsequiet",
+    "avelry",
     "candidatex",
   ]);
   assert.equal(getCvProject("candidatex")?.index, "06");
