@@ -13,7 +13,7 @@ export const velvetclipProject: Project = {
   role: "Founder · full-stack / browser engineering",
   contribution: "I founded Velvetclip and built the platform: the Next.js/React interface, the tool registry and runner, the PDF and image processing workflows on PDF.js and pdf-lib, browser-based OCR, and the file-safety checks around every input.",
   outcome: "A deployed toolset where common PDF, image, and document tasks finish in the browser, so files do not have to leave the user's device.",
-  evidenceScope: "Velvetclip is publicly deployed; its source repository is private, so the links on this page go to the product rather than the code. The test and route counts come from the RC1 release checkpoint: 83 unit/integration tests, 6 Playwright browser journeys, and 36 statically built routes. Paid plans are not enabled on the public deployment. Velvetclip was previously named Yor Tools.",
+  evidenceScope: "Velvetclip is publicly deployed; its source repository is private, so the links on this page go to the product rather than the code. The test and route counts come from the 16 Nov 2026 master completion audit in the private repository (docs/MASTER_COMPLETION_AUDIT.md): 218/218 unit tests passing in 33 suites, 49/49 Playwright browser tests passing in Chromium, and 45 compiled routes, with all 27 tools validated. Paid plans are not enabled on the public deployment. Velvetclip was previously named Yor Tools.",
   technologies: ["Next.js", "React", "TypeScript", "PDF.js", "pdf-lib", "Tesseract.js", "Playwright"],
   art: "/media/github/velvetclip/hero.svg",
   period: "2026",
@@ -52,8 +52,9 @@ export const velvetclipProject: Project = {
     "Pages are statically generated with Next.js, with structured data and sitemaps for each tool.",
   ],
   testing: [
-    "The RC1 checkpoint recorded 83 passing unit/integration tests and 6 passing Playwright browser journeys.",
-    "The same checkpoint built 36 static routes: the home, pricing, privacy, security, and error pages plus one page per tool.",
+    "The 16 Nov 2026 master completion audit recorded 218/218 unit tests passing in 33 suites, run against real binary fixtures rather than mocks.",
+    "The same audit recorded 49/49 Playwright browser tests passing in headless Chromium across all 27 tools, including network-interception checks that no file bytes leave the browser.",
+    "The audited build compiled 45 routes: the static pages, including one page per tool, plus the serverless API endpoints.",
   ],
   results: [
     "27 tools are registered and wired to the shared runner.",
@@ -61,12 +62,12 @@ export const velvetclipProject: Project = {
     "Safety checks are shared across tools instead of re-implemented per tool.",
   ],
   metrics: [
-    { label: "Browser tools", value: "27", context: "PDF, image, document, and media tools registered in the RC1 build" },
-    { label: "Automated tests", value: "83 + 6", context: "Unit/integration tests and Playwright journeys passing at the RC1 checkpoint" },
-    { label: "Static routes", value: "36", context: "Statically built routes in the RC1 production build" },
+    { label: "Browser tools", value: "27", context: "PDF, image, document, and media tools registered and validated in Chromium in the 16 Nov 2026 completion audit" },
+    { label: "Automated tests", value: "218 + 49", context: "Unit tests (33 suites) and Playwright browser tests passing in the 16 Nov 2026 completion audit" },
+    { label: "Compiled routes", value: "45", context: "Static pages and API endpoints in the audited production build" },
   ],
   limitations: [
-    "The source repository is private; the evidence here is the live product and the recorded release checkpoint.",
+    "The source repository is private; the evidence here is the live product and the recorded completion audit.",
     "Very large files are limited by the memory available to the browser tab.",
     "Paid plans and checkout are not enabled on the public deployment.",
   ],
@@ -75,7 +76,7 @@ export const velvetclipProject: Project = {
     "One shared safety layer is easier to trust than per-tool checks.",
   ],
   nextIteration: "Publish per-tool performance measurements on large files and add fuzzing for the file-type and decompression checks.",
-  claimIds: ["velvetclip-rc1-tests", "velvetclip-tool-count"],
+  claimIds: ["velvetclip-completion-audit-tests", "velvetclip-tool-count"],
   seo: {
     title: "Velvetclip · Local-First Browser Utilities Case Study",
     description: "Velvetclip runs 27 PDF, image, document, and media tools in the browser with PDF.js, pdf-lib, and OCR, plus file-type checks, safe ZIP handling, and verified redaction.",
