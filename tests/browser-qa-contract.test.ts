@@ -7,11 +7,12 @@ const runner = readFileSync("scripts/browser-qa.mjs", "utf8");
 const matches = (source: string, pattern: RegExp, message: string) => assert.equal(pattern.test(source), true, message);
 const excludes = (source: string, pattern: RegExp, message: string) => assert.equal(pattern.test(source), false, message);
 
-test("browser audit covers eleven viewport sizes including short mobile and eight recruiter routes", () => {
+test("browser audit covers twelve viewport sizes including 320px and eight recruiter routes", () => {
   assert.equal(Array.isArray(qa.QA_VIEWPORTS), true, "viewport contract is not exported");
   assert.deepEqual(
     qa.QA_VIEWPORTS.map(({ width, height }) => [width, height]),
     [
+      [320, 720],
       [375, 667],
       [375, 812],
       [390, 844],
@@ -105,15 +106,17 @@ test("gallery audit scrolls lazy evidence into view and waits for image decode",
   assert.deepEqual(result, [{ src: "/media/evidence.webp", complete: true, decoded: true, naturalWidth: 1200 }]);
 });
 
-test("review screenshots have the six required stable names", () => {
+test("review screenshots include the narrow 320px stable capture", () => {
   assert.deepEqual(qa.REVIEW_SCREENSHOT_NAMES, [
     "desktop-hero",
     "desktop-project-world",
     "desktop-case-study",
     "mobile-hero",
+    "mobile-hero-320",
     "mobile-project-world",
     "contact-finale",
   ]);
+  assert.ok(runner.includes('await capture(cdp, outputDir, "mobile-hero-320");'), "the 320px screenshot was added to the manifest but is never captured");
   matches(runner, /async function positionProjectWorldForCapture[\s\S]*?window\.scrollTo/, "world captures do not have a stable card framing helper");
   assert.equal((runner.match(/await positionProjectWorldForCapture\(\)/g) ?? []).length, 2, "desktop and mobile world captures must both frame a project card");
   matches(runner, /await capture\(cdp, outputDir, "mobile-project-world"\)[\s\S]*await setViewport\(cdp, 1440, 900\)[\s\S]*await capture\(cdp, outputDir, "contact-finale"\)/, "contact finale is not captured at the desktop review viewport");

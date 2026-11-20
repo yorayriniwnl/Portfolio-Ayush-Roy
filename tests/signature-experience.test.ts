@@ -31,6 +31,10 @@ test("route loading and recovery remain accessible and do not disclose stack det
 test("the engineering sculpture is intentionally a light interactive SVG", () => {
   const scene = readFileSync("src/components/YorArtifact.tsx", "utf8");
   assert.match(scene, /<svg/);
+  assert.match(scene, /yor-artifact__module--a/);
+  assert.match(scene, /yor-artifact__module--b/);
+  assert.match(scene, /yor-artifact__module--c/);
+  assert.doesNotMatch(scene, /yor-artifact__orbit|<ellipse/);
   assert.match(scene, /onPointerMove=\{move\}/);
   assert.match(scene, /onPointerLeave=\{reset\}/);
   assert.match(scene, /aria-pressed=\{active === index\}/);
