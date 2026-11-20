@@ -8,8 +8,8 @@ export const avelryProject: Project = {
   title: "Avelry",
   shortTitle: "Avelry",
   kicker: "Privacy-focused social platform",
-  purpose: "A privacy-focused social platform with authenticated accounts, realtime messaging, audience controls, and operator safeguards, built and run as a live product at avelry.in.",
-  status: "Live product · private source",
+  purpose: "A privacy-focused social platform with authenticated accounts, realtime messaging, audience controls, and operator safeguards, built and run as a closed beta at avelry.in.",
+  status: "Closed beta · private source",
   role: "Founder · full-stack engineering",
   contribution: "I founded Avelry and lead its full-stack development: the React/TypeScript web app, Express REST/JSON APIs, Socket.IO realtime layer, PostgreSQL/Drizzle data model, Redis-backed operational services, and the emergency controls used to run it. Repository history includes other contributors, so subsystem ownership is not claimed line by line.",
   outcome: "A deployed social product whose identity, permission, realtime, and abuse-protection paths share one server-owned trust boundary, plus documented operator controls for degrading safely under load or attack.",
@@ -68,7 +68,7 @@ export const avelryProject: Project = {
     { label: "Protection levels", value: "4", context: "Normal, guarded, read-only, and offline modes with documented operator controls" },
   ],
   limitations: [
-    "The source repository is private; the evidence here is the live product and the recorded release review.",
+    "The source repository is private; the evidence here is the closed beta at avelry.in and the recorded release review.",
     "Release-review test totals describe exercised paths in one reviewed build, not uptime, scale, or a security certification.",
     "Native mobile apps are separate work and are not part of this case study.",
   ],
@@ -82,6 +82,6 @@ export const avelryProject: Project = {
   demoMode: "avelry",
   seo: {
     title: "Avelry · Privacy-Focused Social Platform Case Study",
-    description: "Avelry is a live privacy-focused social platform: React/TypeScript, Express, Socket.IO, PostgreSQL/Drizzle, Redis-backed abuse protection, four emergency modes, and idempotent spend safeguards.",
+    description: "Avelry is a privacy-focused social platform in closed beta: React/TypeScript, Express, Socket.IO, PostgreSQL/Drizzle, Redis-backed abuse protection, four emergency modes, and idempotent spend safeguards.",
   },
 };
