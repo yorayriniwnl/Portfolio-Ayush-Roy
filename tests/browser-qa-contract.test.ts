@@ -31,9 +31,9 @@ test("browser audit covers twelve viewport sizes including 320px and eight recru
     "/projects",
     "/projects/candidatex",
     "/projects/zenith",
-    "/projects/helios",
-    "/projects/ai-vs-real",
-    "/projects/talks",
+    "/projects/velvetclip",
+    "/projects/falsequiet",
+    "/projects/avelry",
     "/projects/portfolio",
   ]);
 });

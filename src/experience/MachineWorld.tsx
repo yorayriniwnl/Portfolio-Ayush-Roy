@@ -4,11 +4,11 @@ import * as THREE from "three/webgpu";
 import type { SceneQuality } from "../components/sceneQuality";
 import type { ExperienceState, ProjectId } from "./experience-state";
 import { MachineCore } from "./MachineCore";
-import { AiVsRealWorld } from "./worlds/AiVsRealWorld";
+import { AvelryWorld } from "./worlds/AvelryWorld";
 import { CandidateXWorld } from "./worlds/CandidateXWorld";
-import { HeliosWorld } from "./worlds/HeliosWorld";
+import { FalseQuietWorld } from "./worlds/FalseQuietWorld";
 import { PortfolioWorld } from "./worlds/PortfolioWorld";
-import { TalksWorld } from "./worlds/TalksWorld";
+import { VelvetclipWorld } from "./worlds/VelvetclipWorld";
 import { ZenithWorld } from "./worlds/ZenithWorld";
 import type { Point3, WorldProps } from "./worlds/shared";
 import { SIGNAL_DEEP } from "./palette";
@@ -16,18 +16,18 @@ import { SIGNAL_DEEP } from "./palette";
 const worlds: Record<ProjectId, ComponentType<WorldProps>> = {
   candidatex: CandidateXWorld,
   zenith: ZenithWorld,
-  helios: HeliosWorld,
-  "ai-vs-real": AiVsRealWorld,
-  talks: TalksWorld,
+  velvetclip: VelvetclipWorld,
+  falsequiet: FalseQuietWorld,
+  avelry: AvelryWorld,
   portfolio: PortfolioWorld,
 };
 
 const positions: Record<ProjectId, Point3> = {
   candidatex: [1.6, 0, -0.82],
   zenith: [0.8, 1.38, -0.92],
-  helios: [-0.8, 1.38, -0.92],
-  "ai-vs-real": [-1.6, 0, -0.82],
-  talks: [-0.8, -1.38, -0.92],
+  velvetclip: [-0.8, 1.38, -0.92],
+  falsequiet: [-1.6, 0, -0.82],
+  avelry: [-0.8, -1.38, -0.92],
   portfolio: [0.8, -1.38, -0.92],
 };
 

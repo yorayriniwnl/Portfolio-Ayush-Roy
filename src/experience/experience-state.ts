@@ -3,9 +3,9 @@ import type { SceneQuality } from "../components/sceneQuality";
 export const PROJECT_IDS = [
   "candidatex",
   "zenith",
-  "helios",
-  "ai-vs-real",
-  "talks",
+  "velvetclip",
+  "falsequiet",
+  "avelry",
   "portfolio",
 ] as const;
 

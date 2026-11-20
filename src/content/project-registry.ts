@@ -1,25 +1,32 @@
+import { avelryProject } from "./avelry";
 import { candidateXProject } from "./candidatex";
+import { falseQuietProject } from "./falsequiet";
 import { portfolioProject } from "./portfolio-project";
 import {
-  cvProjects as legacyCvProjects,
+  cvProjects as sharedCvProjects,
   legacyProjects,
   type Project,
 } from "./projects";
+import { velvetclipProject } from "./velvetclip";
 
 export const CANONICAL_PROJECT_SLUGS = [
   "portfolio",
-  "helios",
+  "velvetclip",
   "zenith",
-  "ai-vs-real",
-  "talks",
+  "falsequiet",
+  "avelry",
   "candidatex",
 ] as const;
 
-const nonPortfolioProjects = legacyCvProjects.filter((project) => project.slug !== "portfolio");
+const zenithProject = sharedCvProjects.find((project) => project.slug === "zenith");
+if (!zenithProject) throw new Error("Missing shared CV project zenith");
 
 export const cvProjects: readonly Project[] = [
   portfolioProject,
-  ...nonPortfolioProjects,
+  velvetclipProject,
+  zenithProject,
+  falseQuietProject,
+  avelryProject,
   candidateXProject,
 ];
 
@@ -28,10 +35,10 @@ export const allProjects: readonly Project[] = [...cvProjects, ...legacyProjects
 export const featuredProjects = cvProjects.filter((project) => project.visibility.featured);
 const recruiterDisplaySlugs = [
   "candidatex",
-  "talks",
-  "helios",
+  "avelry",
   "zenith",
-  "ai-vs-real",
+  "velvetclip",
+  "falsequiet",
   "portfolio",
 ] as const;
 

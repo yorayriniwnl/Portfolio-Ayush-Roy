@@ -15,7 +15,7 @@ export type ProjectMetric = {
   context: string;
 };
 
-export type ProjectDemoMode = "talks" | "helios" | "ai-vs-real" | "zenith";
+export type ProjectDemoMode = "avelry" | "helios" | "ai-vs-real" | "zenith";
 export type ProjectLinkAvailability = "verified" | "unavailable" | "blocked";
 
 export type Project = {
@@ -231,18 +231,18 @@ const zenith: Project = {
   slug: "zenith",
   aliases: ["yor-zenith"],
   index: "03",
-  title: "Yor Zenith",
+  title: "Zenith",
   kicker: "Solar planning / decision support",
   purpose: "An experimental solar decision-support experience connecting site and tariff inputs to visual scenarios and financial framing.",
   status: "Experimental · reachable at audit time",
-  role: "Interface direction · product experience",
-  contribution: "I contributed the interface direction and product experience: the sequence from site context to recommendation, scenario exploration, and financial framing.",
-  collaborators: "Nivedana: architecture and full-stack development. Ayush Roy: interface direction and product experience.",
+  role: "Co-founder · interface direction · product experience",
+  contribution: "I co-founded Zenith and led its interface direction and product experience: the sequence from site context to recommendation, scenario exploration, and financial framing.",
+  collaborators: "Nivedana: architecture and full-stack development. Ayush Roy: co-founder; interface direction and product experience.",
   outcome: "A product surface that makes rooftop potential, solar scenarios, and financial assumptions easier to inspect in sequence.",
-  evidenceScope: "Repository-described experimental project. The hosted URL was reachable during the portfolio audit; production readiness, installer operations, and investment suitability are not claimed.",
+  evidenceScope: "Repository-described experimental project. The hosted URL was reachable during the portfolio audit; production readiness, installer operations, and investment suitability are not claimed. Zenith began in Dec 2025 with email exchanges about teaming up and in-person work, before the repository was created on 28 Mar 2026, so the period and the co-founder role rest on my own account rather than on repository history.",
   technologies: ["Next.js", "TypeScript", "Three.js", "Recharts", "Motion"],
   art: "/media/github/yor-zenith/hero.svg",
-  period: "2026",
+  period: "Dec 2025–Oct 2026",
   links: {
     live: "https://zenith-xi-snowy.vercel.app",
     source: "https://github.com/yorayriniwnl/Yor-Zenith",
@@ -297,8 +297,8 @@ const zenith: Project = {
   claimIds: ["zenith-interface-attribution"],
   demoMode: "zenith",
   seo: {
-    title: "Yor Zenith · Solar Decision-Support Case Study",
-    description: "How Yor Zenith frames solar planning through site inputs, visualization, bounded scenarios, financial assumptions, and explicit collaborator attribution.",
+    title: "Zenith · Solar Decision-Support Case Study",
+    description: "How Zenith frames solar planning through site inputs, visualization, bounded scenarios, financial assumptions, and explicit collaborator attribution.",
   },
 };
 
@@ -377,79 +377,6 @@ const aiVsReal: Project = {
   },
 };
 
-const talks: Project = {
-  id: "talks",
-  slug: "talks",
-  aliases: ["yor-talks", "yor-talks-v2"],
-  index: "05",
-  title: "Yor Talks V2",
-  shortTitle: "Talks V2",
-  kicker: "Realtime social systems",
-  purpose: "A full-stack social product system built around authenticated conversations, durable persistence, and realtime message delivery.",
-  status: "Code-ready · deployment blocked",
-  role: "Full-stack product engineering",
-  contribution: "The case study frames the repository's current system boundaries, realtime permissions, persistence model, and readiness evidence. Repository history includes additional contributors; subsystem-level ownership should be read from the source.",
-  outcome: "A bounded beta path with local regression/build evidence and explicit production release gates.",
-  evidenceScope: "Repository readiness audit dated 31 Aug 2026. This is not a verified public service. The case study uses the repository's current React/Vite + Express/Socket.IO stack; older resume wording is not carried forward.",
-  technologies: ["React", "Vite", "Express 5", "Socket.IO", "PostgreSQL", "Drizzle", "Redis"],
-  art: "/media/github/yor-talks/hero.svg",
-  period: "2026",
-  links: { source: "https://github.com/yorayriniwnl/yor-talksv2" },
-  availability: { live: "blocked", source: "verified" },
-  visibility: { featured: true, portfolio: true, resume: true },
-  media: [
-    { src: "/media/github/yor-talks/architecture.svg", kind: "architecture", width: 1600, height: 650, label: "Repository architecture", alt: "Yor Talks architecture diagram showing client, Express, PostgreSQL, Redis, and gated providers", caption: "The repository's verified code path: one social surface with explicit boundaries.", sourceUrl: "https://github.com/yorayriniwnl/yor-talksv2/blob/3aad91ce46059bb47749a0d5598140cd8cb91099/assets/architecture.svg" },
-  ],
-  problem: "Social products become brittle when identity, audience controls, realtime state, and provider integrations are treated as isolated screens instead of one system.",
-  whyItMatters: "A person can lose trust in a social product through one unauthorized event, stale notification, or silently dropped message. The system has to keep identity, durable state, and realtime delivery aligned.",
-  constraints: [
-    "Realtime authorization must stay server-owned.",
-    "PostgreSQL and Redis have different durability responsibilities.",
-    "Provider credentials and hosted acceptance are unavailable for this portfolio.",
-  ],
-  workflow: "The core path keeps the React/Vite shell, Express authorization, durable PostgreSQL state, Socket.IO events, and Redis worker paths explicit so optional providers can fail closed.",
-  hardPart: "The difficult boundary is deciding what the browser may request versus what the server must prove. Treating Socket.IO as a second trusted API would make the happy path simpler and the failure path unsafe.",
-  decisions: [
-    { title: "Keep realtime gates server-owned", body: "Socket.IO events pass through authentication and authorization boundaries rather than becoming a second ungoverned API." },
-    { title: "Bound the beta honestly", body: "Provider-backed features remain gated until credentials and live acceptance checks exist. Local readiness is not presented as public deployment." },
-    { title: "Separate durable and ephemeral work", body: "PostgreSQL owns product state while Redis owns queues, notifications, and readiness-sensitive worker paths." },
-  ],
-  architecture: ["React + Vite client", "Express 5 REST + Socket.IO", "PostgreSQL + Drizzle", "Redis queues / workers", "Gated providers"],
-  implementation: [
-    "Authentication and authorization sit at the API and Socket.IO boundaries.",
-    "Conversations and messages use PostgreSQL/Drizzle for durable product state.",
-    "Redis carries transient queues and notification work without becoming the source of truth.",
-  ],
-  testing: [
-    "The repository readiness audit records 61/61 API tests, 17/17 root checks, and 17/17 Chromium E2E checks for the exercised paths.",
-    "Those passing local checks do not verify a public deployment, TLS, monitoring, provider credentials, or restore drills.",
-  ],
-  results: [
-    "The current repository exposes a coherent authentication → authorization → persistence → realtime flow.",
-    "Release gates remain explicit where live infrastructure evidence is missing.",
-  ],
-  metrics: [
-    { label: "API checks", value: "61/61", context: "Repository readiness audit; local exercised paths" },
-    { label: "Chromium E2E", value: "17/17", context: "Repository readiness audit; not public deployment evidence" },
-  ],
-  limitations: [
-    "Public deployment is not verified; the repository marks deployment as blocked.",
-    "Live provider credentials, TLS, monitoring, and restore checks remain release gates.",
-    "Local test totals are evidence of exercised paths, not a production-readiness guarantee.",
-  ],
-  lessons: [
-    "A realtime feature is only as trustworthy as its authorization path.",
-    "Readiness reports should describe what was actually exercised, not what a diagram implies.",
-  ],
-  nextIteration: "Run the full provider-backed acceptance path in a controlled preview, then add failure injection around reconnects, queue retries, and restore drills.",
-  claimIds: ["talks-realtime-stack", "talks-release-boundary"],
-  demoMode: "talks",
-  seo: {
-    title: "Yor Talks V2 · Realtime Social Systems Case Study",
-    description: "A current-stack case study of Yor Talks V2: React/Vite, Express, Socket.IO, PostgreSQL, Drizzle, Redis, authentication, and server-owned realtime permissions.",
-  },
-};
-
 const tokenUsage: Project = {
   id: "token-usage",
   slug: "token-usage",
@@ -494,11 +421,8 @@ const tokenUsage: Project = {
   },
 };
 
-export const CANONICAL_PROJECT_SLUGS = ["portfolio", "helios", "zenith", "ai-vs-real", "talks"] as const;
+// The registry composes these with the standalone project files into the six CV projects.
+export const cvProjects: readonly Project[] = [portfolio, zenith];
 
-export const cvProjects: readonly Project[] = [portfolio, helios, zenith, aiVsReal, talks];
-export const legacyProjects: readonly Project[] = [tokenUsage];
-export const allProjects: readonly Project[] = [...cvProjects, ...legacyProjects];
-
-// Kept as a compatibility export for older integrations. New public surfaces must use cvProjects.
-export const featuredProjects = cvProjects.filter((project) => project.visibility.featured);
+// Earlier projects kept as full case studies at /work/<slug>, outside the recruiter-facing set.
+export const legacyProjects: readonly Project[] = [helios, aiVsReal, tokenUsage];

@@ -7,7 +7,7 @@ import { ExperienceProvider } from "../src/experience/ExperienceProvider";
 import { recruiterProjects } from "../src/content/project-registry";
 import { projectLinkPath, projectPath, resolveProjectLink } from "../src/content/project-system";
 
-const expectedOrder = ["candidatex", "talks", "helios", "zenith", "ai-vs-real", "portfolio"] as const;
+const expectedOrder = ["candidatex", "avelry", "zenith", "velvetclip", "falsequiet", "portfolio"] as const;
 
 function renderIndex() {
   const providerProps = { initialPathname: "/projects" } as React.ComponentProps<typeof ExperienceProvider>;
@@ -40,8 +40,10 @@ test("case, source, and live actions use stable internal resolver paths", () => 
 
   for (const project of recruiterProjects) {
     const slug = project.slug as (typeof expectedOrder)[number];
-    const caseResolution = resolveProjectLink(slug, "source");
-    assert.equal(caseResolution.kind, "redirect");
+    assert.ok(
+      resolveProjectLink(slug, "source").kind === "redirect" || resolveProjectLink(slug, "live").kind === "redirect",
+      `${slug} needs a verified source or live link`,
+    );
     assert.ok(html.includes(`href="${projectPath(slug)}"`));
     assert.ok(html.includes(`aria-label="Open ${project.title} case study"`));
 

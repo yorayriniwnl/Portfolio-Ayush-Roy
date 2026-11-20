@@ -39,7 +39,8 @@ test("resume preserves identity, selection, education, internship, project evide
     assert.ok(html.includes(escapeHtml(project.title)), `resume is missing ${project.title}`);
     assert.ok(html.includes(escapeHtml(project.outcome)), `resume is missing ${project.slug} outcome`);
     assert.ok(html.includes(`href="/projects/${project.slug}"`));
-    assert.ok(html.includes(`href="/projects/${project.slug}/source"`));
+    assert.equal(html.includes(`href="/projects/${project.slug}/source"`), project.availability.source === "verified");
+    assert.equal(html.includes(`href="/projects/${project.slug}/live"`), project.availability.live === "verified");
   }
   assert.deepEqual(
     [...html.matchAll(/data-project-slug="([^"]+)"/g)].map((match) => match[1]),

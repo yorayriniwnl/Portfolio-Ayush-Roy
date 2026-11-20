@@ -18,17 +18,17 @@ export const QA_VIEWPORTS = [
   { width: 2560, height: 1440, label: "2560x1440" },
 ];
 
-export const QA_PROJECT_SLUGS = ["candidatex", "zenith", "helios", "ai-vs-real", "talks", "portfolio"];
+export const QA_PROJECT_SLUGS = ["candidatex", "zenith", "velvetclip", "falsequiet", "avelry", "portfolio"];
 
 export const QA_CORE_ROUTES = [
   { path: "/", label: "home", surface: "home", requiredHeading: "Software, thought through." },
   { path: "/projects", label: "project-index", surface: "project-index", requiredHeading: "Projects with receipts." },
   ...[
     ["candidatex", "CandidateX"],
-    ["zenith", "Yor Zenith"],
-    ["helios", "Yor Helios"],
-    ["ai-vs-real", "Yor AI vs. Real Image Detector"],
-    ["talks", "Yor Talks V2"],
+    ["zenith", "Zenith"],
+    ["velvetclip", "Velvetclip"],
+    ["falsequiet", "FalseQuiet"],
+    ["avelry", "Avelry"],
     ["portfolio", "Personal Developer Portfolio"],
   ].map(([slug, requiredHeading]) => ({ path: `/projects/${slug}`, label: `case-${slug}`, surface: "case-study", slug, requiredHeading })),
 ];
@@ -46,21 +46,23 @@ export const QA_RESOLVER_ROUTES = QA_PROJECT_SLUGS.flatMap((slug) => [
 export const QA_LEGACY_ROUTES = [
   ...[
     ["portfolio", "portfolio"],
-    ["helios", "helios"],
     ["candidatex", "candidatex"],
     ["cci", "candidatex"],
     ["candidate-capability-intelligence", "candidatex"],
     ["zenith", "zenith"],
     ["yor-zenith", "zenith"],
-    ["yor-helios", "helios"],
-    ["ai-vs-real", "ai-vs-real"],
-    ["texture-forensics", "ai-vs-real"],
-    ["yor-ai-vs-real-image", "ai-vs-real"],
-    ["talks", "talks"],
-    ["yor-talks", "talks"],
-    ["yor-talks-v2", "talks"],
+    ["velvetclip", "velvetclip"],
+    ["yor-tools", "velvetclip"],
+    ["falsequiet", "falsequiet"],
+    ["h-nids", "falsequiet"],
+    ["avelry", "avelry"],
+    ["talks", "avelry"],
+    ["yor-talks", "avelry"],
+    ["yor-talks-v2", "avelry"],
   ].map(([slug, canonical]) => ({ path: `/work/${slug}`, expectedLocation: `/projects/${canonical}` })),
   { path: "/work/token-usage", expectedStatus: 200, requiredText: "Token" },
+  { path: "/work/helios", expectedStatus: 200, requiredText: "Helios" },
+  { path: "/work/ai-vs-real", expectedStatus: 200, requiredText: "Texture" },
 ];
 
 export const REVIEW_SCREENSHOT_NAMES = [

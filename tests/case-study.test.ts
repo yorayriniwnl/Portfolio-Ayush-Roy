@@ -82,11 +82,12 @@ test("case-study demonstrations use DOM controls and no per-study canvas module"
     assert.doesNotMatch(html, /<canvas\b|data-renderer=/i);
     assert.ok(html.includes(`data-demo-project="${project.slug}"`));
 
-    if (project.demoMode === "talks") {
+    if (project.demoMode === "avelry") {
       assert.ok(html.includes("Send sample message"));
       assert.ok(html.includes('aria-pressed="true"'));
-      assert.ok(html.includes("Source / social/src/App.tsx"));
-      assert.ok(html.includes("e2e/core-social.spec.ts"));
+      assert.ok(html.includes("Source (private) / social/src/App.tsx"));
+      assert.ok(html.includes("Chromium end-to-end suite"));
+      assert.equal(html.includes("github.com/yorayriniwnl/avelry"), false);
     } else {
       assert.ok(html.includes('aria-pressed="true"'));
       assert.ok(html.includes('data-demo-choice="0"'));

@@ -98,7 +98,7 @@ if (candidateMetric("Paper benchmark") !== "28,800") throw new Error("CandidateX
 if (candidateMetric("Supplementary ablation") !== "4,800") throw new Error("CandidateX supplementary ablation provenance drifted");
 if (!candidateX.limitations.some((item) => /real-world hiring/i.test(item))) throw new Error("CandidateX real-world validation boundary missing");
 
-const detector = cvProjects.find((project) => project.slug === "ai-vs-real");
+const detector = legacyProjects.find((project) => project.slug === "ai-vs-real");
 const detectorClaim = claimRegistry.find((claim) => claim.id === "texture-holdout-accuracy" && claim.project === "ai-vs-real");
 const detectorMetric = detector?.metrics.find((metric) => metric.label === "Holdout accuracy");
 if (
@@ -110,9 +110,22 @@ if (
 ) {
   throw new Error("AI vs. Real holdout evidence boundary missing");
 }
-const talks = cvProjects.find((project) => project.slug === "talks");
-if (talks?.availability.live !== "blocked") throw new Error("Talks readiness boundary missing");
-if (!talks?.technologies.includes("Socket.IO") || !talks.technologies.includes("Redis")) throw new Error("Current Talks stack missing");
+const falseQuiet = cvProjects.find((project) => project.slug === "falsequiet");
+const falseQuietClaim = claimRegistry.find((claim) => claim.id === "falsequiet-heldout-ddos" && claim.project === "falsequiet");
+const falseQuietMetric = falseQuiet?.metrics.find((metric) => metric.label === "Held-out DDoS detection");
+if (
+  !falseQuietClaim ||
+  falseQuietMetric?.value.replace(/%$/, "") !== falseQuietClaim.value ||
+  !falseQuiet.limitations.some((item) => /not proof of real-world zero-day/i.test(item))
+) {
+  throw new Error("FalseQuiet held-out evidence boundary missing");
+}
+const avelry = cvProjects.find((project) => project.slug === "avelry");
+if (avelry?.availability.source === "verified") throw new Error("Avelry source is private and must not be linked");
+if (!avelry?.technologies.includes("Socket.IO") || !avelry.technologies.includes("Redis")) throw new Error("Current Avelry stack missing");
+if (!avelry.aliases.includes("talks")) throw new Error("Avelry must keep old project URLs redirecting");
+const velvetclip = cvProjects.find((project) => project.slug === "velvetclip");
+if (velvetclip?.availability.source === "verified") throw new Error("Velvetclip source is private and must not be linked");
 const zenith = cvProjects.find((project) => project.slug === "zenith");
 if (!zenith?.collaborators?.includes("Nivedana")) throw new Error("Zenith collaborator attribution missing");
 

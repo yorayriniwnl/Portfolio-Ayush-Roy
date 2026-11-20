@@ -13,14 +13,14 @@ const HIGHLIGHTS = [
     caption: "synthetic candidate-role evaluations reported in the submitted paper, across 16 seeds and six target roles",
   },
   {
-    slug: "talks",
-    metric: "API checks",
-    caption: "API checks passing in the repository readiness audit, alongside 17/17 Chromium end-to-end tests. Local runs, not production evidence.",
+    slug: "avelry",
+    metric: "API tests",
+    caption: "API tests passing in Avelry's 4 Nov 2026 web-release review, alongside 345 Chromium end-to-end tests. One reviewed build, not uptime evidence.",
   },
   {
-    slug: "ai-vs-real",
-    metric: "Holdout accuracy",
-    caption: "accuracy on the repository's 107-image holdout, from 17 handcrafted texture features and an SVM",
+    slug: "velvetclip",
+    metric: "Browser tools",
+    caption: "PDF, image, document, and media tools that process files on the user's device instead of uploading them",
   },
 ] as const;
 

@@ -5,9 +5,9 @@ import { createExperienceState, experienceReducer } from "../src/experience/expe
 const projectSlugs = [
   "candidatex",
   "zenith",
-  "helios",
-  "ai-vs-real",
-  "talks",
+  "velvetclip",
+  "falsequiet",
+  "avelry",
   "portfolio",
 ] as const;
 
@@ -91,7 +91,7 @@ test("project preview can be selected and cleared independently of the route pro
 });
 
 test("demo controls update their shared deterministic state", () => {
-  const initial = createExperienceState("/projects/helios");
+  const initial = createExperienceState("/projects/velvetclip");
   const chosen = experienceReducer(initial, { type: "demo-choice", choice: 1 });
   const nodeSelected = experienceReducer(chosen, { type: "demo-node", index: 4 });
   const runOnce = experienceReducer(nodeSelected, { type: "demo-run" });
@@ -124,11 +124,11 @@ test("eligible route changes preserve the shared scene while discarding stale ro
     status: "ready",
   });
   const selected = experienceReducer(initial, { type: "demo-node", index: 5 });
-  const routed = experienceReducer(selected, { type: "route", pathname: "/projects/talks" });
+  const routed = experienceReducer(selected, { type: "route", pathname: "/projects/avelry" });
 
-  assert.equal(routed.pathname, "/projects/talks");
+  assert.equal(routed.pathname, "/projects/avelry");
   assert.equal(routed.surface, "case-study");
-  assert.equal(routed.projectId, "talks");
+  assert.equal(routed.projectId, "avelry");
   assert.equal(routed.sceneStatus, "ready");
   assert.deepEqual(routed.demo, { choice: 0, selectedNode: 0, run: 0 });
 
