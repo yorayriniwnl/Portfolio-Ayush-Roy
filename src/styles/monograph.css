@@ -82,11 +82,7 @@ body::before { opacity: .06; }
 .home .yor-artifact__stage { border: 0; background: transparent; perspective: 1200px; overflow: visible; aspect-ratio: 1/1; }
 .home .yor-artifact__stage::before, .home .yor-artifact__stage::after { display: none; }
 .home .yor-artifact__grid { background-image: none; }
-.home .yor-artifact__halo { inset: 5%; filter: blur(62px); background: radial-gradient(circle,rgba(185,181,165,.08),transparent 72%); }
-.home .yor-artifact__axis { color: #77766e; font-size: 8px; letter-spacing: .23em; }
-.home .yor-artifact__axis--top { top: 6%; }
-.home .yor-artifact__axis--bottom { bottom: 7%; }
-.home .yor-artifact__point { display: none; }
+/* The hero keeps the Obsidian Pearl sculpture: its halo, axis labels and callouts use the base home.css styles. */
 .home .yor-artifact__sculpture { filter: drop-shadow(0 26px 42px rgba(0,0,0,.25)); transition: transform 450ms cubic-bezier(.2,.7,.2,1); }
 .home .yor-artifact__module { transition: opacity .6s ease; }
 .home .yor-artifact__stage[data-mode="0"] .yor-artifact__module--b,
