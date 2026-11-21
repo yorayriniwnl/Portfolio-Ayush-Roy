@@ -13,7 +13,7 @@ export const avelryProject: Project = {
   role: "Founder · full-stack engineering",
   contribution: "I founded Avelry and lead its full-stack development: the React/TypeScript web app, Express REST/JSON APIs, Socket.IO realtime layer, PostgreSQL/Drizzle data model, Redis-backed operational services, and the emergency controls used to run it. Repository history includes other contributors, so subsystem ownership is not claimed line by line.",
   outcome: "A deployed social product whose identity, permission, realtime, and abuse-protection paths share one server-owned trust boundary, plus documented operator controls for degrading safely under load or attack.",
-  evidenceScope: "Avelry was founded on 13 Apr 2026 as Yor Talks; its public prototype repository, github.com/yorayriniwnl/Yor-Talks, was created that day. Avelry is live at avelry.in; its source repository is private, so the links on this page go to the product rather than the code. The test totals come from the 4 Nov 2026 web-release review: 855 standard API cases and 345 default Chromium end-to-end tests passed against the reviewed build. Those are release-review results, not uptime, scale, or security-certification claims.",
+  evidenceScope: "Avelry was founded on 13 Apr 2026 as Yor Talks; its public prototype repository, github.com/yorayriniwnl/Yor-Talks, was created that day. Avelry runs as a closed beta at avelry.in; its source repository is private, so the links on this page go to the product rather than the code. The test totals come from the 4 Nov 2026 web-release review: 855 standard API cases and 345 default Chromium end-to-end tests passed against the reviewed build. Those are release-review results, not uptime, scale, or security-certification claims.",
   technologies: ["React", "TypeScript", "Express", "Socket.IO", "PostgreSQL", "Drizzle", "Redis"],
   art: "/media/github/avelry/hero.svg",
   period: "Apr 2026–present",
@@ -58,7 +58,7 @@ export const avelryProject: Project = {
     "Test suites cover socket security, rate-limit scopes, spend-guard and spend-ledger behavior, and suspended-account rights.",
   ],
   results: [
-    "Avelry is deployed and publicly reachable at avelry.in.",
+    "Avelry is deployed at avelry.in as a closed beta.",
     "Emergency controls are documented as an operator runbook rather than left as tribal knowledge.",
     "Provider spend is capped by an idempotent ledger instead of best-effort counters.",
   ],

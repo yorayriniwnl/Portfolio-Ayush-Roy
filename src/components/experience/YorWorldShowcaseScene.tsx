@@ -24,7 +24,9 @@ export function clearStudioAssetCache() {
 function softwareRendering(renderer: THREE.WebGLRenderer) {
   const context = renderer.getContext();
   const extension = context.getExtension("WEBGL_debug_renderer_info");
-  return Boolean(extension && /swiftshader|llvmpipe|software rasterizer/i.test(String(context.getParameter(extension.UNMASKED_RENDERER_WEBGL))));
+  const unmasked = extension ? String(context.getParameter(extension.UNMASKED_RENDERER_WEBGL) ?? "") : "";
+  const fallback = String(context.getParameter(context.RENDERER) ?? "");
+  return /swiftshader|llvmpipe|software rasterizer|subzero/i.test(`${unmasked} ${fallback}`);
 }
 
 export type StudioCameraReading = { x: number; y: number; z: number; distance: number };
@@ -115,13 +117,21 @@ function CameraControls({ resetSequence, onCameraChange }: Pick<YorWorldShowcase
   return null;
 }
 
-function MaterialsAndBloom({ onReady }: Pick<YorWorldShowcaseSceneProps, "onReady">) {
+function MaterialsAndBloom({ lightsOn, onReady }: Pick<YorWorldShowcaseSceneProps, "lightsOn" | "onReady">) {
   const { gl, scene, camera, size } = useThree();
   const composer = useRef<EffectComposer | null>(null);
   const reportedReady = useRef(false);
-  const simpleRendering = size.width <= 760 || softwareRendering(gl);
+  const lastRenderAt = useRef(0);
+  const lastViewKey = useRef("");
+  const isSoftware = useMemo(() => softwareRendering(gl), [gl]);
+  const simpleRendering = size.width <= 760 || isSoftware;
 
   useEffect(() => {
+    if (isSoftware) {
+      gl.shadowMap.type = THREE.BasicShadowMap;
+      gl.shadowMap.autoUpdate = false;
+      gl.shadowMap.needsUpdate = true;
+    }
     const room = new RoomEnvironment();
     const generator = new THREE.PMREMGenerator(gl);
     const environment = generator.fromScene(room, 0.04);
@@ -159,11 +169,21 @@ function MaterialsAndBloom({ onReady }: Pick<YorWorldShowcaseSceneProps, "onRead
       output?.dispose();
       effects?.dispose();
     };
-  }, [gl, scene, camera, simpleRendering]);
+  }, [gl, scene, camera, simpleRendering, isSoftware]);
 
   useEffect(() => { composer.current?.setSize(size.width, size.height); }, [size.width, size.height]);
 
   useFrame((_, delta) => {
+    // Pace idle breathing frames on CPU software rasterizers (e.g. SwiftShader)
+    // so keyboard, fullscreen and control events are never starved while camera
+    // movement, resize and lighting changes still render immediately.
+    if (isSoftware) {
+      const viewKey = `${camera.position.x.toFixed(4)},${camera.position.y.toFixed(4)},${camera.position.z.toFixed(4)},${size.width}x${size.height},${lightsOn}`;
+      const now = performance.now();
+      if (reportedReady.current && viewKey === lastViewKey.current && now - lastRenderAt.current < 250) return;
+      lastViewKey.current = viewKey;
+      lastRenderAt.current = now;
+    }
     if (composer.current) composer.current.render(delta);
     else gl.render(scene, camera);
     const host = gl.domElement.closest<HTMLElement>(".yor-studio");
@@ -178,6 +198,7 @@ function MaterialsAndBloom({ onReady }: Pick<YorWorldShowcaseSceneProps, "onRead
 }
 
 function NightStudy({ paused, lightsOn }: Pick<YorWorldShowcaseSceneProps, "paused" | "lightsOn">) {
+  const gl = useThree((state) => state.gl);
   const [study, operator, husky] = useLoader(GLTFLoader, MODEL_URLS);
   // Loader resources stay cached; each viewer owns independent transforms.
   const models = useMemo(() => ({
@@ -213,7 +234,8 @@ function NightStudy({ paused, lightsOn }: Pick<YorWorldShowcaseSceneProps, "paus
         object.receiveShadow = true;
       });
     }
-  }, [models]);
+    if (!gl.shadowMap.autoUpdate) gl.shadowMap.needsUpdate = true;
+  }, [gl, models, lightsOn]);
 
   useFrame((_, delta) => {
     if (paused) return;
@@ -267,16 +289,22 @@ export function YorWorldShowcaseScene({ lightsOn, paused, resetSequence, onReady
       frameloop={paused ? "demand" : "always"} dpr={[1, getScenePixelRatio(1.5)]} shadows
       gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
+        const software = softwareRendering(gl);
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 0.95;
         gl.outputColorSpace = THREE.SRGBColorSpace;
-        gl.shadowMap.type = THREE.PCFSoftShadowMap;
+        gl.shadowMap.type = software ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+        if (software) {
+          gl.setPixelRatio(1);
+          gl.shadowMap.autoUpdate = false;
+          gl.shadowMap.needsUpdate = true;
+        }
       }}>
       <CameraControls resetSequence={resetSequence} onCameraChange={onCameraChange} />
       <ContextHealth onError={onError} />
       <Suspense fallback={null}>
         <NightStudy lightsOn={lightsOn} paused={paused} />
-        <MaterialsAndBloom onReady={onReady} />
+        <MaterialsAndBloom lightsOn={lightsOn} onReady={onReady} />
       </Suspense>
     </Canvas>
   );
