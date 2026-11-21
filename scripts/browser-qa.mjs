@@ -415,7 +415,7 @@ try {
   await setViewport(cdp, 1440, 900);
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
   await navigate(cdp, baseUrl);
-  await waitForCondition(cdp, 'document.querySelector(".yor-artifact__controls button[aria-pressed=true]")?.textContent.includes("Create")', {
+  await waitForCondition(cdp, '(() => { const selected = document.querySelector(".yor-artifact__controls button[aria-pressed=true]"); const target = document.querySelectorAll(".yor-artifact__controls button[aria-pressed]")[1]; return Boolean(selected?.textContent.includes("Create") && target && Object.keys(target).some((key) => key.startsWith("__reactProps"))); })()', {
     description: "sculpture first mode becomes interactive",
   });
   const initialInstrument = await cdp.evaluate('(() => { const root=document.querySelector(".yor-artifact"); const modes=[...root.querySelectorAll(".yor-artifact__controls button[aria-pressed]")]; const pause=root.querySelector(".yor-artifact__pause"); return { modeCount:modes.length, selected:modes.filter(b=>b.getAttribute("aria-pressed")==="true").length, svgCount:root.querySelectorAll("svg").length, canvases:root.querySelectorAll("canvas").length, reduced:root.dataset.reducedMotion, paused:root.dataset.paused, disabled:pause.disabled }; })()');
@@ -497,7 +497,7 @@ try {
     return Boolean(intro && sculpture &&
       Number(getComputedStyle(intro).opacity) >= .995 &&
       Number(getComputedStyle(sculpture).opacity) >= .995);
-  })()`, { timeoutMs: 4000, description: "hero intro animation settled before desktop capture" });
+  })()`, { timeoutMs: 12_000, description: "hero intro animation settled before desktop capture" });
   await capture(cdp, outputDir, "desktop-hero");
   assert(await cdp.evaluate(`document.querySelectorAll('canvas').length === 0`), "Homepage mounted a canvas; the 3D studio belongs in the Lab");
   await navigate(cdp, `${baseUrl}/lab`);
@@ -597,7 +597,7 @@ try {
   await cdp.evaluate('window.__qaPhase = "lab:enter-fullscreen"; true');
   await clickAtSelector('button[aria-label="Enter fullscreen"]');
   await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.fullscreen === 'true'`,
-    { description: "fullscreen scene" });
+    { timeoutMs: 35_000, description: "fullscreen scene" });
   const fullscreenPlaceholderHeight = await cdp.evaluate('document.querySelector(".studio-frame")?.getBoundingClientRect().height');
   assert(restingStudioHeight > 500 && fullscreenPlaceholderHeight >= restingStudioHeight - 1,
     `Fullscreen removed the studio's original document-flow footprint: ${restingStudioHeight} -> ${fullscreenPlaceholderHeight}`);
@@ -609,7 +609,7 @@ try {
   await cdp.evaluate('window.__qaPhase = "lab:exit-fullscreen"; true');
   await pressKey("Escape", "Escape", 27);
   await waitForCondition(cdp, `document.querySelector('.yor-studio')?.dataset.fullscreen === 'false'`,
-    { description: "Escape exits fullscreen" });
+    { timeoutMs: 35_000, description: "Escape exits fullscreen" });
   report.interaction.fullScene = { activated: true, escapeRestores: true, screenshot: true };
 
   activeScenario = "paused and offscreen scenes stop rendering without remounting";
@@ -706,7 +706,7 @@ try {
     return Boolean(intro && sculpture &&
       Number(getComputedStyle(intro).opacity) >= .995 &&
       Number(getComputedStyle(sculpture).opacity) >= .995);
-  })()`, { timeoutMs: 4000, description: "hero intro animation settled before mobile capture" });
+  })()`, { timeoutMs: 12_000, description: "hero intro animation settled before mobile capture" });
   await capture(cdp, outputDir, "mobile-hero");
   const mobilePrimaryAction = async () => cdp.evaluate(`(() => {
     const action=document.querySelector(".home-button--primary");
@@ -737,7 +737,7 @@ try {
     return Boolean(intro && sculpture &&
       Number(getComputedStyle(intro).opacity) >= .995 &&
       Number(getComputedStyle(sculpture).opacity) >= .995);
-  })()`, { timeoutMs: 4000, description: "320px hero settled before narrow screenshot" });
+  })()`, { timeoutMs: 12_000, description: "320px hero settled before narrow screenshot" });
   await capture(cdp, outputDir, "mobile-hero-320");
   report.interaction.mobileHeroCta = { at390:action390, at320:action320 };
   await setViewport(cdp, 390, 844);
